@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>XDR Engine Suite - SENTINEL XDR</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&amp;family=Space+Mono:ital,wght@0,400;0,700;1,400&amp;family=Inter:wght@400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-tertiary-container": "#005d2d",
+                        "secondary-container": "#6f00be",
+                        "primary-fixed-dim": "#3cd7ff",
+                        "on-background": "#d9e3f7",
+                        "on-surface-variant": "#bbc9cf",
+                        "on-primary-fixed": "#001f27",
+                        "tertiary": "#00ff88",
+                        "surface-container-lowest": "#050e1c",
+                        "surface": "#0a1422",
+                        "secondary-fixed": "#f0dbff",
+                        "tertiary-container": "#00df76",
+                        "outline": "#859398",
+                        "surface-container-low": "#121c2a",
+                        "on-tertiary": "#003919",
+                        "secondary-fixed-dim": "#ddb7ff",
+                        "on-primary": "#003642",
+                        "error": "#ffb4ab",
+                        "outline-variant": "#3c494e",
+                        "inverse-surface": "#d9e3f7",
+                        "primary-container": "#00d4ff",
+                        "on-error": "#690005",
+                        "on-secondary-container": "#d6a9ff",
+                        "on-primary-container": "#00586b",
+                        "inverse-on-surface": "#273140",
+                        "surface-container-high": "#212a39",
+                        "tertiary-fixed": "#60ff99",
+                        "surface-container-highest": "#2c3545",
+                        "surface-variant": "#2c3545",
+                        "background": "#0a1422",
+                        "surface-container": "#16202f",
+                        "surface-bright": "#303a49",
+                        "on-secondary": "#490080",
+                        "tertiary-fixed-dim": "#00e479",
+                        "surface-tint": "#3cd7ff",
+                        "on-secondary-fixed-variant": "#6900b3",
+                        "inverse-primary": "#00677e",
+                        "on-primary-fixed-variant": "#004e5f",
+                        "surface-dim": "#0a1422",
+                        "on-tertiary-fixed-variant": "#005228",
+                        "on-surface": "#d9e3f7",
+                        "secondary": "#ddb7ff",
+                        "primary-fixed": "#b4ebff",
+                        "primary": "#a8e8ff",
+                        "on-tertiary-fixed": "#00210c",
+                        "on-secondary-fixed": "#2c0051",
+                        "on-error-container": "#ffdad6",
+                        "error-container": "#93000a"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "margin-mobile": "16px",
+                        "unit": "4px",
+                        "margin-desktop": "32px",
+                        "panel-padding": "24px",
+                        "gutter": "16px"
+                    },
+                    "fontFamily": {
+                        "headline-md": ["Space Grotesk", "sans-serif"],
+                        "data-terminal": ["Space Mono", "monospace"],
+                        "label-caps": ["Space Mono", "monospace"],
+                        "body-main": ["Inter", "sans-serif"],
+                        "headline-md-mobile": ["Space Grotesk", "sans-serif"],
+                        "display-lg": ["Space Grotesk", "sans-serif"]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body {
+            background-color: theme('colors.background');
+            color: theme('colors.on-background');
+            background-image: radial-gradient(circle at center, rgba(60,215,255,0.05) 0%, transparent 70%);
+            perspective: 1000px;
+        }
+        /* Custom Scrollbar for Terminal aesthetic */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: theme('colors.surface');
+        }
+        ::-webkit-scrollbar-thumb {
+            background: theme('colors.outline-variant');
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: theme('colors.primary');
+        }
+        .hud-scanline {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: theme('colors.primary');
+            opacity: 0.5;
+            animation: scan 4s linear infinite;
+        }
+        @keyframes scan {
+            0% { top: 0; }
+            100% { top: 100%; }
+        }
+        .blinking-cursor::after {
+            content: '_';
+            animation: blink 1s step-end infinite;
+        }
+        @keyframes blink {
+            50% { opacity: 0; }
+        }
+        .glass-panel {
+            background: rgba(18, 28, 42, 0.7); /* surface-container-low */
+            backdrop-filter: blur(12px);
+            border: 1px solid theme('colors.outline-variant');
+            transform-style: preserve-3d;
+            transition: transform 0.1s ease-out;
+        }
+        
+        /* 3D and Motion Effects */
+        .module-card {
+            transform: translateZ(0);
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.3s ease;
+            will-change: transform;
+        }
+        .module-card:hover {
+            z-index: 10;
+        }
+        
+        /* Entrance Animation (Neural Reconstruction) */
+        @keyframes reconstruct {
+            0% { opacity: 0; transform: translateY(50px) scale(0.9) rotateX(-20deg); filter: blur(10px); }
+            100% { opacity: 1; transform: translateY(0) scale(1) rotateX(0); filter: blur(0); }
+        }
+        .reconstruct-anim {
+            animation: reconstruct 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+            opacity: 0;
+        }
+        .delay-1 { animation-delay: 0.1s; }
+        .delay-2 { animation-delay: 0.2s; }
+        .delay-3 { animation-delay: 0.3s; }
+        .delay-4 { animation-delay: 0.4s; }
+
+        /* Heartbeat Glows */
+        @keyframes heartbeatGlow {
+            0%, 100% { box-shadow: 0 0 5px currentColor; }
+            50% { box-shadow: 0 0 20px currentColor, 0 0 30px currentColor; }
+        }
+        .glow-heartbeat {
+            animation: heartbeatGlow 2s ease-in-out infinite;
+        }
+        
+        /* Background Parallax */
+        .parallax-bg {
+            position: fixed;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            z-index: -2;
+            background-image: 
+                linear-gradient(rgba(10, 20, 34, 0.9) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(10, 20, 34, 0.9) 1px, transparent 1px);
+            background-size: 50px 50px;
+            transform: translateZ(-500px) scale(2);
+            transition: transform 0.1s ease-out;
+            pointer-events: none;
+        }
+        .parallax-layer-2 {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: radial-gradient(circle at 50% 50%, rgba(60,215,255,0.03) 0%, transparent 60%);
+            transform: translateZ(-200px) scale(1.5);
+            transition: transform 0.1s ease-out;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body class="flex bg-background text-on-background font-body-main text-body-main min-h-screen relative overflow-hidden">
+<!-- Parallax Background Layers -->
+<div class="parallax-bg" id="parallax-bg-1"></div>
+<div class="parallax-layer-2" id="parallax-bg-2"></div>
+<!-- Hex Grid Background Overlay -->
+<div class="absolute inset-0 pointer-events-none opacity-10" style="background-image: url('data:image/svg+xml,%3Csvg width=\'24\' height=\'40\' viewBox=\'0 0 24 40\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cpath d=\'M0 10l12-6.928L24 10v13.856L12 30.785 0 23.856V10zm12 20.785l12-6.928V10l-12-6.928L0 10v13.856l12 6.928zM12 4.619l10.392 6v12L12 28.619l-10.392-6v-12L12 4.619z\' fill=\'%233cd7ff\' fill-opacity=\'1\' fill-rule=\'evenodd\'/%3E%3C/svg%3E'); z-index: -1;"></div>
+<!-- SideNavBar -->
+<nav class="bg-surface-container-low/90 backdrop-blur-xl h-full w-64 border-r border-outline-variant fixed left-0 top-16 flex flex-col pt-unit transition-all duration-300 ease-in-out z-40 hidden md:flex">
+<!-- Header -->
+<div class="px-4 py-6 border-b border-outline-variant mb-4">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 flex items-center justify-center">
+<img alt="Sentinel Compact" class="w-8 h-8 object-contain" src="https://lh3.googleusercontent.com/aida/AP1WRLvA5zXchZcdJCmvN4DdP_mFishHxJQlu5AgiJX_UjziLKyvjhVmStcL_R-m_qoaTnbXnpisAx_ocnoBB5gIt8u2UEZL7YZn9YxwGn6fqWK62HVj83jrWXY4huaoeFMfeJUbnSvq9i8Ga1ZIRHDjxV0jX1ODagfZOS1SL96fvI0bKul74blHP4dZm5rJ69E2SC9JBu6leHq5T87qI5AEmSCFZO0YJBo-OfSq1sR_D_BoQWCDtXY1hks3qw"/>
+</div>
+<div>
+<div class="font-label-caps text-label-caps text-primary">OP-UNIT-01</div>
+<div class="font-data-terminal text-data-terminal text-on-surface-variant text-[10px]">CLEARANCE: OMEGA</div>
+</div>
+</div>
+</div>
+<!-- Navigation Links -->
+<div class="flex-1 space-y-1"><a class="flex items-center gap-3 text-on-surface-variant px-4 py-3 hover:bg-surface-variant/50 hover:text-tertiary font-label-caps text-label-caps group transition-colors" href="#">
+<span class="material-symbols-outlined text-[18px]">dashboard</span>
+    Command Center
+</a>
+<a class="flex items-center gap-3 text-on-surface-variant px-4 py-3 hover:bg-surface-variant/50 hover:text-tertiary font-label-caps text-label-caps group transition-colors" href="#">
+<span class="material-symbols-outlined text-[18px]">settings_input_component</span>
+    Control Panel
+</a>
+<a class="flex items-center gap-3 text-on-surface-variant px-4 py-3 hover:bg-surface-variant/50 hover:text-tertiary font-label-caps text-label-caps group transition-colors" href="#">
+<span class="material-symbols-outlined text-[18px]">psychology</span>
+    ARIA Copilot
+</a>
+<a class="flex items-center gap-3 bg-primary-container/20 text-primary border-l-4 border-primary px-4 py-3 font-label-caps text-label-caps transition-colors" href="#">
+<span class="material-symbols-outlined text-[18px]" style="font-variation-settings: 'FILL' 1;">memory</span>
+    XDR Engines
+</a>
+<a class="flex items-center gap-3 text-on-surface-variant px-4 py-3 hover:bg-surface-variant/50 hover:text-tertiary font-label-caps text-label-caps group transition-colors" href="#">
+<span class="material-symbols-outlined text-[18px]">biotech</span>
+    Threat Intelligence
+</a>
+<a class="flex items-center gap-3 text-on-surface-variant px-4 py-3 hover:bg-surface-variant/50 hover:text-tertiary font-label-caps text-label-caps group transition-colors" href="#">
+<span class="material-symbols-outlined text-[18px]">security</span>
+    MACE Chains
+</a>
+<a class="flex items-center gap-3 text-on-surface-variant px-4 py-3 hover:bg-surface-variant/50 hover:text-tertiary font-label-caps text-label-caps group transition-colors" href="#">
+<span class="material-symbols-outlined text-[18px]">notifications_active</span>
+    Live Alerts
+</a></div>
+<!-- Footer Links -->
+<div class="mt-auto border-t border-outline-variant pt-2 pb-4 space-y-1"><a class="flex items-center gap-3 text-on-surface-variant px-4 py-3 hover:bg-surface-variant/50 hover:text-tertiary font-label-caps text-label-caps group transition-colors" href="#">
+<span class="material-symbols-outlined text-[18px]">settings</span>
+    Settings
+</a>
+<a class="flex items-center gap-3 text-on-surface-variant px-4 py-3 hover:bg-surface-variant/50 hover:text-tertiary font-label-caps text-label-caps group transition-colors" href="#">
+<span class="material-symbols-outlined text-[18px]">desktop_windows</span>
+    Legacy UI
+</a>
+<div class="px-4 mt-4">
+<button class="w-full bg-transparent border border-primary text-primary font-data-terminal text-data-terminal py-2 px-4 hover:bg-primary/10 transition-colors shadow-[0_0_10px_rgba(60,215,255,0.2)] hover:shadow-[0_0_20px_rgba(60,215,255,0.4)]">
+        [ INITIATE SCAN ]
+    </button>
+</div></div>
+</nav>
+<!-- Main Content Canvas -->
+<main class="flex-1 flex flex-col md:ml-64 mr-0 xl:mr-80 min-h-screen pt-16 relative z-10" id="main-content">
+<!-- TopNavBar -->
+<header class="bg-surface/80 backdrop-blur-md flex justify-between items-center px-margin-desktop w-full fixed top-0 left-0 z-50 h-16 border-b border-outline-variant shadow-[0_0_15px_rgba(60,215,255,0.1)]">
+<!-- Brand -->
+<div class="flex items-center gap-4">
+<!-- Hamburger for mobile -->
+<button class="md:hidden text-on-surface-variant hover:text-primary">
+<span class="material-symbols-outlined">menu</span>
+</button>
+<div class="flex items-center gap-3">
+<img alt="SENTINEL XDR Logo" class="w-10 h-10 object-contain shadow-[0_0_15px_rgba(60,215,255,0.4)]" src="https://lh3.googleusercontent.com/aida/AP1WRLuNfmBq8DMaRct6iCMXC29J1TMKjYdnZ50mhbfWOIMBrvdQe_Exn41Q8_VrmVV3uQtLXA5ppoEFA-h9IukLqm9i33fmv8jVn3UoOnwwEE142os7uxaZ06BKjZJcxwCJBF9zKMpo5Mg1daiH6VzCWcmVz-NdPwNWV87ikvidnSo_FiqgiKK3_XtQ9lHREkbOA34JD9jVKZA99brZuZaHx8u_XiDmQdvmpqmCNz7_vHgS06QXIpNSgtrGWQ"/>
+<div class="font-display-lg text-headline-md tracking-widest text-primary font-bold">
+        SENTINEL XDR
+    </div>
+</div>
+</div>
+<!-- Top Nav Links (Hidden on small screens) -->
+<div class="hidden lg:flex items-center gap-6">
+<a class="text-on-surface-variant font-label-caps text-label-caps hover:text-tertiary transition-colors duration-200 cursor-pointer active:scale-95 flex items-center gap-2" href="#">
+<span class="w-2 h-2 rounded-full bg-tertiary animate-pulse"></span> API: ONLINE
+                </a>
+<a class="text-on-surface-variant font-label-caps text-label-caps hover:text-tertiary transition-colors duration-200 cursor-pointer active:scale-95 flex items-center gap-2" href="#">
+<span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span> DB: SYNCED
+                </a>
+<a class="text-on-surface-variant font-label-caps text-label-caps hover:text-tertiary transition-colors duration-200 cursor-pointer active:scale-95 flex items-center gap-2" href="#">
+<span class="w-2 h-2 rounded-full bg-secondary animate-pulse"></span> LLM: ACTIVE
+                </a>
+<a class="text-on-surface-variant font-label-caps text-label-caps hover:text-tertiary transition-colors duration-200 cursor-pointer active:scale-95 flex items-center gap-2" href="#">
+<span class="w-2 h-2 rounded-full bg-error animate-pulse"></span> SNIFFER: LIVE
+                </a>
+</div>
+<!-- Trailing Actions & Search -->
+<div class="flex items-center gap-4">
+<div class="hidden sm:flex bg-surface-container border border-outline-variant px-3 py-1 items-center gap-2 focus-within:border-primary transition-colors">
+<span class="material-symbols-outlined text-on-surface-variant text-[18px]">search</span>
+<input class="bg-transparent border-none text-data-terminal font-data-terminal text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:ring-0 w-32 md:w-48" placeholder="Query Matrix..." type="text"/>
+</div>
+<button class="text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined">settings</span>
+</button>
+<button class="text-on-surface-variant hover:text-primary transition-colors relative">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-0 right-0 w-2 h-2 bg-error rounded-full"></span>
+</button>
+</div>
+</header>
+<!-- Page Content -->
+<div class="p-margin-desktop space-y-6">
+<!-- Header Section -->
+<div class="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 border-b border-outline-variant pb-4 reconstruct-anim delay-1">
+<div>
+<h1 class="font-headline-md text-headline-md md:text-display-lg text-on-surface">XDR Engine Suite</h1>
+<p class="font-data-terminal text-data-terminal text-on-surface-variant mt-2">Active Modules: 6/6 | System Status: Optimal</p>
+</div>
+<button class="bg-primary text-on-primary-fixed px-6 py-2 font-label-caps text-label-caps hover:bg-primary-fixed transition-colors flex items-center gap-2 shadow-[0_0_10px_rgba(168,232,255,0.3)] hover:shadow-[0_0_20px_rgba(168,232,255,0.6)]">
+<span class="material-symbols-outlined text-[16px]">restart_alt</span>
+                    RESCAN ALL
+                </button>
+</div>
+<!-- Engines Bento Grid -->
+<div class="grid grid-cols-1 lg:grid-cols-2 2xl:grid-cols-3 gap-6 relative" style="perspective: 1200px;">
+<!-- Engine 1: MACE (Cyan) -->
+<div class="glass-panel module-card tilt-card reconstruct-anim delay-1 relative p-5 flex flex-col group overflow-hidden">
+<div class="hud-scanline"></div>
+<div class="flex justify-between items-start mb-4">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary text-3xl transform group-hover:scale-110 transition-transform" style="font-variation-settings: 'FILL' 1;">security</span>
+<div>
+<h3 class="font-headline-md text-headline-md text-on-surface m-0 leading-none">MACE</h3>
+<span class="font-data-terminal text-data-terminal text-on-surface-variant text-[10px]">Multi-Agent Correlation Engine</span>
+</div>
+</div>
+<div class="bg-primary/10 border border-primary/30 px-2 py-1 flex items-center gap-2 text-primary glow-heartbeat" style="color: theme('colors.primary')">
+<span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
+<span class="font-label-caps text-label-caps text-[10px]">IDLE</span>
+</div>
+</div>
+<p class="font-body-main text-body-main text-on-surface-variant mb-6 flex-1 text-sm transform translate-z-10">Aggregates endpoint telemetry to form attack graphs.</p>
+<div class="h-12 border-b border-outline-variant mb-4 flex items-end opacity-70 group-hover:opacity-100 transition-opacity transform translate-z-20">
+<!-- Placeholder for Sparkline -->
+<div class="w-full flex items-end gap-1 h-full">
+<div class="w-full h-1/4 bg-primary/40 hover:bg-primary transition-colors"></div><div class="w-full h-2/4 bg-primary/40 hover:bg-primary transition-colors"></div><div class="w-full h-1/4 bg-primary/40 hover:bg-primary transition-colors"></div><div class="w-full h-3/4 bg-primary/40 hover:bg-primary transition-colors"></div><div class="w-full h-1/2 bg-primary/40 hover:bg-primary transition-colors"></div><div class="w-full h-1/4 bg-primary/40 hover:bg-primary transition-colors"></div><div class="w-full h-1/5 bg-primary/40 hover:bg-primary transition-colors"></div>
+</div>
+</div>
+<button class="w-full border border-primary text-primary font-label-caps text-label-caps py-2 hover:bg-primary/10 transition-colors transform translate-z-30 hover:shadow-[0_0_15px_rgba(60,215,255,0.4)]">
+                        [ RUN ]
+                    </button>
+</div>
+<!-- Engine 2: ARIA (Green - ACTIVE) -->
+<div class="glass-panel module-card tilt-card reconstruct-anim delay-2 relative p-5 flex flex-col group overflow-hidden border-tertiary shadow-[0_0_15px_rgba(0,255,136,0.2)]">
+<div class="hud-scanline bg-tertiary"></div>
+<div class="flex justify-between items-start mb-4">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-tertiary text-3xl transform group-hover:rotate-12 transition-transform" style="font-variation-settings: 'FILL' 1;">psychology</span>
+<div>
+<h3 class="font-headline-md text-headline-md text-on-surface m-0 leading-none">ARIA</h3>
+<span class="font-data-terminal text-data-terminal text-on-surface-variant text-[10px]">Adaptive Reasoning &amp; Intel AI</span>
+</div>
+</div>
+<div class="bg-tertiary/10 border border-tertiary/30 px-2 py-1 flex items-center gap-2 text-tertiary glow-heartbeat" style="color: theme('colors.tertiary')">
+<span class="w-2 h-2 rounded-full bg-tertiary animate-ping"></span>
+<span class="font-label-caps text-label-caps text-[10px]">THINKING...</span>
+</div>
+</div>
+<div class="bg-surface/50 p-3 border-l-2 border-tertiary mb-6 flex-1 transform translate-z-20 shadow-inner">
+<p class="font-data-terminal text-data-terminal text-tertiary text-xs blinking-cursor">Analyzing anomalous lateral movement on subnet 10.0.4.x. Cross-referencing MITRE ATT&amp;CK...</p>
+</div>
+<div class="h-12 border-b border-outline-variant mb-4 flex items-end opacity-100 transform translate-z-10">
+<!-- Placeholder for Sparkline -->
+<div class="w-full flex items-end gap-1 h-full">
+<div class="w-full h-2/4 bg-tertiary/60 hover:bg-tertiary transition-colors"></div><div class="w-full h-3/4 bg-tertiary/80 hover:bg-tertiary transition-colors"></div><div class="w-full h-full bg-tertiary shadow-[0_0_10px_rgba(0,255,136,0.5)]"></div><div class="w-full h-3/4 bg-tertiary/80 hover:bg-tertiary transition-colors"></div><div class="w-full h-1/2 bg-tertiary/60 hover:bg-tertiary transition-colors"></div><div class="w-full h-3/4 bg-tertiary/80 hover:bg-tertiary transition-colors"></div><div class="w-full h-full bg-tertiary shadow-[0_0_10px_rgba(0,255,136,0.5)]"></div>
+</div>
+</div>
+<button class="w-full bg-tertiary text-on-tertiary font-label-caps text-label-caps py-2 hover:bg-tertiary-fixed transition-colors transform translate-z-30 shadow-[0_0_15px_rgba(0,255,136,0.4)] hover:shadow-[0_0_25px_rgba(0,255,136,0.6)]">
+                        [ STOP ]
+                    </button>
+</div>
+<!-- Engine 3: ADRS (Orange/Error-ish) -->
+<div class="glass-panel module-card tilt-card reconstruct-anim delay-3 relative p-5 flex flex-col group overflow-hidden border-error/50">
+<div class="flex justify-between items-start mb-4">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-error text-3xl transform group-hover:-rotate-12 transition-transform" style="font-variation-settings: 'FILL' 1;">radar</span>
+<div>
+<h3 class="font-headline-md text-headline-md text-on-surface m-0 leading-none">ADRS</h3>
+<span class="font-data-terminal text-data-terminal text-on-surface-variant text-[10px]">Advanced Deep Recon System</span>
+</div>
+</div>
+<div class="bg-error/10 border border-error/30 px-2 py-1 flex items-center gap-2 text-error glow-heartbeat" style="color: theme('colors.error')">
+<span class="w-2 h-2 rounded-full bg-error"></span>
+<span class="font-label-caps text-label-caps text-[10px]">STANDBY</span>
+</div>
+</div>
+<p class="font-body-main text-body-main text-on-surface-variant mb-6 flex-1 text-sm transform translate-z-10">Dark web monitoring and external threat surface mapping.</p>
+<div class="h-12 border-b border-outline-variant mb-4 flex items-end opacity-50 transform translate-z-20">
+<!-- Placeholder for Sparkline -->
+<div class="w-full flex items-end gap-1 h-full">
+<div class="w-full h-1/5 bg-error/40 hover:bg-error transition-colors"></div><div class="w-full h-1/5 bg-error/40 hover:bg-error transition-colors"></div><div class="w-full h-1/4 bg-error/40 hover:bg-error transition-colors"></div><div class="w-full h-1/5 bg-error/40 hover:bg-error transition-colors"></div><div class="w-full h-1/4 bg-error/40 hover:bg-error transition-colors"></div><div class="w-full h-1/5 bg-error/40 hover:bg-error transition-colors"></div><div class="w-full h-1/5 bg-error/40 hover:bg-error transition-colors"></div>
+</div>
+</div>
+<button class="w-full border border-error text-error font-label-caps text-label-caps py-2 hover:bg-error/10 transition-colors transform translate-z-30 hover:shadow-[0_0_15px_rgba(255,180,171,0.4)]">
+                        [ RUN ]
+                    </button>
+</div>
+<!-- Engine 4: PHANTOM (Purple) -->
+<div class="glass-panel module-card tilt-card reconstruct-anim delay-4 relative p-5 flex flex-col group overflow-hidden border-secondary">
+<div class="flex justify-between items-start mb-4">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-secondary text-3xl transform group-hover:scale-110 transition-transform" style="font-variation-settings: 'FILL' 1;">visibility_off</span>
+<div>
+<h3 class="font-headline-md text-headline-md text-on-surface m-0 leading-none">PHANTOM</h3>
+<span class="font-data-terminal text-data-terminal text-on-surface-variant text-[10px]">Deception &amp; Decoy Network</span>
+</div>
+</div>
+<div class="bg-secondary/10 border border-secondary/30 px-2 py-1 flex items-center gap-2 text-secondary glow-heartbeat" style="color: theme('colors.secondary')">
+<span class="w-2 h-2 rounded-full bg-secondary"></span>
+<span class="font-label-caps text-label-caps text-[10px]">DEPLOYED</span>
+</div>
+</div>
+<p class="font-body-main text-body-main text-on-surface-variant mb-6 flex-1 text-sm transform translate-z-10">Manages honeypots and synthetic data lures within the perimeter.</p>
+<div class="h-12 border-b border-outline-variant mb-4 flex items-end opacity-70 group-hover:opacity-100 transition-opacity transform translate-z-20">
+<!-- Placeholder for Sparkline -->
+<div class="w-full flex items-end gap-1 h-full">
+<div class="w-full h-1/4 bg-secondary/40 hover:bg-secondary transition-colors"></div><div class="w-full h-2/4 bg-secondary/40 hover:bg-secondary transition-colors"></div><div class="w-full h-1/3 bg-secondary/40 hover:bg-secondary transition-colors"></div><div class="w-full h-1/4 bg-secondary/40 hover:bg-secondary transition-colors"></div><div class="w-full h-2/5 bg-secondary/40 hover:bg-secondary transition-colors"></div><div class="w-full h-1/4 bg-secondary/40 hover:bg-secondary transition-colors"></div><div class="w-full h-1/4 bg-secondary/40 hover:bg-secondary transition-colors"></div>
+</div>
+</div>
+<button class="w-full border border-secondary text-secondary font-label-caps text-label-caps py-2 hover:bg-secondary/10 transition-colors transform translate-z-30 hover:shadow-[0_0_15px_rgba(221,183,255,0.4)]">
+                        [ CONFIGURE ]
+                    </button>
+</div>
+</div>
+</div>
+</main>
+<!-- NavigationDrawer (ARIA Copilot) -->
+<aside class="bg-surface-container-high/95 backdrop-blur-md h-full w-80 border-l border-outline-variant fixed right-0 top-16 shadow-[-5px_0_20px_rgba(0,0,0,0.5)] flex flex-col p-panel-padding z-40 hidden xl:flex">
+<!-- Header -->
+<div class="border-b border-outline-variant pb-4 mb-4">
+<h2 class="text-secondary font-bold font-headline-md text-headline-md m-0">ARIA COPILOT</h2>
+<p class="font-data-terminal text-data-terminal text-on-surface-variant text-[10px] tracking-wider mt-1">AI-POWERED THREAT ANALYSIS</p>
+</div>
+<!-- Tabs -->
+<div class="flex border-b border-outline-variant mb-4">
+<button class="flex-1 text-tertiary border-b border-tertiary font-data-terminal text-data-terminal py-2 flex items-center justify-center gap-2 bg-tertiary/5">
+<span class="material-symbols-outlined text-[16px]">stream</span> Live Stream
+            </button>
+<button class="flex-1 text-on-surface-variant font-data-terminal text-data-terminal py-2 flex items-center justify-center gap-2 hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-[16px]">auto_awesome</span> Neural Insights
+            </button>
+</div>
+<!-- Content Area (Live Stream) -->
+<div class="flex-1 overflow-y-auto pr-2 space-y-3 font-data-terminal text-data-terminal text-[12px]">
+<div class="animate-pulse-subtle p-2 border-l-2 border-tertiary bg-tertiary/10">
+<span class="text-tertiary">[14:02:11]</span> ARIA Core engaged. Analyzing sub-process injection event on SEC-UNIT-04.
+            </div>
+<div class="p-2 border-l-2 border-outline-variant text-on-surface-variant">
+<span class="text-primary">[14:01:45]</span> MACE detected 15 failed auth attempts across 3 distinct subnets.
+            </div>
+<div class="p-2 border-l-2 border-outline-variant text-on-surface-variant">
+<span class="text-primary">[13:58:20]</span> DB Sync complete. 4,201 IoCs updated.
+            </div>
+<div class="p-2 border-l-2 border-secondary bg-secondary/5 text-on-surface">
+<span class="text-secondary">[13:50:00]</span> PHANTOM reports interaction with decoy DB-09. Logging payload...
+            </div>
+</div>
+<!-- Input Area -->
+<div class="mt-4 pt-4 border-t border-outline-variant">
+<div class="bg-surface border-b border-secondary p-2 flex items-center">
+<span class="text-secondary mr-2 font-data-terminal">&gt;</span>
+<input class="bg-transparent border-none w-full text-on-surface font-data-terminal focus:outline-none focus:ring-0 text-sm" placeholder="Query ARIA..." type="text"/>
+</div>
+</div>
+</aside>
+<script>
+    // 3D Tilt Effect for Modules
+    const cards = document.querySelectorAll('.tilt-card');
+    
+    cards.forEach(card => {
+        card.addEventListener('mousemove', e => {
+            const rect = card.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            
+            const centerX = rect.width / 2;
+            const centerY = rect.height / 2;
+            
+            const rotateX = ((y - centerY) / centerY) * -10;
+            const rotateY = ((x - centerX) / centerX) * 10;
+            
+            card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02, 1.02, 1.02)`;
+            card.style.boxShadow = `${-rotateY}px ${rotateX}px 20px rgba(60, 215, 255, 0.2)`;
+        });
+        
+        card.addEventListener('mouseleave', () => {
+            card.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)';
+            card.style.boxShadow = 'none';
+        });
+    });
+
+    // Parallax Scroll Effect
+    const mainContent = document.getElementById('main-content');
+    const parallax1 = document.getElementById('parallax-bg-1');
+    const parallax2 = document.getElementById('parallax-bg-2');
+
+    window.addEventListener('scroll', () => {
+        const scrolled = window.scrollY;
+        parallax1.style.transform = `translateZ(-500px) scale(2) translateY(${scrolled * 0.5}px)`;
+        parallax2.style.transform = `translateZ(-200px) scale(1.5) translateY(${scrolled * 0.2}px)`;
+    });
+</script>
+</body></html>

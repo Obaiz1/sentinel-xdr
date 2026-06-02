@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Tactical Network Topology HUD</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400&amp;family=Space+Grotesk:wght@600;700&amp;family=Space+Mono:wght@400;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-dim": "#0a1422",
+                        "on-tertiary-fixed": "#00210c",
+                        "on-primary-fixed-variant": "#004e5f",
+                        "on-error-container": "#ffdad6",
+                        "on-primary-fixed": "#001f27",
+                        "tertiary-fixed-dim": "#00e479",
+                        "tertiary-fixed": "#60ff99",
+                        "error": "#ffb4ab",
+                        "on-secondary-fixed": "#2c0051",
+                        "on-tertiary-container": "#005d2d",
+                        "secondary": "#ddb7ff",
+                        "primary": "#a8e8ff",
+                        "surface-container-highest": "#2c3545",
+                        "tertiary-container": "#00df76",
+                        "surface": "#0a1422",
+                        "on-secondary": "#490080",
+                        "primary-container": "#00d4ff",
+                        "on-surface-variant": "#bbc9cf",
+                        "surface-container": "#16202f",
+                        "primary-fixed-dim": "#3cd7ff",
+                        "surface-container-low": "#121c2a",
+                        "surface-variant": "#2c3545",
+                        "surface-container-lowest": "#050e1c",
+                        "secondary-container": "#6f00be",
+                        "inverse-on-surface": "#273140",
+                        "on-tertiary-fixed-variant": "#005228",
+                        "inverse-surface": "#d9e3f7",
+                        "on-primary": "#003642",
+                        "error-container": "#93000a",
+                        "on-tertiary": "#003919",
+                        "on-error": "#690005",
+                        "outline-variant": "#3c494e",
+                        "surface-container-high": "#212a39",
+                        "background": "#0a1422",
+                        "on-background": "#d9e3f7",
+                        "surface-tint": "#3cd7ff",
+                        "on-surface": "#d9e3f7",
+                        "inverse-primary": "#00677e",
+                        "primary-fixed": "#b4ebff",
+                        "outline": "#859398",
+                        "surface-bright": "#303a49",
+                        "secondary-fixed-dim": "#ddb7ff",
+                        "on-primary-container": "#00586b",
+                        "secondary-fixed": "#f0dbff",
+                        "tertiary": "#00ff88",
+                        "on-secondary-fixed-variant": "#6900b3",
+                        "on-secondary-container": "#d6a9ff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "margin-mobile": "16px",
+                        "panel-padding": "24px",
+                        "margin-desktop": "32px",
+                        "unit": "4px",
+                        "gutter": "16px"
+                    },
+                    "fontFamily": {
+                        "body-main": ["Inter"],
+                        "display-lg": ["Space Grotesk"],
+                        "label-caps": ["Space Mono"],
+                        "headline-md-mobile": ["Space Grotesk"],
+                        "headline-md": ["Space Grotesk"],
+                        "data-terminal": ["Space Mono"]
+                    },
+                    "fontSize": {
+                        "body-main": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "display-lg": ["48px", { "lineHeight": "56px", "letterSpacing": "0.05em", "fontWeight": "700" }],
+                        "label-caps": ["12px", { "lineHeight": "16px", "fontWeight": "700" }],
+                        "headline-md-mobile": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "letterSpacing": "0.02em", "fontWeight": "600" }],
+                        "data-terminal": ["14px", { "lineHeight": "20px", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .grid-bg {
+            background-image: 
+                linear-gradient(to right, rgba(60, 73, 78, 0.1) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(60, 73, 78, 0.1) 1px, transparent 1px);
+            background-size: 40px 40px;
+        }
+        
+        .pulse-red {
+            animation: pulse-red 1.5s infinite;
+        }
+        
+        @keyframes pulse-red {
+            0% { box-shadow: 0 0 0 0 rgba(255, 180, 171, 0.7); }
+            70% { box-shadow: 0 0 0 20px rgba(255, 180, 171, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(255, 180, 171, 0); }
+        }
+
+        .line-flow {
+            stroke-dasharray: 10;
+            animation: dash 2s linear infinite;
+        }
+
+        @keyframes dash {
+            to { stroke-dashoffset: -20; }
+        }
+
+        .blink {
+            animation: blinker 1s linear infinite;
+        }
+
+        @keyframes blinker {
+            50% { opacity: 0; }
+        }
+        
+        .glass-panel {
+            background: rgba(44, 53, 69, 0.6);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(60, 73, 78, 0.5);
+        }
+    </style>
+</head>
+<body class="bg-surface text-on-surface font-body-main h-screen overflow-hidden grid-bg">
+<!-- TopNavBar -->
+<nav class="flex justify-between items-center px-margin-desktop w-full fixed top-0 z-50 h-16 border-b border-outline-variant bg-surface/80 backdrop-blur-md shadow-[0_0_15px_rgba(60,215,255,0.1)]">
+<div class="flex items-center gap-6">
+<span class="font-display-lg text-headline-md tracking-widest text-primary">SENTINEL XDR</span>
+<div class="hidden md:flex gap-6">
+<span class="text-on-surface-variant font-label-caps cursor-pointer hover:text-tertiary transition-colors duration-200">API: ONLINE</span>
+<span class="text-on-surface-variant font-label-caps cursor-pointer hover:text-tertiary transition-colors duration-200">DB: SYNCED</span>
+<span class="text-primary font-bold border-b-2 border-primary pb-1 font-label-caps cursor-pointer active:scale-95 text-label-caps">LLM: ACTIVE</span>
+<span class="text-on-surface-variant font-label-caps cursor-pointer hover:text-tertiary transition-colors duration-200">SNIFFER: LIVE</span>
+</div>
+</div>
+<div class="flex items-center gap-4 text-primary">
+<span class="material-symbols-outlined cursor-pointer hover:text-tertiary">settings</span>
+<span class="material-symbols-outlined cursor-pointer hover:text-tertiary relative">
+                notifications
+                <span class="absolute top-0 right-0 w-2 h-2 bg-error rounded-full animate-ping"></span>
+</span>
+</div>
+</nav>
+<!-- SideNavBar -->
+<aside class="flex flex-col h-full pt-16 w-64 border-r border-outline-variant fixed left-0 top-0 bg-surface-container-low/90 backdrop-blur-xl z-40 hidden md:flex">
+<div class="px-4 py-6 border-b border-outline-variant">
+<div class="flex items-center gap-3 mb-4">
+<div class="w-10 h-10 rounded bg-surface-variant flex items-center justify-center overflow-hidden">
+<img alt="Operator Avatar" class="w-full h-full object-cover opacity-80" data-alt="A futuristic portrait of a cybersecurity operator in a dimly lit, high-tech command center. The lighting is dominated by cool cyan and deep blues, reflecting off a tactical visor. The mood is intense, vigilant, and authoritative, matching the technical brutalism aesthetic of a modern military SOC." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD66zrW_M3kketa6DUHt-YBiVUUXfDt4pkOR3ebNwnXb5oi9zSQ5upAFGN4L-KJAjY8EJHBqPsr2bZnrOT3by7zU8GxgsQx3C0qj-QLWuokShnCMGTfjniDs_P6t4373rWZAyHtRS-elqzAAlMuEFycSSYnPWXDnvImYgepkH-uk9KMrVctS0vjH4P1aI0BPo2-liQ59tz6G28T22Q-El7oyn3hm9-xdvDbLnRnDtIoMMUmKT8ipGMT7zuarGLjIQTMLA_pCb1K7TU"/>
+</div>
+<div>
+<div class="font-label-caps text-label-caps text-primary">OP-UNIT-01</div>
+<div class="font-label-caps text-[10px] text-error blink">CLEARANCE: OMEGA</div>
+</div>
+</div>
+<button class="w-full border border-primary text-primary font-label-caps text-label-caps py-2 hover:bg-primary/10 transition-colors">
+                [ INITIATE SCAN ]
+            </button>
+</div>
+<div class="flex-1 py-4 overflow-y-auto">
+<div class="text-on-surface-variant px-4 py-3 font-label-caps text-label-caps flex items-center gap-3 cursor-pointer hover:bg-surface-variant/50 hover:text-tertiary transition-all duration-300">
+<span class="material-symbols-outlined text-[18px]">dashboard</span>
+                Command Center
+            </div>
+<div class="text-on-surface-variant px-4 py-3 font-label-caps text-label-caps flex items-center gap-3 cursor-pointer hover:bg-surface-variant/50 hover:text-tertiary transition-all duration-300">
+<span class="material-symbols-outlined text-[18px]">security</span>
+                MACE Chains
+            </div>
+<div class="bg-primary-container/20 text-primary border-l-4 border-primary px-4 py-3 font-label-caps text-label-caps flex items-center gap-3 cursor-pointer hover:bg-surface-variant/50 hover:text-tertiary transition-all duration-300">
+<span class="material-symbols-outlined text-[18px]">biotech</span>
+                Threat Intelligence
+            </div>
+<div class="text-on-surface-variant px-4 py-3 font-label-caps text-label-caps flex items-center gap-3 cursor-pointer hover:bg-surface-variant/50 hover:text-tertiary transition-all duration-300">
+<span class="material-symbols-outlined text-[18px]">memory</span>
+                XDR Engines
+            </div>
+</div>
+<div class="border-t border-outline-variant py-4">
+<div class="text-on-surface-variant px-4 py-2 font-label-caps text-label-caps flex items-center gap-3 cursor-pointer hover:text-tertiary">
+<span class="material-symbols-outlined text-[16px]">terminal</span>
+                System Logs
+            </div>
+<div class="text-on-surface-variant px-4 py-2 font-label-caps text-label-caps flex items-center gap-3 cursor-pointer hover:text-tertiary">
+<span class="material-symbols-outlined text-[16px]">psychology</span>
+                ARIA Help
+            </div>
+</div>
+</aside>
+<!-- NavigationDrawer (Right Panel) -->
+<aside class="flex flex-col h-full p-panel-padding w-80 border-l border-outline-variant fixed right-0 top-16 bg-surface-container-high/95 backdrop-blur-md shadow-[-5px_0_20px_rgba(0,0,0,0.5)] z-40 hidden lg:flex">
+<div class="mb-6">
+<h2 class="text-secondary font-bold font-data-terminal text-data-terminal flex items-center gap-2">
+<span class="material-symbols-outlined">smart_toy</span>
+                ARIA COPILOT
+            </h2>
+<div class="font-label-caps text-[10px] text-secondary/70 mt-1">AI-POWERED THREAT ANALYSIS</div>
+</div>
+<div class="flex gap-4 border-b border-outline-variant mb-6">
+<div class="text-tertiary border-b border-tertiary pb-2 font-data-terminal text-data-terminal flex items-center gap-2 cursor-pointer">
+<span class="material-symbols-outlined text-[16px]">stream</span>
+                Live Stream
+            </div>
+<div class="text-on-surface-variant pb-2 font-data-terminal text-data-terminal flex items-center gap-2 cursor-pointer hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-[16px]">auto_awesome</span>
+                Neural Insights
+            </div>
+</div>
+<!-- Node Inspector Content -->
+<div class="flex-1 overflow-y-auto pr-2 custom-scrollbar">
+<div class="glass-panel p-4 mb-4 relative overflow-hidden">
+<div class="absolute top-0 left-0 w-full h-[2px] bg-error opacity-50 animate-[pulse_2s_ease-in-out_infinite]"></div>
+<div class="flex justify-between items-start mb-2">
+<div class="font-label-caps text-error text-[10px] flex items-center gap-1">
+<span class="w-2 h-2 bg-error inline-block blink"></span>
+                        CRITICAL ALERT
+                    </div>
+<span class="font-data-terminal text-error">99/100</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-on-error-container mb-1">FW-CORE-01</h3>
+<div class="font-data-terminal text-data-terminal text-error font-bold mb-4">STATUS: SATURATED</div>
+<div class="space-y-2 font-data-terminal text-[12px]">
+<div class="flex justify-between border-b border-outline-variant/50 pb-1">
+<span class="text-on-surface-variant">PACKET_DROP</span>
+<span class="text-error font-bold">45%</span>
+</div>
+<div class="flex justify-between border-b border-outline-variant/50 pb-1">
+<span class="text-on-surface-variant">LATENCY</span>
+<span class="text-error font-bold">4500ms</span>
+</div>
+<div class="flex justify-between border-b border-outline-variant/50 pb-1">
+<span class="text-on-surface-variant">THROUGHPUT</span>
+<span class="text-primary">1.2 Tbps</span>
+</div>
+</div>
+</div>
+<!-- Data Stream Log -->
+<div class="font-data-terminal text-[10px] leading-tight text-on-surface-variant space-y-1 mt-6 border-t border-outline-variant pt-4">
+<div class="text-primary">&gt; INITIATING TRACE_ROUTE</div>
+<div>[10:42:01] <span class="text-error">ERR: SYN_FLOOD_DETECTED</span></div>
+<div>[10:42:02] SOURCE: MULTIPLE (GEONODES: 45)</div>
+<div>[10:42:03] TARGET: FW-CORE-01 (10.0.0.254)</div>
+<div>[10:42:04] <span class="text-tertiary">DEFENSE_MATRIX: ENGAGED</span></div>
+<div class="text-error blink">&gt; AUTO-MITIGATION FAILING</div>
+</div>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="pt-16 md:pl-64 lg:pr-80 h-full relative">
+<!-- Threat Banner -->
+<div class="absolute top-20 left-1/2 transform -translate-x-1/2 z-30 w-[80%] max-w-2xl text-center pointer-events-none">
+<div class="bg-error/20 border border-error text-error font-display-lg text-headline-md md:text-[32px] py-2 px-6 backdrop-blur-sm blink tracking-widest shadow-[0_0_30px_rgba(255,180,171,0.3)]">
+                ANOMALOUS TRAFFIC DETECTED
+            </div>
+</div>
+<!-- SVG Topology Map -->
+<div class="w-full h-full relative flex items-center justify-center p-8">
+<svg class="absolute inset-0 pointer-events-none" height="100%" viewbox="0 0 800 600" width="100%">
+<!-- Grid/Context lines -->
+<circle cx="400" cy="300" fill="none" r="150" stroke="rgba(60, 73, 78, 0.2)" stroke-dasharray="4 4" stroke-width="1"></circle>
+<circle cx="400" cy="300" fill="none" r="250" stroke="rgba(60, 73, 78, 0.1)" stroke-dasharray="2 6" stroke-width="1"></circle>
+<!-- Attack Vectors (Red lines flowing to center) -->
+<!-- Top Left Cluster -->
+<path class="line-flow" d="M 100 100 Q 250 200 400 300" fill="none" opacity="0.8" stroke="#ffb4ab" stroke-width="2"></path>
+<path class="line-flow" d="M 50 200 Q 200 250 400 300" fill="none" opacity="0.6" stroke="#ffb4ab" stroke-width="1.5"></path>
+<path class="line-flow" d="M 150 50 Q 300 150 400 300" fill="none" opacity="0.9" stroke="#ffb4ab" stroke-width="1"></path>
+<!-- Bottom Left Cluster -->
+<path class="line-flow" d="M 100 500 Q 250 400 400 300" fill="none" opacity="0.7" stroke="#ffb4ab" stroke-width="2.5"></path>
+<path class="line-flow" d="M 50 400 Q 200 350 400 300" fill="none" opacity="0.5" stroke="#ffb4ab" stroke-width="1.5"></path>
+<!-- Right Side Normal/Warning Traffic -->
+<path class="line-flow" d="M 700 150 Q 550 200 400 300" fill="none" opacity="0.4" stroke="#3cd7ff" stroke-width="1"></path>
+<path class="line-flow" d="M 750 300 L 400 300" fill="none" opacity="0.9" stroke="#ffb4ab" stroke-width="3"></path>
+<path class="line-flow" d="M 650 500 Q 500 400 400 300" fill="none" opacity="0.3" stroke="#00ff88" stroke-width="1"></path>
+<!-- External Nodes (Red/Malicious) -->
+<circle class="blink" cx="100" cy="100" fill="#ffb4ab" r="4"></circle>
+<circle cx="50" cy="200" fill="#ffb4ab" r="3"></circle>
+<circle class="blink" cx="150" cy="50" fill="#ffb4ab" r="5"></circle>
+<circle cx="100" cy="500" fill="#ffb4ab" r="6"></circle>
+<circle cx="50" cy="400" fill="#ffb4ab" r="4"></circle>
+<circle class="pulse-red" cx="750" cy="300" fill="#ffb4ab" r="8"></circle>
+<!-- Friendly/Neutral Nodes -->
+<circle cx="700" cy="150" fill="#3cd7ff" r="4"></circle>
+<circle cx="650" cy="500" fill="#00ff88" r="4"></circle>
+</svg>
+<!-- Interactive Central Node -->
+<div class="relative z-10 flex flex-col items-center justify-center cursor-pointer group">
+<div class="absolute w-32 h-32 rounded-full bg-error/20 pulse-red pointer-events-none"></div>
+<div class="absolute w-24 h-24 rounded-full bg-error/40 animate-ping pointer-events-none" style="animation-duration: 2s;"></div>
+<div class="w-16 h-16 bg-surface-container-highest border-2 border-error rounded-sm flex items-center justify-center shadow-[0_0_30px_rgba(255,180,171,0.5)] transform rotate-45 group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-error transform -rotate-45 text-[32px]">router</span>
+</div>
+<div class="mt-8 bg-surface-container/80 border border-outline-variant px-4 py-2 backdrop-blur-sm text-center">
+<div class="font-display-lg text-headline-md-mobile text-error font-bold tracking-widest">FW-CORE-01</div>
+<div class="font-label-caps text-[10px] text-on-surface-variant">10.0.0.254</div>
+</div>
+</div>
+</div>
+</main>
+</body></html>

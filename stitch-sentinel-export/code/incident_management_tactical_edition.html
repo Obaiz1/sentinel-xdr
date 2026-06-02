@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Incident Management - Sentinel XDR</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&amp;family=Space+Mono:wght@400;700&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-secondary-fixed-variant": "#6900b3",
+                        "background": "#0a1422",
+                        "surface-container-low": "#121c2a",
+                        "secondary": "#ddb7ff",
+                        "primary-fixed-dim": "#3cd7ff",
+                        "on-primary-fixed-variant": "#004e5f",
+                        "on-primary": "#003642",
+                        "on-secondary-container": "#d6a9ff",
+                        "primary": "#a8e8ff",
+                        "surface-variant": "#2c3545",
+                        "inverse-on-surface": "#273140",
+                        "surface-dim": "#0a1422",
+                        "error-container": "#93000a",
+                        "on-error-container": "#ffdad6",
+                        "outline": "#859398",
+                        "surface-tint": "#3cd7ff",
+                        "surface-container-high": "#212a39",
+                        "outline-variant": "#3c494e",
+                        "surface-bright": "#303a49",
+                        "on-secondary": "#490080",
+                        "on-secondary-fixed": "#2c0051",
+                        "surface-container-lowest": "#050e1c",
+                        "secondary-container": "#6f00be",
+                        "on-primary-fixed": "#001f27",
+                        "on-tertiary-fixed": "#00210c",
+                        "tertiary-container": "#00df76",
+                        "tertiary-fixed-dim": "#00e479",
+                        "surface-container": "#16202f",
+                        "on-background": "#d9e3f7",
+                        "primary-container": "#00d4ff",
+                        "on-tertiary-container": "#005d2d",
+                        "primary-fixed": "#b4ebff",
+                        "inverse-surface": "#d9e3f7",
+                        "tertiary-fixed": "#60ff99",
+                        "surface": "#0a1422",
+                        "secondary-fixed": "#f0dbff",
+                        "on-tertiary": "#003919",
+                        "on-tertiary-fixed-variant": "#005228",
+                        "secondary-fixed-dim": "#ddb7ff",
+                        "on-primary-container": "#00586b",
+                        "tertiary": "#00ff88",
+                        "on-error": "#690005",
+                        "on-surface-variant": "#bbc9cf",
+                        "error": "#ffb4ab",
+                        "surface-container-highest": "#2c3545",
+                        "on-surface": "#d9e3f7",
+                        "inverse-primary": "#00677e"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "panel-padding": "24px",
+                        "margin-mobile": "16px",
+                        "margin-desktop": "32px",
+                        "gutter": "16px",
+                        "unit": "4px"
+                    },
+                    "fontFamily": {
+                        "data-terminal": ["Space Mono", "monospace"],
+                        "headline-md-mobile": ["Space Grotesk", "sans-serif"],
+                        "display-lg": ["Space Grotesk", "sans-serif"],
+                        "label-caps": ["Space Mono", "monospace"],
+                        "headline-md": ["Space Grotesk", "sans-serif"],
+                        "body-main": ["Inter", "sans-serif"]
+                    },
+                    "fontSize": {
+                        "data-terminal": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "headline-md-mobile": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "display-lg": ["48px", { "lineHeight": "56px", "letterSpacing": "0.05em", "fontWeight": "700" }],
+                        "label-caps": ["12px", { "lineHeight": "16px", "fontWeight": "700" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "letterSpacing": "0.02em", "fontWeight": "600" }],
+                        "body-main": ["16px", { "lineHeight": "24px", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body {
+            background-color: #040a14;
+            background-image: linear-gradient(rgba(0, 212, 255, 0.03) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(0, 212, 255, 0.03) 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+        .hud-scanline {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(to right, transparent, rgba(60,215,255,0.5), transparent);
+            animation: scanline 4s linear infinite;
+            z-index: 10;
+            opacity: 0.5;
+        }
+        @keyframes scanline {
+            0% { top: -10%; }
+            100% { top: 110%; }
+        }
+        .tilt-card {
+            transition: transform 0.1s ease-out;
+            transform-style: preserve-3d;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface font-body-main antialiased min-h-screen flex overflow-hidden">
+<!-- SideNavBar (Shared Component) -->
+<aside class="fixed left-0 h-full w-64 z-40 bg-surface-container-lowest/90 backdrop-blur-xl border-r border-outline-variant flex flex-col py-panel-padding hidden md:flex">
+<div class="px-gutter mb-8 flex items-center gap-4">
+<img alt="Sentinel XDR Logo" class="w-10 h-10 object-contain" src="https://lh3.googleusercontent.com/aida/AP1WRLvA5zXchZcdJCmvN4DdP_mFishHxJQlu5AgiJX_UjziLKyvjhVmStcL_R-m_qoaTnbXnpisAx_ocnoBB5gIt8u2UEZL7YZn9YxwGn6fqWK62HVj83jrWXY4huaoeFMfeJUbnSvq9i8Ga1ZIRHDjxV0jX1ODagfZOS1SL96fvI0bKul74blHP4dZm5rJ69E2SC9JBu6leHq5T87qI5AEmSCFZO0YJBo-OfSq1sR_D_BoQWCDtXY1hks3qw"/>
+<div class="font-headline-md text-headline-md text-primary">SENTINEL</div>
+</div>
+<nav class="flex-1 overflow-y-auto px-4 space-y-2">
+<a class="flex items-center gap-3 px-4 py-3 rounded-DEFAULT text-on-surface-variant hover:text-on-surface hover:bg-surface-variant/30 transition-all duration-150 ease-in-out font-label-caps text-label-caps" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+                Command Center
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-DEFAULT text-on-surface-variant hover:text-on-surface hover:bg-surface-variant/30 transition-all duration-150 ease-in-out font-label-caps text-label-caps" href="#">
+<span class="material-symbols-outlined">security</span>
+                MACE Chains
+            </a>
+<!-- Active State Logic Applied (Assuming Incident Management falls under Threat Intel logically for this context, or is its own implicit tab. We'll mark Threat Intel as closest match or generic active) -->
+<a class="flex items-center gap-3 px-4 py-3 bg-primary-container text-on-primary-container border-r-4 border-primary font-label-caps text-label-caps duration-150 ease-in-out" href="#">
+<span class="material-symbols-outlined">biotech</span>
+                Threat Intel
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-DEFAULT text-on-surface-variant hover:text-on-surface hover:bg-surface-variant/30 transition-all duration-150 ease-in-out font-label-caps text-label-caps" href="#">
+<span class="material-symbols-outlined">public</span>
+                Asset Map
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-DEFAULT text-on-surface-variant hover:text-on-surface hover:bg-surface-variant/30 transition-all duration-150 ease-in-out font-label-caps text-label-caps" href="#">
+<span class="material-symbols-outlined">terminal</span>
+                Logs
+            </a>
+</nav>
+<div class="px-4 mt-auto">
+<button class="w-full py-2 mb-4 font-data-terminal text-data-terminal text-primary border border-primary/50 hover:bg-primary/10 transition-colors uppercase tracking-widest text-center">
+                [ INITIALIZE SCAN ]
+            </button>
+<div class="pt-4 border-t border-outline-variant/50 flex flex-col gap-2">
+<a class="flex items-center gap-3 px-2 py-2 text-on-surface-variant hover:text-on-surface transition-colors font-label-caps text-label-caps" href="#">
+<span class="material-symbols-outlined text-[16px]">monitor_heart</span>
+                    System Health
+                </a>
+<a class="flex items-center gap-3 px-2 py-2 text-on-surface-variant hover:text-on-surface transition-colors font-label-caps text-label-caps" href="#">
+<span class="material-symbols-outlined text-[16px]">help_center</span>
+                    Support
+                </a>
+</div>
+<div class="mt-6 flex items-center gap-3 px-2">
+<div class="w-8 h-8 bg-surface-variant rounded-full overflow-hidden border border-outline-variant flex items-center justify-center">
+<span class="material-symbols-outlined text-on-surface-variant text-[18px]">person</span>
+</div>
+<div>
+<div class="font-label-caps text-label-caps text-on-surface">OPERATOR-01</div>
+<div class="font-data-terminal text-data-terminal text-[10px] text-primary-fixed-dim">SECTOR-7G</div>
+</div>
+</div>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="flex-1 flex flex-col h-full ml-0 md:ml-64 relative">
+<!-- TopAppBar (Shared Component) -->
+<header class="fixed top-0 w-full md:w-[calc(100%-16rem)] z-50 bg-surface/80 backdrop-blur-md border-b border-outline-variant shadow-[0_0_15px_rgba(60,215,255,0.1)] flex justify-between items-center px-margin-desktop py-2">
+<div class="flex items-center gap-6">
+<div class="font-display-lg text-display-lg tracking-tighter text-primary-fixed-dim text-2xl md:hidden">S-XDR</div>
+<div class="hidden md:flex gap-4 font-data-terminal text-data-terminal text-primary">
+<span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-tertiary-fixed animate-pulse"></span> STATUS: API ONLINE</span>
+<span class="text-outline">|</span>
+<span>DB: SYNCED</span>
+<span class="text-outline">|</span>
+<span>LATENCY: 12MS</span>
+</div>
+</div>
+<div class="flex items-center gap-4 text-on-surface-variant">
+<span class="material-symbols-outlined cursor-pointer hover:text-primary-fixed hover:bg-surface-variant/50 transition-colors p-2 rounded-full active:scale-95 duration-200">notifications</span>
+<span class="material-symbols-outlined cursor-pointer hover:text-primary-fixed hover:bg-surface-variant/50 transition-colors p-2 rounded-full active:scale-95 duration-200">settings</span>
+<span class="material-symbols-outlined cursor-pointer hover:text-primary-fixed hover:bg-surface-variant/50 transition-colors p-2 rounded-full active:scale-95 duration-200">power_settings_new</span>
+</div>
+</header>
+<!-- Canvas -->
+<div class="flex-1 overflow-y-auto mt-16 p-margin-mobile md:p-margin-desktop">
+<div class="mb-8 border-l-2 border-primary pl-4">
+<h1 class="font-headline-md-mobile md:font-headline-md text-headline-md-mobile md:text-headline-md text-on-surface uppercase tracking-widest">Incident Management</h1>
+<p class="font-data-terminal text-data-terminal text-on-surface-variant mt-1">SEC-UNIT-04 :: TACTICAL OVERVIEW</p>
+</div>
+<!-- Incident Summary Cards (3D Tilt) -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+<!-- Card 1 -->
+<div class="tilt-card relative bg-surface-container/60 backdrop-blur-md border border-outline-variant p-6 overflow-hidden rounded-sm hover:border-primary/50 group" onmouseleave="resetTilt(this)" onmousemove="tiltEffect(event, this)">
+<div class="hud-scanline"></div>
+<div class="flex justify-between items-start mb-4 relative z-10">
+<div class="font-label-caps text-label-caps text-on-surface-variant uppercase">Total Open Incidents</div>
+<span class="material-symbols-outlined text-primary-fixed-dim">warning</span>
+</div>
+<div class="font-display-lg text-display-lg text-primary text-4xl group-hover:drop-shadow-[0_0_10px_rgba(60,215,255,0.8)] transition-all relative z-10">42</div>
+<div class="mt-2 font-data-terminal text-data-terminal text-[12px] text-error flex items-center gap-1 relative z-10">
+<span class="material-symbols-outlined text-[14px]">trending_up</span> +12% vs last cycle
+                    </div>
+<!-- Decorative background grid -->
+<div class="absolute inset-0 opacity-10 pointer-events-none" style="background-image: radial-gradient(circle at center, #3cd7ff 1px, transparent 1px); background-size: 10px 10px;"></div>
+</div>
+<!-- Card 2 -->
+<div class="tilt-card relative bg-surface-container/60 backdrop-blur-md border border-outline-variant p-6 overflow-hidden rounded-sm hover:border-secondary/50 group" onmouseleave="resetTilt(this)" onmousemove="tiltEffect(event, this)">
+<div class="hud-scanline" style="animation-delay: -1s;"></div>
+<div class="flex justify-between items-start mb-4 relative z-10">
+<div class="font-label-caps text-label-caps text-on-surface-variant uppercase">Mean Time to Detect</div>
+<span class="material-symbols-outlined text-secondary">radar</span>
+</div>
+<div class="font-display-lg text-display-lg text-secondary text-4xl group-hover:drop-shadow-[0_0_10px_rgba(221,183,255,0.8)] transition-all relative z-10">4.2m</div>
+<div class="mt-2 font-data-terminal text-data-terminal text-[12px] text-tertiary-fixed-dim flex items-center gap-1 relative z-10">
+<span class="material-symbols-outlined text-[14px]">trending_down</span> -0.5m improvement
+                    </div>
+</div>
+<!-- Card 3 -->
+<div class="tilt-card relative bg-surface-container/60 backdrop-blur-md border border-outline-variant p-6 overflow-hidden rounded-sm hover:border-tertiary-fixed-dim/50 group" onmouseleave="resetTilt(this)" onmousemove="tiltEffect(event, this)">
+<div class="hud-scanline" style="animation-delay: -2s;"></div>
+<div class="flex justify-between items-start mb-4 relative z-10">
+<div class="font-label-caps text-label-caps text-on-surface-variant uppercase">Mean Time to Resolve</div>
+<span class="material-symbols-outlined text-tertiary-fixed-dim">build</span>
+</div>
+<div class="font-display-lg text-display-lg text-tertiary-fixed-dim text-4xl group-hover:drop-shadow-[0_0_10px_rgba(0,228,121,0.8)] transition-all relative z-10">1.8h</div>
+<div class="mt-2 font-data-terminal text-data-terminal text-[12px] text-on-surface-variant relative z-10">Stable trajectory</div>
+</div>
+</div>
+<!-- Tactical Incident Table Panel -->
+<div class="bg-surface-container-low/80 backdrop-blur-lg border border-outline-variant rounded-sm overflow-hidden relative">
+<div class="border-b border-outline-variant px-6 py-4 flex justify-between items-center bg-surface-container-high/50">
+<div class="font-label-caps text-label-caps text-primary tracking-widest flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px]">table_rows</span>
+                        ACTIVE THREAT MATRIX
+                    </div>
+<div class="flex gap-2">
+<button class="px-3 py-1 bg-surface border border-outline-variant text-on-surface font-data-terminal text-data-terminal text-[12px] hover:border-primary transition-colors flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">filter_list</span> FILTER
+                        </button>
+<button class="px-3 py-1 bg-primary/10 border border-primary text-primary font-data-terminal text-data-terminal text-[12px] hover:bg-primary/20 transition-colors">
+                            [ EXPORT ]
+                        </button>
+</div>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="border-b border-outline-variant/50 font-label-caps text-label-caps text-on-surface-variant bg-surface-container/30">
+<th class="p-4 font-normal">INCIDENT ID</th>
+<th class="p-4 font-normal">PRIORITY</th>
+<th class="p-4 font-normal">TYPE</th>
+<th class="p-4 font-normal">STATUS</th>
+<th class="p-4 font-normal">ASSIGNED OPERATOR</th>
+<th class="p-4 font-normal text-right">ACTION</th>
+</tr>
+</thead>
+<tbody class="font-data-terminal text-data-terminal text-[13px]">
+<!-- Row 1 (Critical) -->
+<tr class="border-b border-outline-variant/30 hover:bg-surface-variant/20 transition-colors group">
+<td class="p-4 text-primary-fixed-dim">INC-8901</td>
+<td class="p-4">
+<span class="inline-flex items-center px-2 py-1 bg-error-container text-on-error-container text-[10px] uppercase font-bold tracking-wider">
+<span class="w-1.5 h-1.5 rounded-full bg-error mr-1 animate-pulse"></span> Critical
+                                    </span>
+</td>
+<td class="p-4 text-on-surface">Data Breach</td>
+<td class="p-4 text-on-surface-variant">Investigating</td>
+<td class="p-4 text-on-surface">OP-GAMMA</td>
+<td class="p-4 text-right">
+<button class="text-primary hover:text-primary-fixed transition-colors opacity-0 group-hover:opacity-100">[ VIEW ]</button>
+</td>
+</tr>
+<!-- Row 2 (High) -->
+<tr class="border-b border-outline-variant/30 hover:bg-surface-variant/20 transition-colors group">
+<td class="p-4 text-primary-fixed-dim">INC-8894</td>
+<td class="p-4">
+<span class="inline-flex items-center px-2 py-1 bg-surface-variant text-[#ffb347] border border-[#ffb347]/30 text-[10px] uppercase font-bold tracking-wider">
+                                        High
+                                    </span>
+</td>
+<td class="p-4 text-on-surface">Ransomware</td>
+<td class="p-4 text-on-surface-variant">Mitigating</td>
+<td class="p-4 text-on-surface">OP-DELTA</td>
+<td class="p-4 text-right">
+<button class="text-primary hover:text-primary-fixed transition-colors opacity-0 group-hover:opacity-100">[ VIEW ]</button>
+</td>
+</tr>
+<!-- Row 3 (Medium) -->
+<tr class="border-b border-outline-variant/30 hover:bg-surface-variant/20 transition-colors group">
+<td class="p-4 text-primary-fixed-dim">INC-8872</td>
+<td class="p-4">
+<span class="inline-flex items-center px-2 py-1 bg-surface-variant text-primary border border-primary/30 text-[10px] uppercase font-bold tracking-wider">
+                                        Medium
+                                    </span>
+</td>
+<td class="p-4 text-on-surface">Unauthorized Access</td>
+<td class="p-4 text-tertiary-fixed-dim">Resolved</td>
+<td class="p-4 text-on-surface">AUTO-SYS</td>
+<td class="p-4 text-right">
+<button class="text-primary hover:text-primary-fixed transition-colors opacity-0 group-hover:opacity-100">[ VIEW ]</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</main>
+<script>
+        // 3D Tilt Effect Logic
+        function tiltEffect(event, element) {
+            const rect = element.getBoundingClientRect();
+            const x = event.clientX - rect.left; // x position within the element.
+            const y = event.clientY - rect.top;  // y position within the element.
+            
+            const centerX = rect.width / 2;
+            const centerY = rect.height / 2;
+            
+            // Calculate tilt based on distance from center. Max rotation 10deg.
+            const rotateX = ((y - centerY) / centerY) * -10;
+            const rotateY = ((x - centerX) / centerX) * 10;
+            
+            element.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02, 1.02, 1.02)`;
+        }
+
+        function resetTilt(element) {
+            element.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)';
+        }
+    </script>
+</body></html>

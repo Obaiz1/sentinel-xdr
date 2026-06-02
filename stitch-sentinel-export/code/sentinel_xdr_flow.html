@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>SENTINEL XDR - Command Center</title>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Google Fonts: Space Grotesk, Space Mono, Inter -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Space+Grotesk:wght@400;500;600;700&amp;family=Space+Mono:ital,wght@0,400;0,700;1,400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Theme Configuration -->
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "inverse-primary": "#00677e",
+                    "on-surface": "#d9e3f7",
+                    "surface-dim": "#0a1422",
+                    "on-primary-fixed": "#001f27",
+                    "on-surface-variant": "#bbc9cf",
+                    "on-primary-container": "#00586b",
+                    "tertiary": "#00ff88",
+                    "tertiary-fixed": "#60ff99",
+                    "surface-tint": "#3cd7ff",
+                    "on-error-container": "#ffdad6",
+                    "outline": "#859398",
+                    "surface-variant": "#2c3545",
+                    "on-error": "#690005",
+                    "inverse-on-surface": "#273140",
+                    "outline-variant": "#3c494e",
+                    "error": "#ffb4ab",
+                    "surface-container-lowest": "#050e1c",
+                    "surface-bright": "#303a49",
+                    "surface-container-highest": "#2c3545",
+                    "tertiary-fixed-dim": "#00e479",
+                    "tertiary-container": "#00df76",
+                    "primary-fixed": "#b4ebff",
+                    "on-tertiary-fixed": "#00210c",
+                    "surface-container": "#16202f",
+                    "secondary-container": "#6f00be",
+                    "primary-fixed-dim": "#3cd7ff",
+                    "secondary-fixed": "#f0dbff",
+                    "primary-container": "#00d4ff",
+                    "on-tertiary-fixed-variant": "#005228",
+                    "secondary": "#ddb7ff",
+                    "surface-container-high": "#212a39",
+                    "surface-container-low": "#121c2a",
+                    "on-secondary-container": "#d6a9ff",
+                    "inverse-surface": "#d9e3f7",
+                    "on-background": "#d9e3f7",
+                    "on-secondary": "#490080",
+                    "on-primary-fixed-variant": "#004e5f",
+                    "on-secondary-fixed": "#2c0051",
+                    "primary": "#a8e8ff",
+                    "on-tertiary-container": "#005d2d",
+                    "on-secondary-fixed-variant": "#6900b3",
+                    "error-container": "#93000a",
+                    "secondary-fixed-dim": "#ddb7ff",
+                    "surface": "#0a1422",
+                    "on-tertiary": "#003919",
+                    "on-primary": "#003642",
+                    "background": "#0a1422"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "gutter": "16px",
+                    "unit": "4px",
+                    "margin-mobile": "16px",
+                    "margin-desktop": "32px",
+                    "panel-padding": "24px"
+            },
+            "fontFamily": {
+                    "headline-md-mobile": ["Space Grotesk"],
+                    "headline-md": ["Space Grotesk"],
+                    "body-main": ["Inter"],
+                    "display-lg": ["Space Grotesk"],
+                    "data-terminal": ["Space Mono"],
+                    "label-caps": ["Space Mono"]
+            },
+            "fontSize": {
+                    "headline-md-mobile": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                    "headline-md": ["24px", { "lineHeight": "32px", "letterSpacing": "0.02em", "fontWeight": "600" }],
+                    "body-main": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                    "display-lg": ["48px", { "lineHeight": "56px", "letterSpacing": "0.05em", "fontWeight": "700" }],
+                    "data-terminal": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                    "label-caps": ["12px", { "lineHeight": "16px", "fontWeight": "700" }]
+            }
+          }
+        }
+      }
+    </script>
+<style>
+        /* Custom Animations & Tech Brutalism Effects */
+        .scanlines {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background: linear-gradient(to bottom, transparent 50%, rgba(0, 212, 255, 0.03) 51%);
+            background-size: 100% 4px;
+            pointer-events: none;
+            z-index: 9999;
+        }
+
+        .hex-grid-bg {
+            background-color: #0a1422;
+            background-image: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M20 0l20 11.5v23L20 40 0 28.5v-23z' fill='none' stroke='rgba(60, 215, 255, 0.05)' stroke-width='1'/%3E%3C/svg%3E");
+            background-attachment: fixed;
+        }
+
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 0 15px rgba(60, 215, 255, 0.2), inset 0 0 10px rgba(60, 215, 255, 0.1); }
+            50% { box-shadow: 0 0 25px rgba(60, 215, 255, 0.5), inset 0 0 20px rgba(60, 215, 255, 0.3); }
+        }
+
+        .panel-glass {
+            background: rgba(22, 32, 47, 0.6);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(133, 147, 152, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .panel-glass::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%; width: 50%; height: 2px;
+            background: linear-gradient(90deg, transparent, rgba(60, 215, 255, 0.8), transparent);
+            animation: scan-line 4s linear infinite;
+        }
+
+        @keyframes scan-line {
+            0% { left: -100%; opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { left: 200%; opacity: 0; }
+        }
+
+        /* 3D Wireframe Globe CSS Approximation */
+        .cyber-globe-container {
+            perspective: 1000px;
+            transform-style: preserve-3d;
+            width: 300px; height: 300px;
+            position: relative;
+        }
+        .globe-ring {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            border: 1px dashed rgba(60, 215, 255, 0.4);
+            border-radius: 50%;
+            animation: rotate-ring 20s linear infinite;
+            transform-style: preserve-3d;
+        }
+        .globe-ring:nth-child(2) { transform: rotateX(60deg) rotateY(0deg); animation-duration: 25s; animation-direction: reverse; border-color: rgba(60, 215, 255, 0.2); border-style: solid; }
+        .globe-ring:nth-child(3) { transform: rotateX(120deg) rotateY(45deg); animation-duration: 30s; }
+        
+        @keyframes rotate-ring {
+            100% { transform: rotateZ(360deg) rotateX(60deg); }
+        }
+
+        /* Terminal typing effect */
+        .typing-cursor::after {
+            content: '_';
+            animation: blink 1s step-end infinite;
+            color: #3cd7ff;
+        }
+        @keyframes blink { 50% { opacity: 0; } }
+        
+        /* Custom Scrollbar for Terminal */
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(60, 215, 255, 0.3); border-radius: 4px; }
+    </style>
+</head>
+<body class="bg-background text-on-background min-h-screen font-body-main antialiased hex-grid-bg selection:bg-primary selection:text-on-primary">
+<div class="scanlines"></div>
+<!-- APP SHELL: TOP APP BAR -->
+<header class="fixed top-0 left-0 right-0 z-50 flex justify-between items-center px-margin-desktop bg-surface-dim/80 backdrop-blur-md dark:bg-surface-dim/80 border-b border-outline-variant shadow-[0_4px_30px_rgba(0,0,0,0.5)] h-16">
+<div class="flex items-center gap-4">
+<span class="font-display-lg text-display-lg font-bold tracking-widest text-primary drop-shadow-[0_0_10px_rgba(60,215,255,0.5)] hidden md:block" style="font-size: 24px; line-height: 24px;">SENTINEL XDR</span>
+</div>
+<div class="flex items-center gap-6">
+<div class="hidden lg:flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-tertiary animate-pulse"></span>
+<span class="font-label-caps text-label-caps text-primary tracking-widest uppercase">SYSTEM LIVE</span>
+</div>
+<div class="hidden lg:block font-data-terminal text-data-terminal text-on-surface-variant">
+                Last sync: 04:20:00
+            </div>
+<div class="flex items-center gap-2 border-l border-outline-variant/50 pl-6">
+<button class="p-2 rounded hover:bg-primary/10 hover:text-primary transition-all duration-300 text-on-surface-variant flex items-center justify-center group active:scale-95 active:brightness-125">
+<span class="material-symbols-outlined group-hover:animate-spin-slow">refresh</span>
+</button>
+<button class="p-2 rounded hover:bg-primary/10 hover:text-primary transition-all duration-300 text-on-surface-variant flex items-center justify-center relative active:scale-95 active:brightness-125">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-1 right-1 w-2 h-2 rounded-full bg-error border border-surface-dim"></span>
+</button>
+<button class="p-2 rounded hover:bg-primary/10 hover:text-primary transition-all duration-300 text-on-surface-variant flex items-center justify-center active:scale-95 active:brightness-125">
+<span class="material-symbols-outlined">settings</span>
+</button>
+</div>
+</div>
+</header>
+<!-- APP SHELL: SIDE NAV BAR -->
+<nav class="fixed left-0 top-0 h-full flex flex-col pt-20 z-40 bg-surface-container/60 backdrop-blur-xl dark:bg-surface-container/60 border-r border-outline-variant/30 shadow-[10px_0_30px_rgba(0,0,0,0.3)] w-64 hidden md:flex">
+<!-- Header Info -->
+<div class="px-6 pb-6 border-b border-outline-variant/30 flex items-center gap-4">
+<div class="w-12 h-12 bg-surface-variant rounded flex items-center justify-center border border-primary/30 relative overflow-hidden">
+<div class="absolute inset-0 bg-primary/10 animate-pulse"></div>
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">security</span>
+</div>
+<div>
+<h2 class="font-label-caps text-label-caps text-primary tracking-wider uppercase">SENTINEL XDR</h2>
+<p class="font-data-terminal text-[10px] text-on-surface-variant opacity-70">OPERATOR-01 // SOC</p>
+</div>
+</div>
+<!-- Main Nav -->
+<div class="flex-1 overflow-y-auto py-4 px-2 space-y-1">
+<!-- Active Tab -->
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg bg-primary/20 text-primary border-r-4 border-primary shadow-[inset_0_0_15px_rgba(60,215,255,0.2)] hover:translate-x-1 duration-300 transition-transform" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">security</span>
+<span class="font-data-terminal text-data-terminal tracking-wide">Command Center</span>
+</a>
+<!-- Inactive Tabs -->
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-bright/20 hover:backdrop-blur-sm transition-colors duration-200 hover:translate-x-1" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-data-terminal text-data-terminal tracking-wide">Control Panel</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-bright/20 hover:backdrop-blur-sm transition-colors duration-200 hover:translate-x-1" href="#">
+<span class="material-symbols-outlined">psychology</span>
+<span class="font-data-terminal text-data-terminal tracking-wide flex-1">ARIA Copilot</span>
+<span class="text-[9px] bg-tertiary/20 text-tertiary px-1.5 py-0.5 rounded border border-tertiary/30">AI</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-bright/20 hover:backdrop-blur-sm transition-colors duration-200 hover:translate-x-1" href="#">
+<span class="material-symbols-outlined">memory</span>
+<span class="font-data-terminal text-data-terminal tracking-wide">XDR Engines</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-bright/20 hover:backdrop-blur-sm transition-colors duration-200 hover:translate-x-1" href="#">
+<span class="material-symbols-outlined">biotech</span>
+<span class="font-data-terminal text-data-terminal tracking-wide">Threat Intelligence</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-bright/20 hover:backdrop-blur-sm transition-colors duration-200 hover:translate-x-1" href="#">
+<span class="material-symbols-outlined">lan</span>
+<span class="font-data-terminal text-data-terminal tracking-wide">MACE Chains</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-bright/20 hover:backdrop-blur-sm transition-colors duration-200 hover:translate-x-1" href="#">
+<span class="material-symbols-outlined">notifications_active</span>
+<span class="font-data-terminal text-data-terminal tracking-wide flex-1">Live Alerts</span>
+<span class="w-2 h-2 rounded-full bg-error animate-pulse"></span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-bright/20 hover:backdrop-blur-sm transition-colors duration-200 hover:translate-x-1" href="#">
+<span class="material-symbols-outlined">settings_suggest</span>
+<span class="font-data-terminal text-data-terminal tracking-wide">Settings</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-bright/20 hover:backdrop-blur-sm transition-colors duration-200 hover:translate-x-1 opacity-50" href="#">
+<span class="material-symbols-outlined">history</span>
+<span class="font-data-terminal text-data-terminal tracking-wide">Legacy UI</span>
+</a>
+</div>
+<!-- CTA & Footer -->
+<div class="p-4 border-t border-outline-variant/30 space-y-4">
+<button class="w-full bg-primary text-on-primary-fixed font-label-caps text-label-caps py-3 rounded hover:bg-primary-fixed transition-colors shadow-[0_0_15px_rgba(168,232,255,0.3)] hover:shadow-[0_0_25px_rgba(168,232,255,0.6)] flex items-center justify-center gap-2 group">
+<span class="material-symbols-outlined text-[18px] group-hover:scale-110 transition-transform">radar</span>
+                INITIATE SCAN
+            </button>
+<div class="flex flex-col gap-1">
+<a class="flex items-center gap-2 px-2 py-1.5 text-on-surface-variant hover:text-on-surface transition-colors" href="#">
+<span class="material-symbols-outlined text-[16px]">help_center</span>
+<span class="font-data-terminal text-[11px]">Support</span>
+</a>
+<a class="flex items-center gap-2 px-2 py-1.5 text-on-surface-variant hover:text-on-surface transition-colors" href="#">
+<span class="material-symbols-outlined text-[16px]">description</span>
+<span class="font-data-terminal text-[11px]">Documentation</span>
+</a>
+</div>
+</div>
+</nav>
+<!-- MAIN CANVAS -->
+<main class="md:ml-64 pt-20 p-margin-desktop min-h-screen grid grid-cols-1 md:grid-cols-12 gap-gutter relative z-10">
+<!-- LEFT COLUMN: Hero & Metrics (Spans 8 cols) -->
+<div class="md:col-span-8 flex flex-col gap-gutter">
+<!-- Hero: Global Threat Map / Wireframe Globe -->
+<section class="panel-glass rounded-xl h-[400px] flex items-center justify-center relative overflow-hidden" style="background-image: radial-gradient(circle at center, rgba(0, 212, 255, 0.05) 0%, transparent 70%);">
+<!-- Background Particle Effect Image Proxy -->
+<div class="absolute inset-0 opacity-30 mix-blend-screen bg-cover bg-center pointer-events-none" data-alt="A highly complex digital network visualization background. It features a dense, abstract web of glowing cyan and green data lines interconnecting across a deep, dark cybernetic void. The nodes pulse with light, suggesting active information flow and a high-tech surveillance matrix aesthetic." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAsLSIi926RlmDf1b8gi0QJxmJU7c0ZgABG8xL1Az-GU-x2G5zUhCimFNwUM-EwdXkJy3vLmHaVhI9aFe3_hru7w7xa8ijlndNP_w7n7AAlUgrQUb1niSUtuRAboquiNSVCw4owxLMqTNPxdpYgkmStYrCOYI5tYrWJkBKe-hjOc7hX9kY7yA40JzAIWjBrideGVFqMnt9czAJKOKoEbXJ6hpQLwzNbO9jlB9djYiDE7AsAqHrlr6DnCzZ-5y9c-Ut33X6BJQD2VWo');">
+</div>
+<!-- Telemetry Overlays -->
+<div class="absolute top-6 left-6 z-10 flex flex-col gap-2">
+<div class="flex items-center gap-2 bg-surface-container-high/80 border border-outline-variant px-3 py-1.5 rounded backdrop-blur-sm">
+<span class="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></span>
+<span class="font-data-terminal text-label-caps text-on-surface tracking-widest">SYS.MONITORING: ACTIVE</span>
+</div>
+<div class="font-data-terminal text-[10px] text-primary/70 flex flex-col">
+<span>LAT: 31.5204 N</span>
+<span>LON: 74.3587 E</span>
+</div>
+</div>
+<div class="absolute bottom-6 right-6 z-10">
+<div class="bg-surface-variant/90 border border-primary/50 px-4 py-2 rounded-sm backdrop-blur flex items-center gap-3">
+<span class="material-symbols-outlined text-primary text-[20px]" style="font-variation-settings: 'FILL' 1;">my_location</span>
+<div>
+<p class="font-label-caps text-label-caps text-on-surface uppercase tracking-wider">Intercept Origin</p>
+<p class="font-headline-md text-headline-md text-primary" style="font-size: 20px; line-height: 24px;">LAHORE, PK</p>
+</div>
+</div>
+</div>
+<!-- 3D CSS Wireframe Globe -->
+<div class="cyber-globe-container">
+<div class="globe-ring"></div>
+<div class="globe-ring"></div>
+<div class="globe-ring"></div>
+<!-- Core Glow -->
+<div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-8 h-8 bg-primary rounded-full blur-[20px] animate-pulse"></div>
+<div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-2 h-2 bg-white rounded-full"></div>
+<!-- Attack Arcs (Static visual representation) -->
+<svg class="absolute inset-0 w-full h-full overflow-visible pointer-events-none" style="transform: rotateX(60deg);">
+<path class="animate-pulse" d="M 150 150 Q 250 50 350 150" fill="none" stroke="rgba(255, 60, 60, 0.6)" stroke-dasharray="4 4" stroke-width="2"></path>
+<circle cx="350" cy="150" fill="#ff3c3c" r="4"></circle>
+</svg>
+</div>
+</section>
+<!-- Metrics Grid -->
+<section class="grid grid-cols-2 lg:grid-cols-3 gap-gutter">
+<!-- Card 1 -->
+<div class="panel-glass rounded-lg p-panel-padding flex flex-col justify-between group hover:border-primary/50 transition-colors cursor-default">
+<div class="flex justify-between items-start mb-4">
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary transition-colors">network_wifi</span>
+<span class="font-data-terminal text-[10px] text-tertiary border border-tertiary/30 px-1.5 py-0.5 rounded bg-tertiary/10">+12% /hr</span>
+</div>
+<div>
+<h3 class="font-label-caps text-label-caps text-on-surface-variant uppercase mb-1">Packets Captured</h3>
+<p class="font-headline-md text-headline-md text-on-surface tracking-tight group-hover:text-primary transition-colors">4,291.8M</p>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="panel-glass rounded-lg p-panel-padding flex flex-col justify-between group hover:border-error/50 transition-colors cursor-default relative overflow-hidden">
+<div class="absolute top-0 right-0 w-16 h-16 bg-error/10 rounded-bl-full blur-xl"></div>
+<div class="flex justify-between items-start mb-4 relative z-10">
+<span class="material-symbols-outlined text-error">warning</span>
+<span class="w-2 h-2 rounded-full bg-error animate-pulse"></span>
+</div>
+<div class="relative z-10">
+<h3 class="font-label-caps text-label-caps text-on-surface-variant uppercase mb-1">Critical Threats</h3>
+<p class="font-headline-md text-headline-md text-error tracking-tight">14</p>
+</div>
+</div>
+<!-- Card 3 -->
+<div class="panel-glass rounded-lg p-panel-padding flex flex-col justify-between group hover:border-secondary/50 transition-colors cursor-default">
+<div class="flex justify-between items-start mb-4">
+<span class="material-symbols-outlined text-secondary">psychology</span>
+</div>
+<div>
+<h3 class="font-label-caps text-label-caps text-on-surface-variant uppercase mb-1">AI Analyzed</h3>
+<p class="font-headline-md text-headline-md text-secondary tracking-tight">98.4%</p>
+</div>
+</div>
+<!-- Card 4 -->
+<div class="panel-glass rounded-lg p-panel-padding flex flex-col justify-between group hover:border-primary/50 transition-colors cursor-default">
+<div class="flex justify-between items-start mb-4">
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary transition-colors">notifications</span>
+<span class="font-data-terminal text-[10px] text-on-surface-variant">Last 24h</span>
+</div>
+<div>
+<h3 class="font-label-caps text-label-caps text-on-surface-variant uppercase mb-1">Alerts Detected</h3>
+<p class="font-headline-md text-headline-md text-on-surface tracking-tight group-hover:text-primary transition-colors">1,042</p>
+</div>
+</div>
+<!-- Card 5 -->
+<div class="panel-glass rounded-lg p-panel-padding flex flex-col justify-between group hover:border-tertiary/50 transition-colors cursor-default">
+<div class="flex justify-between items-start mb-4">
+<span class="material-symbols-outlined text-tertiary">hub</span>
+</div>
+<div>
+<h3 class="font-label-caps text-label-caps text-on-surface-variant uppercase mb-1">Active Chains</h3>
+<p class="font-headline-md text-headline-md text-tertiary tracking-tight">03</p>
+</div>
+</div>
+<!-- Card 6 -->
+<div class="panel-glass rounded-lg p-panel-padding flex flex-col justify-between group hover:border-primary/50 transition-colors cursor-default">
+<div class="flex justify-between items-start mb-4">
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary transition-colors">speed</span>
+<span class="font-data-terminal text-[10px] text-tertiary border border-tertiary/30 px-1.5 py-0.5 rounded bg-tertiary/10">Stable</span>
+</div>
+<div>
+<h3 class="font-label-caps text-label-caps text-on-surface-variant uppercase mb-1">Queue Load</h3>
+<p class="font-headline-md text-headline-md text-on-surface tracking-tight group-hover:text-primary transition-colors">14.2ms</p>
+</div>
+</div>
+</section>
+</div>
+<!-- RIGHT COLUMN: ARIA Copilot (Spans 4 cols) -->
+<aside class="md:col-span-4 h-full">
+<div class="panel-glass border-primary/30 rounded-xl h-[calc(100vh-6rem)] flex flex-col sticky top-24">
+<!-- Copilot Header -->
+<div class="p-4 border-b border-outline-variant/30 flex items-center justify-between bg-surface-container-high/50">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full border border-secondary/50 flex items-center justify-center bg-secondary/10 relative overflow-hidden">
+<span class="material-symbols-outlined text-secondary text-[16px]">neurology</span>
+<div class="absolute inset-0 bg-secondary/20 animate-pulse"></div>
+</div>
+<div>
+<h2 class="font-label-caps text-label-caps text-on-surface uppercase tracking-wider">ARIA Copilot</h2>
+<p class="font-data-terminal text-[10px] text-primary typing-cursor">Analyst Online</p>
+</div>
+</div>
+<button class="text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-[20px]">more_vert</span>
+</button>
+</div>
+<!-- Chat / Terminal History -->
+<div class="flex-1 overflow-y-auto p-4 font-data-terminal text-[13px] space-y-4 flex flex-col justify-end">
+<div class="space-y-1 text-on-surface-variant">
+<p class="opacity-50">[04:15:22] <span class="text-primary">SYS&gt;</span> Initializing MACE chain analysis...</p>
+<p class="opacity-50">[04:15:24] <span class="text-primary">SYS&gt;</span> 3 anomalous vectors detected in region: PK-LAH.</p>
+</div>
+<!-- User Prompt -->
+<div class="bg-surface-variant/50 p-3 rounded-lg border border-outline-variant/30 self-end max-w-[85%]">
+<p class="text-on-surface"><span class="text-primary font-bold mr-2">OP-01&gt;</span>ARIA, isolate traffic from IP 192.168.x.x communicating with the Lahore node. Check for known CVEs.</p>
+</div>
+<!-- AI Response -->
+<div class="bg-secondary/5 p-3 rounded-lg border border-secondary/30 self-start max-w-[90%] relative overflow-hidden">
+<div class="absolute left-0 top-0 bottom-0 w-1 bg-secondary/50"></div>
+<p class="text-on-surface-variant mb-2"><span class="text-secondary font-bold mr-2">ARIA&gt;</span>Isolating traffic pattern...</p>
+<p class="text-on-surface mb-2">Match found. The payload signature aligns with a mutated variant of <span class="text-error bg-error/10 px-1 rounded border border-error/20">CVE-2023-48795</span> (Terrapin Attack).</p>
+<div class="bg-surface-dim p-2 rounded text-[11px] font-mono text-tertiary mb-2 border border-outline-variant">
+                            &gt; Strict KEX protocol bypassed.<br/>
+                            &gt; Sequence numbers manipulated.<br/>
+                            &gt; Action: Recommend immediate session termination.
+                        </div>
+<button class="font-label-caps text-[10px] text-background bg-secondary px-2 py-1 rounded hover:bg-secondary-fixed transition-colors inline-block mt-1">
+                            [ EXECUTE TERMINATION ]
+                        </button>
+</div>
+</div>
+<!-- Input Area -->
+<div class="p-4 border-t border-outline-variant/30 bg-surface-container-lowest/50 backdrop-blur-md">
+<div class="relative flex items-center">
+<span class="text-primary font-data-terminal absolute left-3 select-none">&gt;_</span>
+<input class="w-full bg-surface-dim/80 border-none border-b-2 border-primary focus:ring-0 focus:border-primary text-on-surface font-data-terminal text-[13px] pl-10 pr-10 py-3 rounded-t-sm transition-all placeholder-on-surface-variant/50" placeholder="Query telemetry, analyze threats, or run commands..." type="text"/>
+<button class="absolute right-2 p-1.5 text-primary hover:bg-primary/20 rounded transition-colors flex items-center justify-center">
+<span class="material-symbols-outlined text-[18px]">send</span>
+</button>
+</div>
+</div>
+</div>
+</aside>
+</main>
+<script>
+        // Lightweight JS for subtle interactions could go here
+        // E.g., updating the timestamp, randomizing metric numbers slightly for a "live" feel.
+    </script>
+</body></html>

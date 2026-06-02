@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Incident Management War Room - INC-9005</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;family=Space+Grotesk:wght@600;700&amp;family=Space+Mono:wght@400;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "surface-dim": "#0a1422",
+                        "on-tertiary-fixed": "#00210c",
+                        "on-primary-fixed-variant": "#004e5f",
+                        "on-error-container": "#ffdad6",
+                        "on-primary-fixed": "#001f27",
+                        "tertiary-fixed-dim": "#00e479",
+                        "tertiary-fixed": "#60ff99",
+                        "error": "#ffb4ab",
+                        "on-secondary-fixed": "#2c0051",
+                        "on-tertiary-container": "#005d2d",
+                        "secondary": "#ddb7ff",
+                        "primary": "#a8e8ff",
+                        "surface-container-highest": "#2c3545",
+                        "tertiary-container": "#00df76",
+                        "surface": "#0a1422",
+                        "on-secondary": "#490080",
+                        "primary-container": "#00d4ff",
+                        "on-surface-variant": "#bbc9cf",
+                        "surface-container": "#16202f",
+                        "primary-fixed-dim": "#3cd7ff",
+                        "surface-container-low": "#121c2a",
+                        "surface-variant": "#2c3545",
+                        "surface-container-lowest": "#050e1c",
+                        "secondary-container": "#6f00be",
+                        "inverse-on-surface": "#273140",
+                        "on-tertiary-fixed-variant": "#005228",
+                        "inverse-surface": "#d9e3f7",
+                        "on-primary": "#003642",
+                        "error-container": "#93000a",
+                        "on-tertiary": "#003919",
+                        "on-error": "#690005",
+                        "outline-variant": "#3c494e",
+                        "surface-container-high": "#212a39",
+                        "background": "#0a1422",
+                        "on-background": "#d9e3f7",
+                        "surface-tint": "#3cd7ff",
+                        "on-surface": "#d9e3f7",
+                        "inverse-primary": "#00677e",
+                        "primary-fixed": "#b4ebff",
+                        "outline": "#859398",
+                        "surface-bright": "#303a49",
+                        "secondary-fixed-dim": "#ddb7ff",
+                        "on-primary-container": "#00586b",
+                        "secondary-fixed": "#f0dbff",
+                        "tertiary": "#00ff88",
+                        "on-secondary-fixed-variant": "#6900b3",
+                        "on-secondary-container": "#d6a9ff"
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    spacing: {
+                        "margin-mobile": "16px",
+                        "panel-padding": "24px",
+                        "margin-desktop": "32px",
+                        "unit": "4px",
+                        "gutter": "16px"
+                    },
+                    fontFamily: {
+                        "body-main": ["inter"],
+                        "display-lg": ["spaceGrotesk"],
+                        "label-caps": ["spaceMono"],
+                        "headline-md-mobile": ["spaceGrotesk"],
+                        "headline-md": ["spaceGrotesk"],
+                        "data-terminal": ["spaceMono"]
+                    },
+                    fontSize: {
+                        "body-main": ["16px", { lineHeight: "24px", fontWeight: "400" }],
+                        "display-lg": ["48px", { lineHeight: "56px", letterSpacing: "0.05em", fontWeight: "700" }],
+                        "label-caps": ["12px", { lineHeight: "16px", fontWeight: "700" }],
+                        "headline-md-mobile": ["20px", { lineHeight: "28px", fontWeight: "600" }],
+                        "headline-md": ["24px", { lineHeight: "32px", letterSpacing: "0.02em", fontWeight: "600" }],
+                        "data-terminal": ["14px", { lineHeight: "20px", fontWeight: "400" }]
+                    }
+                }
+            }
+        };
+    </script>
+<style>
+        body {
+            background-color: theme('colors.surface');
+            color: theme('colors.on-surface');
+            background-image: linear-gradient(theme('colors.outline-variant') 1px, transparent 1px),
+                              linear-gradient(90deg, theme('colors.outline-variant') 1px, transparent 1px);
+            background-size: 40px 40px;
+            background-position: -1px -1px;
+        }
+        .hud-panel {
+            background-color: rgba(22, 32, 47, 0.7); /* surface-container with opacity */
+            backdrop-filter: blur(12px);
+            border: 1px solid theme('colors.outline-variant');
+        }
+        .glow-red {
+            box-shadow: 0 0 15px theme('colors.error');
+        }
+        .glow-cyan {
+            box-shadow: 0 0 15px theme('colors.primary');
+        }
+        .scan-line {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background-color: theme('colors.primary');
+            opacity: 0.5;
+            animation: scan 4s linear infinite;
+        }
+        @keyframes scan {
+            0% { top: 0; opacity: 0; }
+            10% { opacity: 0.5; }
+            90% { opacity: 0.5; }
+            100% { top: 100%; opacity: 0; }
+        }
+        .blinking-cursor::after {
+            content: '_';
+            animation: blink 1s step-end infinite;
+        }
+        @keyframes blink {
+            50% { opacity: 0; }
+        }
+        .pulse-slow {
+            animation: pulse 3s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+    </style>
+</head>
+<body class="min-h-screen overflow-x-hidden font-body-main text-body-main selection:bg-primary/30 selection:text-primary">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full border-b border-outline-variant bg-surface/80 backdrop-blur-md shadow-[0_0_15px_rgba(0,212,255,0.1)] z-50 flex justify-between items-center px-margin-desktop h-16">
+<div class="flex items-center gap-4">
+<span class="font-display-lg text-headline-md tracking-widest text-primary">SENTINEL XDR</span>
+<div class="h-6 w-px bg-outline-variant mx-2"></div>
+<div class="flex gap-4 font-data-terminal text-data-terminal">
+<span class="text-on-surface-variant cursor-pointer hover:text-primary hover:bg-primary/10 transition-all px-2 py-1 rounded">DASHBOARD</span>
+<span class="text-primary brightness-125 cursor-pointer hover:text-primary hover:bg-primary/10 transition-all px-2 py-1 rounded bg-primary/5 border-b-2 border-primary">INCIDENTS</span>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<div class="flex gap-3 text-primary">
+<button class="hover:text-primary hover:bg-primary/10 transition-all p-2 rounded cursor-pointer active:scale-95"><span class="material-symbols-outlined">database</span></button>
+<button class="hover:text-primary hover:bg-primary/10 transition-all p-2 rounded cursor-pointer active:scale-95"><span class="material-symbols-outlined">api</span></button>
+<button class="hover:text-primary hover:bg-primary/10 transition-all p-2 rounded cursor-pointer active:scale-95"><span class="material-symbols-outlined">memory</span></button>
+</div>
+<button class="bg-primary text-on-primary font-label-caps text-label-caps px-4 py-2 rounded-sm cursor-pointer active:scale-95 hover:brightness-110 shadow-[0_0_10px_theme('colors.primary')]">SYSTEM_SYNC</button>
+<div class="w-8 h-8 rounded-full bg-surface-container-high border border-outline-variant overflow-hidden flex items-center justify-center">
+<span class="material-symbols-outlined text-on-surface-variant">person</span>
+</div>
+</div>
+</header>
+<!-- SideNavBar (Hidden on Mobile) -->
+<aside class="hidden md:flex flex-col py-panel-padding fixed left-0 top-16 h-[calc(100vh-64px)] w-64 border-r border-outline-variant bg-surface-container-lowest/90 backdrop-blur-xl z-40">
+<div class="px-6 mb-8">
+<div class="font-data-terminal text-data-terminal text-primary">SEC-UNIT-04</div>
+<div class="font-label-caps text-label-caps text-error animate-pulse">STATUS: CRITICAL</div>
+</div>
+<nav class="flex flex-col gap-2 px-4 flex-grow font-label-caps text-label-caps">
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-primary/10 hover:text-primary transition-colors duration-200 rounded-sm" href="#">
+<span class="material-symbols-outlined">radar</span> THREAT_MAP
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-primary/10 hover:text-primary transition-colors duration-200 rounded-sm" href="#">
+<span class="material-symbols-outlined">terminal</span> LOG_STREAM
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 text-primary border-l-4 border-primary bg-primary/5 transition-colors duration-200 rounded-sm shadow-[inset_10px_0_20px_rgba(0,212,255,0.05)]" href="#">
+<span class="material-symbols-outlined">security</span> INCIDENTS
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-primary/10 hover:text-primary transition-colors duration-200 rounded-sm" href="#">
+<span class="material-symbols-outlined">lan</span> NETWORK_HUD
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-primary/10 hover:text-primary transition-colors duration-200 rounded-sm" href="#">
+<span class="material-symbols-outlined">settings</span> SETTINGS
+            </a>
+</nav>
+<div class="px-4 mt-auto">
+<button class="w-full text-left font-data-terminal text-data-terminal text-on-surface-variant hover:text-primary mb-4 transition-colors">
+                [ PURGE_CACHE ]
+            </button>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-primary/10 hover:text-primary transition-colors duration-200 rounded-sm font-label-caps text-label-caps" href="#">
+<span class="material-symbols-outlined">psychology</span> CO-PILOT
+            </a>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="pt-24 pb-margin-desktop px-margin-mobile md:pl-[calc(16rem+32px)] md:pr-margin-desktop min-h-screen">
+<!-- Header Section -->
+<div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-8 gap-4">
+<div>
+<h1 class="font-display-lg text-headline-md md:text-display-lg text-error flex items-center gap-3">
+<span class="material-symbols-outlined text-4xl animate-pulse">warning</span>
+                    WAR ROOM: ACTIVE INCIDENT
+                </h1>
+<p class="font-data-terminal text-data-terminal text-on-surface-variant mt-2">SEC_PROTOCOL: OMEGA | AUTHORIZATION: LEVEL 5</p>
+</div>
+<div class="flex gap-3">
+<button class="border border-error text-error font-data-terminal text-data-terminal px-4 py-2 hover:bg-error/10 transition-colors uppercase">
+                    [ ESCALATE ]
+                </button>
+<button class="bg-primary text-on-primary font-label-caps text-label-caps px-6 py-2 rounded-sm hover:brightness-110 shadow-[0_0_15px_rgba(0,212,255,0.3)]">
+                    DEPLOY COUNTERMEASURES
+                </button>
+</div>
+</div>
+<!-- Bento Grid Layout -->
+<div class="grid grid-cols-1 md:grid-cols-12 gap-6">
+<!-- Primary Incident Card (Spans 8 columns) -->
+<div class="hud-panel p-6 rounded-sm md:col-span-8 relative overflow-hidden glow-red">
+<div class="scan-line"></div>
+<div class="flex justify-between items-start mb-6">
+<div>
+<div class="flex items-center gap-3 mb-2">
+<span class="bg-error text-on-error font-label-caps text-label-caps px-2 py-1 rounded-sm flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-on-error animate-pulse"></span>
+                                CRITICAL
+                            </span>
+<span class="font-data-terminal text-data-terminal text-on-surface-variant border border-outline-variant px-2 py-1">TICKET: INC-9005</span>
+</div>
+<h2 class="font-headline-md text-headline-md text-on-surface">Volumetric DDoS - 4.2Tbps</h2>
+</div>
+<div class="bg-surface-container-high border border-outline-variant px-4 py-2 flex items-center gap-2 rounded-sm shadow-[0_0_10px_rgba(255,180,171,0.2)]">
+<span class="material-symbols-outlined text-primary pulse-slow">shield</span>
+<span class="font-label-caps text-label-caps text-primary tracking-widest">MITIGATING</span>
+</div>
+</div>
+<div class="grid grid-cols-3 gap-4 mb-6">
+<div class="bg-surface-container-low p-4 border border-outline-variant rounded-sm">
+<div class="font-label-caps text-label-caps text-on-surface-variant mb-1">ATTACK VECTOR</div>
+<div class="font-data-terminal text-data-terminal text-error">UDP Flood / DNS Amp</div>
+</div>
+<div class="bg-surface-container-low p-4 border border-outline-variant rounded-sm">
+<div class="font-label-caps text-label-caps text-on-surface-variant mb-1">TARGET INFRASTRUCTURE</div>
+<div class="font-data-terminal text-data-terminal text-primary">EU-WEST-1 (API Gateway)</div>
+</div>
+<div class="bg-surface-container-low p-4 border border-outline-variant rounded-sm">
+<div class="font-label-caps text-label-caps text-on-surface-variant mb-1">DURATION</div>
+<div class="font-data-terminal text-data-terminal text-on-surface">00:14:32 (Ongoing)</div>
+</div>
+</div>
+<div class="h-48 bg-surface-container-lowest border border-outline-variant rounded-sm relative overflow-hidden flex items-center justify-center group">
+<!-- Map visualization placeholder -->
+<div class="absolute inset-0 opacity-40 bg-[url('https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&amp;w=2070&amp;auto=format&amp;fit=crop')] bg-cover bg-center" data-alt="A highly stylized, dark-mode 3D digital map of Europe glowing with cyan and intense red neon data points, indicating a massive cyber attack radiating towards a central node. The map has a glassmorphic depth, set against a deep black void with a subtle hex grid background, evoking a futuristic military SOC interface. High tech, brutalist aesthetic." style="filter: grayscale(100%) contrast(150%) brightness(50%) sepia(100%) hue-rotate(180deg) saturate(300%);"></div>
+<div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+<div class="w-32 h-32 rounded-full border border-error/50 flex items-center justify-center animate-ping">
+<div class="w-16 h-16 rounded-full border border-error bg-error/20 flex items-center justify-center">
+<span class="material-symbols-outlined text-error">target</span>
+</div>
+</div>
+</div>
+<div class="absolute bottom-2 right-2 bg-surface/80 backdrop-blur border border-outline-variant px-2 py-1 font-data-terminal text-data-terminal text-[10px] text-on-surface-variant">
+                        GEO-IP: MULTIPLE ORIGINS (BOTNET DETECTED)
+                    </div>
+</div>
+</div>
+<!-- Active Threat Matrix (Spans 4 columns) -->
+<div class="hud-panel p-6 rounded-sm md:col-span-4 relative flex flex-col">
+<div class="scan-line" style="animation-delay: 1s;"></div>
+<div class="flex justify-between items-center mb-4 border-b border-outline-variant pb-2">
+<h3 class="font-headline-md-mobile text-headline-md-mobile text-on-surface flex items-center gap-2">
+<span class="material-symbols-outlined text-error">grid_view</span>
+                        THREAT MATRIX
+                    </h3>
+<span class="font-data-terminal text-data-terminal text-error blinking-cursor">100% CAP</span>
+</div>
+<div class="grid grid-cols-4 gap-2 flex-grow content-start">
+<!-- Generate 24 red indicator boxes -->
+<script>
+                        for(let i=0; i<24; i++) {
+                            let opacity = Math.random() * 0.5 + 0.5;
+                            document.write(`<div class="aspect-square bg-error border border-error/50 rounded-sm" style="opacity: ${opacity}; box-shadow: 0 0 8px rgba(255,180,171, ${opacity}); animation: pulse ${Math.random() * 2 + 1}s infinite;"></div>`);
+                        }
+                    </script>
+</div>
+<div class="mt-4 pt-4 border-t border-outline-variant font-data-terminal text-data-terminal text-[12px] text-on-surface-variant text-center">
+                    ALL SECTORS COMPROMISED. REDIRECTING.
+                </div>
+</div>
+<!-- Log Stream (Spans 6 columns) -->
+<div class="hud-panel p-4 rounded-sm md:col-span-6 h-80 flex flex-col">
+<div class="flex justify-between items-center mb-4 border-b border-outline-variant pb-2">
+<h3 class="font-label-caps text-label-caps text-on-surface-variant flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px]">terminal</span>
+                        WAR ROOM FEED
+                    </h3>
+<div class="flex gap-2">
+<span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
+<span class="font-data-terminal text-data-terminal text-primary text-[10px]">LIVE</span>
+</div>
+</div>
+<div class="flex-grow overflow-y-auto font-data-terminal text-data-terminal text-[13px] flex flex-col gap-2 pr-2" style="scrollbar-width: thin; scrollbar-color: theme('colors.outline-variant') transparent;">
+<div class="flex gap-2 text-on-surface-variant opacity-50">
+<span class="text-outline">14:02:11</span>
+<span>[ SYSTEM ] Normal traffic baseline established.</span>
+</div>
+<div class="flex gap-2 text-error">
+<span class="text-outline">14:15:00</span>
+<span class="font-bold">[ ALERT ] Ingress saturation detected on EU-WEST-1</span>
+</div>
+<div class="flex gap-2 text-on-surface">
+<span class="text-outline">14:15:05</span>
+<span>[ SYSTEM ] Auto-scaling groups triggered.</span>
+</div>
+<div class="flex gap-2 text-primary">
+<span class="text-outline">14:16:22</span>
+<span>[ ACTION ] Diverting traffic to scrubbing centers</span>
+</div>
+<div class="flex gap-2 text-secondary bg-secondary/10 border border-secondary/30 p-1 rounded-sm mt-1">
+<span class="text-secondary/60">14:18:45</span>
+<span class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">psychology</span>
+                            [ ARIA ] Pattern matching confirmed Mirai-variant botnet
+                        </span>
+</div>
+<div class="flex gap-2 text-on-surface">
+<span class="text-outline">14:20:10</span>
+<span class="blinking-cursor">[ SYSTEM ] Filtering rules applying</span>
+</div>
+</div>
+</div>
+<!-- MTTR Widget (Spans 6 columns) -->
+<div class="hud-panel p-6 rounded-sm md:col-span-6 relative overflow-hidden flex flex-col justify-between">
+<div class="scan-line" style="animation-delay: 2s; animation-duration: 6s;"></div>
+<div class="flex justify-between items-start mb-2">
+<h3 class="font-label-caps text-label-caps text-on-surface-variant flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px]">schedule</span>
+                        MEAN TIME TO RESOLVE (MTTR)
+                    </h3>
+<span class="material-symbols-outlined text-error" title="Warning: Trend upward">trending_up</span>
+</div>
+<div class="flex items-end gap-4 mb-4">
+<div class="font-display-lg text-display-lg text-error leading-none">42<span class="text-headline-md">m</span></div>
+<div class="font-data-terminal text-data-terminal text-error bg-error/10 px-2 py-1 rounded-sm mb-1">+15m vs avg</div>
+</div>
+<!-- Abstract Graph Placeholder -->
+<div class="h-24 w-full border-b border-l border-outline-variant relative flex items-end">
+<!-- Bars -->
+<div class="w-1/6 h-[30%] bg-outline-variant/30 ml-2"></div>
+<div class="w-1/6 h-[40%] bg-outline-variant/30 ml-2"></div>
+<div class="w-1/6 h-[35%] bg-outline-variant/30 ml-2"></div>
+<div class="w-1/6 h-[60%] bg-error/50 ml-2 relative">
+<div class="absolute -top-6 left-1/2 transform -translate-x-1/2 font-data-terminal text-[10px] text-error">INC-9005</div>
+</div>
+<div class="w-1/6 h-[80%] bg-error ml-2 glow-red relative">
+<div class="absolute -top-2 left-0 right-0 h-1 bg-on-error"></div>
+</div>
+<div class="w-1/6 h-[90%] bg-error ml-2 glow-red relative blinking-cursor">
+<div class="absolute -top-2 left-0 right-0 h-1 bg-on-error"></div>
+</div>
+</div>
+<div class="font-data-terminal text-data-terminal text-[10px] text-on-surface-variant mt-2 text-right">
+                    TARGET: &lt; 30m | CURRENT SLA AT RISK
+                </div>
+</div>
+</div>
+</main>
+</body></html>

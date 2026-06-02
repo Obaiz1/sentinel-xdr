@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>SEC-UNIT-04 | Forensics Investigation Lab</title>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Space+Grotesk:wght@500;600;700&amp;family=Space+Mono:ital,wght@0,400;0,700;1,400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Config -->
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "error": "#ffb4ab",
+                    "tertiary-fixed": "#60ff99",
+                    "surface-container-highest": "#2c3545",
+                    "on-primary-fixed-variant": "#004e5f",
+                    "surface-dim": "#0a1422",
+                    "on-tertiary-container": "#005d2d",
+                    "on-background": "#d9e3f7",
+                    "surface": "#0a1422",
+                    "surface-container-low": "#121c2a",
+                    "on-surface-variant": "#bbc9cf",
+                    "secondary-container": "#6f00be",
+                    "on-secondary-fixed-variant": "#6900b3",
+                    "on-primary-container": "#00586b",
+                    "on-error": "#690005",
+                    "primary-fixed-dim": "#3cd7ff",
+                    "on-primary-fixed": "#001f27",
+                    "surface-container-high": "#212a39",
+                    "surface-tint": "#3cd7ff",
+                    "outline-variant": "#3c494e",
+                    "on-tertiary-fixed-variant": "#005228",
+                    "on-tertiary": "#003919",
+                    "tertiary": "#00ff88",
+                    "surface-container-lowest": "#050e1c",
+                    "on-secondary-fixed": "#2c0051",
+                    "tertiary-container": "#00df76",
+                    "background": "#0a1422",
+                    "secondary-fixed-dim": "#ddb7ff",
+                    "on-tertiary-fixed": "#00210c",
+                    "primary": "#a8e8ff",
+                    "inverse-on-surface": "#273140",
+                    "inverse-surface": "#d9e3f7",
+                    "surface-container": "#16202f",
+                    "primary-container": "#00d4ff",
+                    "tertiary-fixed-dim": "#00e479",
+                    "surface-bright": "#303a49",
+                    "secondary": "#ddb7ff",
+                    "on-secondary": "#490080",
+                    "primary-fixed": "#b4ebff",
+                    "outline": "#859398",
+                    "on-secondary-container": "#d6a9ff",
+                    "inverse-primary": "#00677e",
+                    "on-error-container": "#ffdad6",
+                    "secondary-fixed": "#f0dbff",
+                    "on-surface": "#d9e3f7",
+                    "error-container": "#93000a",
+                    "surface-variant": "#2c3545",
+                    "on-primary": "#003642"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "panel-padding": "24px",
+                    "gutter": "16px",
+                    "unit": "4px",
+                    "margin-mobile": "16px",
+                    "margin-desktop": "32px"
+            },
+            "fontFamily": {
+                    "headline-md-mobile": [
+                            "spaceGrotesk"
+                    ],
+                    "body-main": [
+                            "inter"
+                    ],
+                    "label-caps": [
+                            "spaceMono"
+                    ],
+                    "display-lg": [
+                            "spaceGrotesk"
+                    ],
+                    "data-terminal": [
+                            "spaceMono"
+                    ],
+                    "headline-md": [
+                            "spaceGrotesk"
+                    ]
+            },
+            "fontSize": {
+                    "headline-md-mobile": [
+                            "20px",
+                            {
+                                    "lineHeight": "28px",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "body-main": [
+                            "16px",
+                            {
+                                    "lineHeight": "24px",
+                                    "fontWeight": "400"
+                            }
+                    ],
+                    "label-caps": [
+                            "12px",
+                            {
+                                    "lineHeight": "16px",
+                                    "fontWeight": "700"
+                            }
+                    ],
+                    "display-lg": [
+                            "48px",
+                            {
+                                    "lineHeight": "56px",
+                                    "letterSpacing": "0.05em",
+                                    "fontWeight": "700"
+                            }
+                    ],
+                    "data-terminal": [
+                            "14px",
+                            {
+                                    "lineHeight": "20px",
+                                    "fontWeight": "400"
+                            }
+                    ],
+                    "headline-md": [
+                            "24px",
+                            {
+                                    "lineHeight": "32px",
+                                    "letterSpacing": "0.02em",
+                                    "fontWeight": "600"
+                            }
+                    ]
+            }
+    },
+        },
+      }
+    </script>
+<style>
+        body {
+            background-color: #040a14;
+            color: #d9e3f7;
+            background-image: 
+                linear-gradient(rgba(60, 215, 255, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(60, 215, 255, 0.05) 1px, transparent 1px);
+            background-size: 30px 30px;
+            overflow-x: hidden;
+        }
+        
+        .scanline {
+            width: 100%;
+            height: 2px;
+            background: rgba(60, 215, 255, 0.5);
+            position: absolute;
+            top: 0;
+            left: 0;
+            animation: scan 4s linear infinite;
+            z-index: 10;
+            pointer-events: none;
+            box-shadow: 0 0 10px rgba(60, 215, 255, 0.8);
+        }
+        
+        @keyframes scan {
+            0% { top: 0%; opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { top: 100%; opacity: 0; }
+        }
+        
+        .glass-panel {
+            background: rgba(18, 28, 42, 0.6);
+            backdrop-filter: blur(12px);
+            border: 1px solid #3c494e;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .glass-panel::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(60, 215, 255, 0.3), transparent);
+        }
+        
+        .glow-active {
+            box-shadow: 0 0 15px rgba(60, 215, 255, 0.4);
+        }
+        
+        .glow-alert {
+            box-shadow: 0 0 15px rgba(255, 180, 171, 0.4);
+        }
+        
+        .hex-scroll {
+            font-family: 'Space Mono', monospace;
+            white-space: pre-wrap;
+            overflow-y: hidden;
+            color: #bbc9cf;
+        }
+        
+        .blinking-cursor {
+            display: inline-block;
+            width: 10px;
+            height: 1.2em;
+            background-color: #3cd7ff;
+            animation: blink 1s step-end infinite;
+            vertical-align: middle;
+        }
+        
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+        
+        .pulse-btn {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .pulse-btn::after {
+            content: '';
+            position: absolute;
+            top: 50%; left: 50%;
+            width: 100%; height: 100%;
+            background: rgba(255,255,255,0.2);
+            border-radius: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            transition: transform 0.3s ease;
+        }
+        
+        .pulse-btn:active::after {
+            transform: translate(-50%, -50%) scale(2);
+            opacity: 0;
+            transition: transform 0s;
+        }
+    </style>
+</head>
+<body class="antialiased min-h-screen flex text-body-main font-body-main">
+<!-- SideNavBar -->
+<nav class="hidden md:flex bg-surface-container-low/90 backdrop-blur-xl h-screen w-64 fixed left-0 top-0 border-r border-outline-variant flex-col z-40">
+<!-- Header (Mobile TopAppBar logic adapted for sidebar visual identity) -->
+<div class="p-4 border-b border-outline-variant flex items-center gap-3">
+<img alt="SEC-UNIT-04 Logo" class="w-10 h-10 rounded-sm" src="https://lh3.googleusercontent.com/aida/AP1WRLvA5zXchZcdJCmvN4DdP_mFishHxJQlu5AgiJX_UjziLKyvjhVmStcL_R-m_qoaTnbXnpisAx_ocnoBB5gIt8u2UEZL7YZn9YxwGn6fqWK62HVj83jrWXY4huaoeFMfeJUbnSvq9i8Ga1ZIRHDjxV0jX1ODagfZOS1SL96fvI0bKul74blHP4dZm5rJ69E2SC9JBu6leHq5T87qI5AEmSCFZO0YJBo-OfSq1sR_D_BoQWCDtXY1hks3qw"/>
+<div>
+<h1 class="font-data-terminal text-data-terminal text-primary font-bold tracking-tighter uppercase">SEC-UNIT-04</h1>
+<p class="font-label-caps text-label-caps text-tertiary uppercase text-[10px]">Vigilant Mode Active</p>
+</div>
+</div>
+<!-- Navigation Tabs -->
+<div class="flex-1 overflow-y-auto py-4">
+<ul class="space-y-1">
+<!-- Inactive Tab -->
+<li>
+<a class="flex items-center gap-3 text-on-surface-variant hover:text-on-surface p-4 hover:bg-surface-container-high/50 transition-all font-data-terminal text-data-terminal cursor-pointer hover:translate-x-1 duration-200" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">security</span>
+<span>Vulnerabilities</span>
+</a>
+</li>
+<!-- Active Tab: Forensics -->
+<li>
+<a class="flex items-center gap-3 text-primary bg-primary/10 border-l-4 border-primary p-4 hover:bg-surface-container-high/50 transition-all font-data-terminal text-data-terminal cursor-pointer" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">biotech</span>
+<span class="font-bold">Forensics</span>
+</a>
+</li>
+<!-- Inactive Tabs -->
+<li>
+<a class="flex items-center gap-3 text-on-surface-variant hover:text-on-surface p-4 hover:bg-surface-container-high/50 transition-all font-data-terminal text-data-terminal cursor-pointer hover:translate-x-1 duration-200" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">view_quilt</span>
+<span>Command Center</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-3 text-on-surface-variant hover:text-on-surface p-4 hover:bg-surface-container-high/50 transition-all font-data-terminal text-data-terminal cursor-pointer hover:translate-x-1 duration-200" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">hub</span>
+<span>Network Traffic</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-3 text-on-surface-variant hover:text-on-surface p-4 hover:bg-surface-container-high/50 transition-all font-data-terminal text-data-terminal cursor-pointer hover:translate-x-1 duration-200" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">history</span>
+<span>Audit Logs</span>
+</a>
+</li>
+</ul>
+</div>
+<!-- Footer / CTA -->
+<div class="p-4 border-t border-outline-variant space-y-2">
+<button class="w-full font-label-caps text-label-caps text-primary border border-primary/50 py-2 hover:bg-primary/10 transition-colors uppercase pulse-btn text-center">
+                [ INITIATE SCAN ]
+            </button>
+<ul class="space-y-1 mt-4">
+<li>
+<a class="flex items-center gap-3 text-on-surface-variant hover:text-on-surface p-2 hover:bg-surface-container-high/50 transition-all font-data-terminal text-data-terminal cursor-pointer text-xs" href="#">
+<span class="material-symbols-outlined text-[18px]">speed</span>
+<span>System Health</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-3 text-secondary hover:text-secondary-fixed p-2 hover:bg-surface-container-high/50 transition-all font-data-terminal text-data-terminal cursor-pointer text-xs glow-active" href="#">
+<span class="material-symbols-outlined text-[18px]">psychology</span>
+<span>Copilot</span>
+</a>
+</li>
+</ul>
+</div>
+</nav>
+<!-- Main Content Canvas -->
+<main class="flex-1 md:ml-64 p-margin-mobile md:p-margin-desktop relative z-10 flex flex-col gap-gutter max-w-[1600px] mx-auto w-full">
+<!-- Top App Bar (Mobile) / Header Area (Desktop) -->
+<header class="md:hidden flex justify-between items-center bg-surface/80 backdrop-blur-md w-full sticky top-0 border-b border-outline-variant shadow-[0_0_15px_rgba(60,215,255,0.1)] px-margin-mobile py-4 z-50">
+<div class="flex items-center gap-2">
+<img alt="SEC-UNIT-04 Logo" class="w-8 h-8 rounded-sm" src="https://lh3.googleusercontent.com/aida/AP1WRLvA5zXchZcdJCmvN4DdP_mFishHxJQlu5AgiJX_UjziLKyvjhVmStcL_R-m_qoaTnbXnpisAx_ocnoBB5gIt8u2UEZL7YZn9YxwGn6fqWK62HVj83jrWXY4huaoeFMfeJUbnSvq9i8Ga1ZIRHDjxV0jX1ODagfZOS1SL96fvI0bKul74blHP4dZm5rJ69E2SC9JBu6leHq5T87qI5AEmSCFZO0YJBo-OfSq1sR_D_BoQWCDtXY1hks3qw"/>
+<span class="font-headline-md-mobile text-headline-md-mobile text-primary tracking-tighter font-bold uppercase">XDR-CHASSIS-v4</span>
+</div>
+<div class="flex gap-4">
+<span class="material-symbols-outlined text-on-surface-variant cursor-pointer active:scale-95">search</span>
+<span class="material-symbols-outlined text-on-surface-variant cursor-pointer active:scale-95">menu</span>
+</div>
+</header>
+<!-- Desktop Page Title Area -->
+<div class="hidden md:flex justify-between items-end border-b border-outline-variant pb-2 mb-2">
+<div>
+<h2 class="font-display-lg text-display-lg text-on-surface uppercase tracking-tight">Forensics Investigation Lab</h2>
+<p class="font-data-terminal text-data-terminal text-on-surface-variant uppercase mt-2">Active Session: <span class="text-tertiary">#INV-992-DELTA</span> | Subject: Suspicious Binary Analysis</p>
+</div>
+<div class="flex gap-4">
+<button class="font-label-caps text-label-caps text-on-surface-variant hover:text-primary transition-colors cursor-pointer flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px]">download</span> EXPORT REPORT
+                </button>
+</div>
+</div>
+<!-- Bento Grid Layout -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter flex-1">
+<!-- Bit-Stream Analyzer (Left Column - 7 col) -->
+<div class="lg:col-span-7 glass-panel rounded-lg p-panel-padding flex flex-col h-[500px] relative">
+<div class="scanline"></div>
+<div class="flex justify-between items-center mb-4 border-b border-outline-variant pb-2">
+<h3 class="font-headline-md text-headline-md text-primary flex items-center gap-2 uppercase">
+<span class="material-symbols-outlined">memory</span> Bit-Stream Analyzer
+                    </h3>
+<div class="flex gap-2">
+<span class="bg-surface-container-high px-2 py-1 text-[10px] font-label-caps text-label-caps text-on-surface-variant uppercase border border-outline-variant rounded-sm">OFFSET: 0x00A4F</span>
+<span class="bg-error/10 px-2 py-1 text-[10px] font-label-caps text-label-caps text-error border border-error/50 rounded-sm flex items-center gap-1">
+<div class="w-1.5 h-1.5 rounded-full bg-error animate-pulse"></div> ANOMALY DETECTED
+                        </span>
+</div>
+</div>
+<div class="flex-1 bg-surface-container-lowest border border-outline-variant rounded-sm p-4 overflow-hidden relative" id="hex-container">
+<div class="absolute right-0 top-0 w-8 h-full bg-surface-container-low border-l border-outline-variant flex flex-col items-center py-2 gap-4">
+<span class="material-symbols-outlined text-on-surface-variant text-[16px] cursor-pointer hover:text-primary">arrow_drop_up</span>
+<div class="w-1 bg-outline-variant h-24 rounded-full relative">
+<div class="absolute top-4 w-2 h-4 bg-primary -left-0.5 rounded-sm glow-active cursor-grab"></div>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant text-[16px] cursor-pointer hover:text-primary">arrow_drop_down</span>
+</div>
+<div class="hex-scroll font-data-terminal text-data-terminal text-xs leading-5 h-full opacity-80" id="hex-content">
+0000000 4d 5a 90 00 03 00 00 00 04 00 00 00 ff ff 00 00  MZ..............
+0000010 b8 00 00 00 00 00 00 00 40 00 00 00 00 00 00 00  ........@.......
+0000020 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+0000030 00 00 00 00 00 00 00 00 00 00 00 00 80 00 00 00  ................
+0000040 0e 1f ba 0e 00 b4 09 cd 21 b8 01 4c cd 21 54 68  ........!..L.!Th
+0000050 69 73 20 70 72 6f 67 72 61 6d 20 63 61 6e 6e 6f  is program canno
+0000060 74 20 62 65 20 72 75 6e 20 69 6e 20 44 4f 53 20  t be run in DOS 
+0000070 6d 6f 64 65 2e 0d 0d 0a 24 00 00 00 00 00 00 00  mode....$.......
+0000080 <span class="text-error font-bold bg-error/20">50 45 00 00 4c 01 03 00 8a 84 41 62 00 00 00 00</span> <span class="text-error font-bold">PE..L.....Ab....</span>
+0000090 00 00 00 00 e0 00 02 01 0b 01 30 00 00 0a 00 00  ..........0.....
+00000a0 00 06 00 00 00 00 00 00 90 11 00 00 00 10 00 00  ................
+00000b0 00 20 00 00 00 00 40 00 00 10 00 00 00 02 00 00  . ....@.........
+                    </div>
+</div>
+</div>
+<!-- ARIA Copilot (Right Column - 5 col) -->
+<div class="lg:col-span-5 glass-panel rounded-lg p-panel-padding flex flex-col h-[500px]">
+<div class="flex justify-between items-center mb-4 border-b border-outline-variant pb-2">
+<h3 class="font-headline-md text-headline-md text-secondary flex items-center gap-2 uppercase">
+<span class="material-symbols-outlined">psychology</span> ARIA Copilot
+                    </h3>
+<span class="bg-secondary-container/20 px-2 py-1 text-[10px] font-label-caps text-label-caps text-secondary-fixed border border-secondary-container rounded-sm flex items-center gap-1">
+                        NEURAL NET ACTIVE
+                    </span>
+</div>
+<div class="flex-1 bg-surface-container-lowest border border-outline-variant rounded-sm p-4 overflow-y-auto flex flex-col gap-4">
+<!-- AI Insight -->
+<div class="bg-surface-container-low border border-outline-variant p-3 rounded-sm flex gap-3">
+<div class="text-secondary mt-1"><span class="material-symbols-outlined text-[20px]">smart_toy</span></div>
+<div>
+<p class="font-data-terminal text-data-terminal text-on-surface text-sm">Automated Pattern Match found at offset 0x00080. Signature correlates 94% with known APT29 obfuscation techniques.</p>
+<div class="mt-2 flex gap-2">
+<button class="bg-secondary/10 text-secondary border border-secondary/30 px-2 py-1 text-[10px] font-label-caps text-label-caps rounded-sm hover:bg-secondary/20 transition-colors uppercase">View Signature</button>
+<button class="text-on-surface-variant border border-outline-variant px-2 py-1 text-[10px] font-label-caps text-label-caps rounded-sm hover:bg-surface-container transition-colors uppercase">Dismiss</button>
+</div>
+</div>
+</div>
+<!-- User Query -->
+<div class="self-end bg-primary/10 border border-primary/30 p-3 rounded-sm max-w-[85%]">
+<p class="font-data-terminal text-data-terminal text-primary text-sm">&gt; Decompile section .text and highlight anomalous API calls.</p>
+</div>
+<!-- Loading / Processing -->
+<div class="flex items-center gap-2 text-on-surface-variant font-data-terminal text-data-terminal text-sm">
+<span class="material-symbols-outlined animate-spin text-[16px]">sync</span> Decompiling...
+                    </div>
+</div>
+<div class="mt-4 border-b border-primary border-b-2 flex bg-surface-container-lowest">
+<span class="font-data-terminal text-data-terminal text-primary p-2">&gt;</span>
+<input class="bg-transparent border-none focus:ring-0 text-on-surface font-data-terminal text-data-terminal w-full p-2 outline-none" placeholder="Query forensics data..." type="text" value="Decompile section .text"/>
+<span class="blinking-cursor mt-3 mr-2"></span>
+</div>
+</div>
+<!-- Timeline Reconstruction (Full Width - 12 col) -->
+<div class="lg:col-span-12 glass-panel rounded-lg p-panel-padding h-auto min-h-[300px]">
+<div class="flex justify-between items-center mb-6 border-b border-outline-variant pb-2">
+<h3 class="font-headline-md text-headline-md text-on-surface flex items-center gap-2 uppercase">
+<span class="material-symbols-outlined text-primary">timeline</span> Timeline Reconstruction
+                    </h3>
+<div class="flex gap-4">
+<button class="font-label-caps text-label-caps text-primary hover:text-primary-fixed transition-colors uppercase">[ PLAYBACK ]</button>
+</div>
+</div>
+<div class="relative w-full h-[150px] flex items-center justify-between px-8 mt-8">
+<!-- Connecting Line -->
+<div class="absolute top-1/2 left-8 right-8 h-0.5 bg-outline-variant -z-10 transform -translate-y-1/2"></div>
+<div class="absolute top-1/2 left-8 w-2/3 h-0.5 bg-primary -z-10 transform -translate-y-1/2 glow-active"></div>
+<!-- Node 1 -->
+<div class="flex flex-col items-center gap-2 cursor-pointer group">
+<div class="w-6 h-6 rounded-sm bg-surface-container-high border-2 border-primary flex items-center justify-center relative">
+<div class="w-2 h-2 bg-primary rounded-sm"></div>
+</div>
+<div class="text-center">
+<p class="font-label-caps text-label-caps text-primary uppercase text-[10px]">T-00:15:00</p>
+<p class="font-data-terminal text-data-terminal text-on-surface text-xs uppercase mt-1">Initial Access</p>
+</div>
+</div>
+<!-- Node 2 -->
+<div class="flex flex-col items-center gap-2 cursor-pointer group">
+<div class="w-6 h-6 rounded-sm bg-surface-container-high border-2 border-primary flex items-center justify-center">
+<div class="w-2 h-2 bg-primary rounded-sm"></div>
+</div>
+<div class="text-center">
+<p class="font-label-caps text-label-caps text-primary uppercase text-[10px]">T-00:12:30</p>
+<p class="font-data-terminal text-data-terminal text-on-surface text-xs uppercase mt-1">Payload Drop</p>
+</div>
+</div>
+<!-- Node 3 (Active) -->
+<div class="flex flex-col items-center gap-2 cursor-pointer group relative">
+<div class="absolute -top-12 bg-surface-container-highest border border-error p-2 rounded-sm whitespace-nowrap z-20 shadow-lg hidden group-hover:block">
+<p class="font-data-terminal text-data-terminal text-error text-xs">Suspicious API Call: CreateRemoteThread</p>
+</div>
+<div class="w-8 h-8 rounded-sm bg-error/20 border-2 border-error flex items-center justify-center glow-alert relative">
+<div class="absolute -inset-2 border border-error/50 rounded-sm animate-ping"></div>
+<span class="material-symbols-outlined text-error text-[16px]">priority_high</span>
+</div>
+<div class="text-center">
+<p class="font-label-caps text-label-caps text-error font-bold uppercase text-[10px]">T-00:05:42</p>
+<p class="font-data-terminal text-data-terminal text-on-surface text-xs font-bold uppercase mt-1">Memory Inject</p>
+</div>
+</div>
+<!-- Node 4 -->
+<div class="flex flex-col items-center gap-2 cursor-pointer group opacity-50">
+<div class="w-6 h-6 rounded-sm bg-surface-container-low border-2 border-outline-variant flex items-center justify-center">
+<div class="w-2 h-2 bg-outline-variant rounded-sm"></div>
+</div>
+<div class="text-center">
+<p class="font-label-caps text-label-caps text-on-surface-variant uppercase text-[10px]">T+00:02:10</p>
+<p class="font-data-terminal text-data-terminal text-on-surface-variant text-xs uppercase mt-1">C2 Beacon</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<script>
+        // Simple JS to simulate scrolling hex text
+        document.addEventListener('DOMContentLoaded', () => {
+            const hexContent = document.getElementById('hex-content');
+            if(hexContent) {
+                // Just a visual micro-interaction idea, no complex logic needed for static mockup
+                hexContent.addEventListener('mouseenter', () => {
+                   hexContent.style.opacity = '1';
+                });
+                hexContent.addEventListener('mouseleave', () => {
+                   hexContent.style.opacity = '0.8';
+                });
+            }
+        });
+    </script>
+</body></html>

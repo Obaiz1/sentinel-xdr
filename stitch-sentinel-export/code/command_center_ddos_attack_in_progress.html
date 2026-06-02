@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Sentinel XDR - Command Center (CRITICAL)</title>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400&amp;family=Space+Grotesk:wght@600;700&amp;family=Space+Mono:wght@400;700&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Config -->
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-dim": "#0a1422",
+                        "on-tertiary-fixed": "#00210c",
+                        "on-primary-fixed-variant": "#004e5f",
+                        "on-error-container": "#ffdad6",
+                        "on-primary-fixed": "#001f27",
+                        "tertiary-fixed-dim": "#00e479",
+                        "tertiary-fixed": "#60ff99",
+                        "error": "#ffb4ab",
+                        "on-secondary-fixed": "#2c0051",
+                        "on-tertiary-container": "#005d2d",
+                        "secondary": "#ddb7ff",
+                        "primary": "#a8e8ff",
+                        "surface-container-highest": "#2c3545",
+                        "tertiary-container": "#00df76",
+                        "surface": "#0a1422",
+                        "on-secondary": "#490080",
+                        "primary-container": "#00d4ff",
+                        "on-surface-variant": "#bbc9cf",
+                        "surface-container": "#16202f",
+                        "primary-fixed-dim": "#3cd7ff",
+                        "surface-container-low": "#121c2a",
+                        "surface-variant": "#2c3545",
+                        "surface-container-lowest": "#050e1c",
+                        "secondary-container": "#6f00be",
+                        "inverse-on-surface": "#273140",
+                        "on-tertiary-fixed-variant": "#005228",
+                        "inverse-surface": "#d9e3f7",
+                        "on-primary": "#003642",
+                        "error-container": "#93000a",
+                        "on-tertiary": "#003919",
+                        "on-error": "#690005",
+                        "outline-variant": "#3c494e",
+                        "surface-container-high": "#212a39",
+                        "background": "#0a1422",
+                        "on-background": "#d9e3f7",
+                        "surface-tint": "#3cd7ff",
+                        "on-surface": "#d9e3f7",
+                        "inverse-primary": "#00677e",
+                        "primary-fixed": "#b4ebff",
+                        "outline": "#859398",
+                        "surface-bright": "#303a49",
+                        "secondary-fixed-dim": "#ddb7ff",
+                        "on-primary-container": "#00586b",
+                        "secondary-fixed": "#f0dbff",
+                        "tertiary": "#00ff88",
+                        "on-secondary-fixed-variant": "#6900b3",
+                        "on-secondary-container": "#d6a9ff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "margin-mobile": "16px",
+                        "panel-padding": "24px",
+                        "margin-desktop": "32px",
+                        "unit": "4px",
+                        "gutter": "16px"
+                    },
+                    "fontFamily": {
+                        "body-main": ["Inter", "sans-serif"],
+                        "display-lg": ["Space Grotesk", "sans-serif"],
+                        "label-caps": ["Space Mono", "monospace"],
+                        "headline-md-mobile": ["Space Grotesk", "sans-serif"],
+                        "headline-md": ["Space Grotesk", "sans-serif"],
+                        "data-terminal": ["Space Mono", "monospace"]
+                    },
+                    "fontSize": {
+                        "body-main": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "display-lg": ["48px", { "lineHeight": "56px", "letterSpacing": "0.05em", "fontWeight": "700" }],
+                        "label-caps": ["12px", { "lineHeight": "16px", "fontWeight": "700" }],
+                        "headline-md-mobile": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "letterSpacing": "0.02em", "fontWeight": "600" }],
+                        "data-terminal": ["14px", { "lineHeight": "20px", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .material-symbols-outlined.fill {
+            font-variation-settings: 'FILL' 1;
+        }
+        
+        /* High-intensity animations */
+        @keyframes scanline {
+            0% { transform: translateY(-100%); }
+            100% { transform: translateY(100vh); }
+        }
+        .scan-overlay {
+            position: absolute;
+            top: 0; left: 0; right: 0; height: 10px;
+            background: linear-gradient(to bottom, transparent, rgba(255, 180, 171, 0.5), transparent);
+            animation: scanline 3s linear infinite;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        @keyframes glitch {
+            0% { clip-path: inset(10% 0 30% 0); transform: translate(-2px, 2px); }
+            20% { clip-path: inset(80% 0 5% 0); transform: translate(2px, -2px); }
+            40% { clip-path: inset(30% 0 50% 0); transform: translate(-2px, 2px); }
+            60% { clip-path: inset(60% 0 10% 0); transform: translate(2px, -2px); }
+            80% { clip-path: inset(20% 0 80% 0); transform: translate(-2px, 2px); }
+            100% { clip-path: inset(40% 0 20% 0); transform: translate(2px, -2px); }
+        }
+        .glitch-text {
+            position: relative;
+        }
+        .glitch-text::before, .glitch-text::after {
+            content: attr(data-text);
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: inherit;
+        }
+        .glitch-text::before {
+            left: 2px;
+            text-shadow: -1px 0 rgba(255, 180, 171, 0.8);
+            animation: glitch 2s infinite linear alternate-reverse;
+        }
+        .glitch-text::after {
+            left: -2px;
+            text-shadow: 1px 0 rgba(168, 232, 255, 0.8);
+            animation: glitch 3s infinite linear alternate-reverse;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+        .cursor-blink {
+            animation: blink 1s step-end infinite;
+        }
+        
+        .hud-grid-bg {
+            background-image: 
+                linear-gradient(rgba(255, 180, 171, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 180, 171, 0.05) 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+    </style>
+</head>
+<body class="bg-surface-dim text-on-surface font-body-main text-body-main min-h-screen flex overflow-hidden selection:bg-error selection:text-on-error relative hud-grid-bg">
+<div class="scan-overlay"></div>
+<!-- TopAppBar -->
+<nav class="fixed top-0 left-0 right-0 z-50 flex justify-between items-center px-margin-desktop docked full-width h-16 border-b border-error/50 bg-error-container/20 backdrop-blur-md shadow-[0_4px_30px_rgba(255,0,10,0.3)]">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-error fill text-3xl animate-pulse">warning</span>
+<span class="font-display-lg text-display-lg font-bold tracking-widest text-error drop-shadow-[0_0_15px_rgba(255,180,171,0.8)] glitch-text" data-text="SENTINEL XDR">SENTINEL XDR</span>
+</div>
+<div class="flex items-center gap-gutter">
+<div class="flex gap-4">
+<button class="text-on-surface-variant hover:bg-error/20 hover:text-error transition-all duration-300 p-2 rounded flex items-center justify-center">
+<span class="material-symbols-outlined">refresh</span>
+</button>
+<button class="text-error bg-error/20 transition-all duration-300 p-2 rounded flex items-center justify-center shadow-[0_0_10px_rgba(255,180,171,0.5)]">
+<span class="material-symbols-outlined fill">notifications</span>
+</button>
+<button class="text-on-surface-variant hover:bg-error/20 hover:text-error transition-all duration-300 p-2 rounded flex items-center justify-center">
+<span class="material-symbols-outlined">settings</span>
+</button>
+</div>
+<div class="h-8 w-px bg-outline-variant/50"></div>
+<div class="flex items-center gap-4">
+<span class="font-label-caps text-label-caps text-error animate-pulse flex items-center gap-2 border border-error px-2 py-1 bg-error-container/50">
+<div class="w-2 h-2 bg-error rounded-full shadow-[0_0_8px_#ffb4ab]"></div>
+                    SYSTEM LIVE
+                </span>
+<span class="font-data-terminal text-data-terminal text-on-surface-variant opacity-70">
+                    Last sync: 04:20:00
+                </span>
+</div>
+</div>
+</nav>
+<!-- SideNavBar -->
+<aside class="fixed left-0 top-0 h-full flex flex-col pt-20 z-40 docked w-64 border-r border-error/30 bg-surface-container/80 backdrop-blur-xl shadow-[10px_0_30px_rgba(255,0,0,0.1)] transition-transform duration-300 transform translate-x-0 hidden md:flex">
+<div class="px-6 pb-6 border-b border-error/20 mb-4">
+<div class="w-12 h-12 rounded bg-surface border border-error/50 flex items-center justify-center mb-4 shadow-[0_0_10px_rgba(255,180,171,0.2)]">
+<span class="material-symbols-outlined text-error fill text-2xl">shield</span>
+</div>
+<h2 class="font-headline-md text-headline-md text-error tracking-wider glitch-text" data-text="SENTINEL XDR">SENTINEL XDR</h2>
+<p class="font-data-terminal text-data-terminal text-on-surface-variant opacity-80 mt-1">OPERATOR-01 // SOC</p>
+</div>
+<nav class="flex-1 overflow-y-auto px-4 flex flex-col gap-1 custom-scrollbar">
+<!-- Active Tab: Command Center -->
+<a class="flex items-center gap-3 px-4 py-3 rounded-DEFAULT bg-error/20 text-error border-r-4 border-error shadow-[inset_0_0_15px_rgba(255,180,171,0.2)] scale-95 brightness-125 transition-all duration-300" href="#">
+<span class="material-symbols-outlined fill">security</span>
+<span class="font-data-terminal text-data-terminal uppercase">Command Center</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-DEFAULT text-on-surface-variant hover:text-on-surface hover:bg-error/10 hover:backdrop-blur-sm transition-colors duration-200" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-data-terminal text-data-terminal uppercase">Control Panel</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-DEFAULT text-on-surface-variant hover:text-on-surface hover:bg-error/10 hover:backdrop-blur-sm transition-colors duration-200" href="#">
+<span class="material-symbols-outlined">psychology</span>
+<span class="font-data-terminal text-data-terminal uppercase">ARIA Copilot</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-DEFAULT text-on-surface-variant hover:text-on-surface hover:bg-error/10 hover:backdrop-blur-sm transition-colors duration-200" href="#">
+<span class="material-symbols-outlined">memory</span>
+<span class="font-data-terminal text-data-terminal uppercase">XDR Engines</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-DEFAULT text-on-surface-variant hover:text-on-surface hover:bg-error/10 hover:backdrop-blur-sm transition-colors duration-200" href="#">
+<span class="material-symbols-outlined">biotech</span>
+<span class="font-data-terminal text-data-terminal uppercase">Threat Intelligence</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-DEFAULT text-on-surface-variant hover:text-on-surface hover:bg-error/10 hover:backdrop-blur-sm transition-colors duration-200" href="#">
+<span class="material-symbols-outlined">lan</span>
+<span class="font-data-terminal text-data-terminal uppercase">MACE Chains</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-DEFAULT text-on-surface-variant hover:text-on-surface hover:bg-error/10 hover:backdrop-blur-sm transition-colors duration-200 text-error bg-error/5 border border-error/30" href="#">
+<span class="material-symbols-outlined animate-pulse text-error">notifications_active</span>
+<span class="font-data-terminal text-data-terminal uppercase">Live Alerts</span>
+<span class="ml-auto bg-error text-on-error font-label-caps text-[10px] px-1.5 py-0.5 rounded-sm">99+</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-DEFAULT text-on-surface-variant hover:text-on-surface hover:bg-error/10 hover:backdrop-blur-sm transition-colors duration-200 mt-auto" href="#">
+<span class="material-symbols-outlined">settings_suggest</span>
+<span class="font-data-terminal text-data-terminal uppercase">Settings</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-DEFAULT text-on-surface-variant hover:text-on-surface hover:bg-error/10 hover:backdrop-blur-sm transition-colors duration-200" href="#">
+<span class="material-symbols-outlined">history</span>
+<span class="font-data-terminal text-data-terminal uppercase">Legacy UI</span>
+</a>
+</nav>
+<div class="p-4 border-t border-error/20">
+<button class="w-full py-3 bg-error/10 text-error border border-error font-data-terminal text-data-terminal uppercase tracking-wider hover:bg-error hover:text-on-error transition-all duration-300 shadow-[0_0_15px_rgba(255,180,171,0.2)]">
+                [ INITIATE SCAN ]
+            </button>
+</div>
+<div class="px-4 pb-6 flex gap-2 justify-center">
+<a class="p-2 text-on-surface-variant hover:text-error transition-colors" href="#">
+<span class="material-symbols-outlined text-lg">help_center</span>
+</a>
+<a class="p-2 text-on-surface-variant hover:text-error transition-colors" href="#">
+<span class="material-symbols-outlined text-lg">description</span>
+</a>
+</div>
+</aside>
+<!-- Main Canvas -->
+<main class="ml-0 md:ml-64 pt-20 p-margin-desktop w-full h-screen overflow-y-auto flex flex-col gap-gutter z-10 relative">
+<!-- Critical Overload Banner -->
+<div class="w-full bg-error-container border border-error p-unit flex items-center justify-center shadow-[0_0_20px_rgba(147,0,10,0.5)]">
+<div class="font-data-terminal text-data-terminal text-on-error-container uppercase tracking-[0.2em] animate-pulse flex items-center gap-3">
+<span class="material-symbols-outlined fill">warning</span>
+                [ CRITICAL OVERLOAD ] - DISTRIBUTED BOTNET INFILTRATION DETECTED - L7 RATE LIMIT BREACHED
+                <span class="material-symbols-outlined fill">warning</span>
+</div>
+</div>
+<!-- Bento Grid Layout -->
+<div class="grid grid-cols-1 md:grid-cols-12 gap-gutter flex-1 min-h-0">
+<!-- Hero Panel: Threat Map (Spans 8 cols) -->
+<div class="col-span-1 md:col-span-8 bg-surface-container-low/60 border border-error/40 rounded-DEFAULT backdrop-blur-md flex flex-col relative overflow-hidden group shadow-[0_0_30px_rgba(255,180,171,0.1)]">
+<!-- HUD Header -->
+<div class="flex justify-between items-center px-4 py-2 border-b border-error/20 bg-surface-dim/80">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-error text-sm">public</span>
+<span class="font-label-caps text-label-caps text-error uppercase">GLOBAL_THREAT_VECTOR_MAP</span>
+</div>
+<span class="font-data-terminal text-data-terminal text-on-surface-variant text-xs">ID: SEC-UNIT-04</span>
+</div>
+<!-- Map Container -->
+<div class="flex-1 relative bg-surface-lowest overflow-hidden flex items-center justify-center">
+<div class="absolute inset-0 bg-gradient-to-t from-surface-lowest via-transparent to-surface-lowest z-10 pointer-events-none"></div>
+<img alt="Global map data visualization" class="w-full h-full object-cover opacity-60 mix-blend-screen filter sepia-[.8] hue-rotate-[320deg] saturate-[3] brightness-[.8]" data-alt="A highly detailed, futuristic 3D vector map of the globe projected on a dark holographic interface. The map is primarily dark navy and black, illuminated by intense, glowing crimson red heat spots indicating massive distributed cyber attacks originating from multiple continents. Pulsing laser-like connecting lines arch across the oceans, converging on a central server hub. The lighting is dramatic and contrast-heavy, creating a high-stakes, cinematic cyber-warfare aesthetic. The image features a digital glitch effect and data overlays." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDlAaaBDOQXAwEq92HQctuKNxhUs0f8IIJ7sUrYEflu1jE2iXbPZ3qaWvfyRmAcHwF-tvkhG9tnRpvL5JMHa4DdEa8Z_kj-w0PKNxppZ_3YZJS0DSZohYQpv17o0jd5xmlgxSijxIevD7MJ-vnQNwQKiaTdGniAWsUBqosGDxfyf5lrH32RYk4tXDHxAkmQijip7hsrN1oMa1rLek3Nl8IebfhKwofzYJPdajlpORJKS5MyrW1MZ-z0v3R7vvfJI1AEgnbOXtx2CWc"/>
+<!-- Simulated Attack Nodes (Overlay) -->
+<div class="absolute top-[40%] left-[30%] w-3 h-3 bg-error rounded-full shadow-[0_0_20px_#ffb4ab] animate-ping z-20"></div>
+<div class="absolute top-[35%] left-[60%] w-4 h-4 bg-error rounded-full shadow-[0_0_20px_#ffb4ab] animate-pulse z-20"></div>
+<div class="absolute top-[60%] left-[70%] w-2 h-2 bg-error rounded-full shadow-[0_0_10px_#ffb4ab] animate-ping z-20" style="animation-delay: 0.5s;"></div>
+<div class="absolute top-[50%] left-[45%] w-6 h-6 border-2 border-error rounded-full flex items-center justify-center z-20">
+<div class="w-2 h-2 bg-error rounded-full"></div>
+</div>
+<!-- Target Reticle -->
+<div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-32 h-32 border border-error/30 rounded-full flex items-center justify-center z-20 pointer-events-none">
+<div class="w-full h-[1px] bg-error/30 absolute"></div>
+<div class="h-full w-[1px] bg-error/30 absolute"></div>
+</div>
+</div>
+</div>
+<!-- Right Column (Spans 4 cols) -->
+<div class="col-span-1 md:col-span-4 flex flex-col gap-gutter">
+<!-- Telemetry Panel -->
+<div class="bg-surface-container-highest/80 border border-error rounded-DEFAULT p-panel-padding backdrop-blur-md flex flex-col gap-4 shadow-[0_0_20px_rgba(255,180,171,0.15)] relative overflow-hidden">
+<div class="absolute top-0 right-0 p-2 opacity-20">
+<span class="material-symbols-outlined text-6xl text-error">monitoring</span>
+</div>
+<h3 class="font-label-caps text-label-caps text-on-surface-variant flex items-center gap-2 border-b border-error/20 pb-2">
+<div class="w-2 h-2 bg-error animate-pulse"></div>
+                        LIVE TELEMETRY
+                    </h3>
+<div class="grid grid-cols-1 gap-4 mt-2">
+<!-- Metric 1 -->
+<div>
+<p class="font-data-terminal text-data-terminal text-on-surface-variant text-xs mb-1">PACKET VOLUME // INGRESS</p>
+<div class="flex items-baseline gap-2">
+<span class="font-display-lg text-[40px] leading-none font-bold text-error glitch-text" data-text="4.2">4.2</span>
+<span class="font-data-terminal text-data-terminal text-error">Tbps</span>
+</div>
+<div class="w-full h-1 bg-surface-variant mt-2 rounded-full overflow-hidden">
+<div class="h-full bg-error w-full shadow-[0_0_10px_#ffb4ab]"></div>
+</div>
+</div>
+<!-- Metric 2 -->
+<div>
+<p class="font-data-terminal text-data-terminal text-on-surface-variant text-xs mb-1">NODE CPU LOAD // CLUSTER_A</p>
+<div class="flex items-baseline gap-2">
+<span class="font-display-lg text-[32px] leading-none font-bold text-error">98</span>
+<span class="font-data-terminal text-data-terminal text-error">%</span>
+</div>
+<div class="w-full h-1 bg-surface-variant mt-2 rounded-full overflow-hidden flex gap-0.5">
+<div class="h-full bg-error/40 flex-1"></div>
+<div class="h-full bg-error/60 flex-1"></div>
+<div class="h-full bg-error/80 flex-1"></div>
+<div class="h-full bg-error flex-1 animate-pulse"></div>
+</div>
+</div>
+<!-- Metric 3 Data Stream -->
+<div class="bg-surface-lowest border border-error/30 p-2 h-24 overflow-hidden relative">
+<div class="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-transparent to-surface-lowest z-10"></div>
+<ul class="font-data-terminal text-[10px] leading-tight text-error/80 flex flex-col gap-1 absolute bottom-0 w-full">
+<li>&gt; ERR_CONN_REFUSED [SRC: 192.168.x.x]</li>
+<li>&gt; SYN_FLOOD_DETECTED [VOL: HIGH]</li>
+<li class="text-error font-bold">&gt; ALERT: FIREWALL_RULES_BYPASSED</li>
+<li>&gt; DROPPING_PACKETS... FAILED</li>
+<li>&gt; SYSTEM_HALT_IMMINENT<span class="cursor-blink">_</span></li>
+</ul>
+</div>
+</div>
+</div>
+<!-- ARIA Copilot Panel -->
+<div class="flex-1 bg-secondary-container/10 border border-secondary/40 rounded-DEFAULT p-panel-padding backdrop-blur-md flex flex-col gap-4 relative overflow-hidden">
+<div class="absolute top-0 right-0 w-32 h-32 bg-secondary/10 rounded-full blur-3xl -mr-10 -mt-10"></div>
+<h3 class="font-label-caps text-label-caps text-secondary flex items-center gap-2 border-b border-secondary/20 pb-2">
+<span class="material-symbols-outlined text-secondary text-sm">psychology</span>
+                        ARIA COPILOT // TACTICAL RESPONSE
+                    </h3>
+<div class="bg-surface-dim/80 border border-secondary/20 p-3 rounded text-sm font-data-terminal text-on-surface mb-2">
+<p class="text-secondary mb-2">Anomalous volumetric traffic detected matching MIRAI botnet signatures.</p>
+<p>Recommended immediate countermeasures to prevent total system collapse.</p>
+</div>
+<div class="flex flex-col gap-3 mt-auto">
+<button class="group w-full py-2 px-4 bg-transparent border-2 border-secondary text-secondary font-data-terminal text-data-terminal uppercase tracking-wider hover:bg-secondary hover:text-on-secondary transition-all duration-300 flex justify-between items-center shadow-[0_0_10px_rgba(221,183,255,0.1)] hover:shadow-[0_0_20px_rgba(221,183,255,0.4)]">
+<span>[ Initiate Global Anycast Scrubbing ]</span>
+<span class="material-symbols-outlined opacity-0 group-hover:opacity-100 transition-opacity">double_arrow</span>
+</button>
+<button class="group w-full py-2 px-4 bg-transparent border-2 border-primary text-primary font-data-terminal text-data-terminal uppercase tracking-wider hover:bg-primary hover:text-on-primary transition-all duration-300 flex justify-between items-center shadow-[0_0_10px_rgba(168,232,255,0.1)] hover:shadow-[0_0_20px_rgba(168,232,255,0.4)]">
+<span>[ Enable L7 Rate Limiting ]</span>
+<span class="material-symbols-outlined opacity-0 group-hover:opacity-100 transition-opacity">double_arrow</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</main>
+</body></html>

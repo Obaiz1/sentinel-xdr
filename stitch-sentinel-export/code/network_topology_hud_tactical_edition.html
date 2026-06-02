@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Sentinel XDR - Network Topology HUD</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@600;700&amp;family=Space+Mono:wght@400;700&amp;family=Inter:wght@400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "on-secondary-fixed-variant": "#6900b3",
+                      "background": "#0a1422",
+                      "surface-container-low": "#121c2a",
+                      "secondary": "#ddb7ff",
+                      "primary-fixed-dim": "#3cd7ff",
+                      "on-primary-fixed-variant": "#004e5f",
+                      "on-primary": "#003642",
+                      "on-secondary-container": "#d6a9ff",
+                      "primary": "#a8e8ff",
+                      "surface-variant": "#2c3545",
+                      "inverse-on-surface": "#273140",
+                      "surface-dim": "#0a1422",
+                      "error-container": "#93000a",
+                      "on-error-container": "#ffdad6",
+                      "outline": "#859398",
+                      "surface-tint": "#3cd7ff",
+                      "surface-container-high": "#212a39",
+                      "outline-variant": "#3c494e",
+                      "surface-bright": "#303a49",
+                      "on-secondary": "#490080",
+                      "on-secondary-fixed": "#2c0051",
+                      "surface-container-lowest": "#050e1c",
+                      "secondary-container": "#6f00be",
+                      "on-primary-fixed": "#001f27",
+                      "on-tertiary-fixed": "#00210c",
+                      "tertiary-container": "#00df76",
+                      "tertiary-fixed-dim": "#00e479",
+                      "surface-container": "#16202f",
+                      "on-background": "#d9e3f7",
+                      "primary-container": "#00d4ff",
+                      "on-tertiary-container": "#005d2d",
+                      "primary-fixed": "#b4ebff",
+                      "inverse-surface": "#d9e3f7",
+                      "tertiary-fixed": "#60ff99",
+                      "surface": "#0a1422",
+                      "secondary-fixed": "#f0dbff",
+                      "on-tertiary": "#003919",
+                      "on-tertiary-fixed-variant": "#005228",
+                      "secondary-fixed-dim": "#ddb7ff",
+                      "on-primary-container": "#00586b",
+                      "tertiary": "#00ff88",
+                      "on-error": "#690005",
+                      "on-surface-variant": "#bbc9cf",
+                      "error": "#ffb4ab",
+                      "surface-container-highest": "#2c3545",
+                      "on-surface": "#d9e3f7",
+                      "inverse-primary": "#00677e"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "panel-padding": "24px",
+                      "margin-mobile": "16px",
+                      "margin-desktop": "32px",
+                      "gutter": "16px",
+                      "unit": "4px"
+              },
+              "fontFamily": {
+                      "data-terminal": [
+                              "Space Mono"
+                      ],
+                      "headline-md-mobile": [
+                              "Space Grotesk"
+                      ],
+                      "display-lg": [
+                              "Space Grotesk"
+                      ],
+                      "label-caps": [
+                              "Space Mono"
+                      ],
+                      "headline-md": [
+                              "Space Grotesk"
+                      ],
+                      "body-main": [
+                              "Inter"
+                      ]
+              },
+              "fontSize": {
+                      "data-terminal": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "headline-md-mobile": [
+                              "20px",
+                              {
+                                      "lineHeight": "28px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "display-lg": [
+                              "48px",
+                              {
+                                      "lineHeight": "56px",
+                                      "letterSpacing": "0.05em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "label-caps": [
+                              "12px",
+                              {
+                                      "lineHeight": "16px",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "headline-md": [
+                              "24px",
+                              {
+                                      "lineHeight": "32px",
+                                      "letterSpacing": "0.02em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body-main": [
+                              "16px",
+                              {
+                                      "lineHeight": "24px",
+                                      "fontWeight": "400"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+      </script>
+<style>
+        body {
+            background-color: #0a1422; /* surface-dim */
+            color: #d9e3f7; /* on-surface */
+            overflow: hidden;
+        }
+
+        .hex-bg {
+            background-image: url("data:image/svg+xml,%3Csvg width='60' height='103.92304845413264' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 103.92304845413264L0 86.60254037844386L0 51.96152422706632L30 34.64101615137754L60 51.96152422706632L60 86.60254037844386Z' fill='none' stroke='rgba(60,215,255,0.05)' stroke-width='1'/%3E%3Cpath d='M30 34.64101615137754L0 17.32050807568877L0 -17.32050807568877L30 -34.64101615137754L60 -17.32050807568877L60 17.32050807568877Z' fill='none' stroke='rgba(60,215,255,0.05)' stroke-width='1'/%3E%3C/svg%3E");
+            background-size: 60px 103.92px;
+            animation: drift 60s linear infinite;
+        }
+
+        @keyframes drift {
+            from { background-position: 0 0; }
+            to { background-position: -60px -103.92px; }
+        }
+
+        .scan-line {
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, rgba(60,215,255,0.8), transparent);
+            position: absolute;
+            top: 0;
+            left: 0;
+            animation: scan 3s infinite linear;
+            z-index: 10;
+            opacity: 0.5;
+        }
+
+        @keyframes scan {
+            0% { top: -10%; }
+            100% { top: 110%; }
+        }
+
+        .pulse-border {
+            animation: pulseBorder 2s infinite;
+        }
+
+        @keyframes pulseBorder {
+            0% { border-color: rgba(60, 215, 255, 0.2); box-shadow: 0 0 0 0 rgba(60, 215, 255, 0); }
+            50% { border-color: rgba(60, 215, 255, 0.8); box-shadow: 0 0 15px 0 rgba(60, 215, 255, 0.3); }
+            100% { border-color: rgba(60, 215, 255, 0.2); box-shadow: 0 0 0 0 rgba(60, 215, 255, 0); }
+        }
+        
+        .pulse-red {
+            animation: pulseRed 1.5s infinite;
+        }
+        
+        @keyframes pulseRed {
+            0% { stroke-opacity: 0.4; filter: drop-shadow(0 0 2px rgba(255, 180, 171, 0.5)); }
+            50% { stroke-opacity: 1; filter: drop-shadow(0 0 8px rgba(255, 180, 171, 1)); }
+            100% { stroke-opacity: 0.4; filter: drop-shadow(0 0 2px rgba(255, 180, 171, 0.5)); }
+        }
+
+        .glass-panel {
+            background: rgba(18, 28, 42, 0.6); /* surface-container-low */
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(60, 73, 78, 0.5); /* outline-variant */
+        }
+        
+        .hud-glow {
+            text-shadow: 0 0 8px rgba(60, 215, 255, 0.5);
+        }
+
+        /* Topology Graph SVG styles */
+        .node-server { fill: #3cd7ff; filter: drop-shadow(0 0 5px rgba(60, 215, 255, 0.8)); }
+        .node-workstation { fill: #ddb7ff; filter: drop-shadow(0 0 5px rgba(221, 183, 255, 0.6)); }
+        .node-firewall { fill: #00ff88; filter: drop-shadow(0 0 5px rgba(0, 255, 136, 0.6)); }
+        .node-external { fill: #859398; }
+        .node-anomaly { fill: #ffb4ab; filter: drop-shadow(0 0 10px rgba(255, 180, 171, 0.9)); }
+        
+        .link-normal { stroke: rgba(60, 215, 255, 0.3); stroke-width: 1.5; }
+        .link-anomaly { stroke: #ffb4ab; stroke-width: 2.5; stroke-dasharray: 4; }
+
+    </style>
+</head>
+<body class="h-screen w-screen flex flex-col font-body-main text-body-main antialiased selection:bg-primary selection:text-on-primary relative">
+<!-- Ambient Grid Background -->
+<div class="absolute inset-0 hex-bg pointer-events-none z-0"></div>
+<!-- TopAppBar Shared Component -->
+<header class="bg-surface/80 backdrop-blur-md text-primary font-data-terminal text-data-terminal fixed top-0 w-full z-50 border-b border-outline-variant shadow-[0_0_15px_rgba(60,215,255,0.1)] flex justify-between items-center px-margin-desktop py-2">
+<div class="flex items-center gap-6">
+<h1 class="font-display-lg text-display-lg tracking-tighter text-primary-fixed-dim m-0">SENTINEL XDR</h1>
+<div class="hidden md:flex gap-4">
+<span class="text-on-surface-variant">STATUS: API ONLINE</span>
+<span class="text-on-surface-variant">DB: SYNCED</span>
+<span class="text-on-surface-variant">LATENCY: 12MS</span>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<div class="relative cursor-pointer active:scale-95 duration-200 hover:text-primary-fixed hover:bg-surface-variant/50 transition-colors p-2 rounded">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+<span class="absolute top-1 right-1 w-2 h-2 bg-error rounded-none animate-pulse"></span>
+</div>
+<div class="cursor-pointer active:scale-95 duration-200 hover:text-primary-fixed hover:bg-surface-variant/50 transition-colors p-2 rounded">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+</div>
+<div class="cursor-pointer active:scale-95 duration-200 hover:text-primary-fixed hover:bg-surface-variant/50 transition-colors p-2 rounded text-error">
+<span class="material-symbols-outlined" data-icon="power_settings_new">power_settings_new</span>
+</div>
+</div>
+</header>
+<div class="flex flex-1 pt-[72px] relative z-10 h-full overflow-hidden">
+<!-- SideNavBar Shared Component -->
+<nav class="bg-surface-container-lowest/90 backdrop-blur-xl text-primary font-label-caps text-label-caps fixed left-0 h-full w-64 z-40 border-r border-outline-variant flex flex-col py-panel-padding hidden md:flex">
+<div class="px-6 mb-8 flex flex-col gap-2">
+<div class="w-12 h-12 border border-primary p-1 bg-surface-variant/50 relative">
+<img alt="Operator Profile" class="w-full h-full object-cover grayscale opacity-80 mix-blend-screen" data-alt="A gritty, high-contrast monochrome portrait of a cyber operator in a dark server room, illuminated only by the cyan glow of monitors. Technical brutalism style, high definition." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA-flalWV7HyD0f1Y8gwF2ik-Fp4tbt29I_9ghgUT4ixxfBL7B2Ad-mobNhz-mJjGaEnTDkoAufaLdSGPXOGHcTwYhlG3r6z9qMgqZlXOt4NfSIdLkAIGBPh6thFToAFaCrjah7EAjPUuZJMRPRDEHGztTOolSX4HhCFXJczrCg7AYzrDVkEVrKPMHweNVkGqPJ4iMZFx6GORcEw76mvtcTot9ESVBKKvVhPPrgweQTrUdfOAYqS3G2kbbzfWF24jyFkJXKTtk5m3E"/>
+<div class="absolute -bottom-1 -right-1 w-3 h-3 bg-tertiary-fixed-dim border border-surface"></div>
+</div>
+<div>
+<div class="font-headline-md text-headline-md text-primary tracking-widest mt-2">OPERATOR-01</div>
+<div class="text-on-surface-variant text-[10px] mt-1">SECTOR-7G</div>
+</div>
+<button class="mt-4 w-full bg-transparent border border-primary text-primary py-2 hover:bg-primary/10 transition-colors text-center cursor-pointer font-data-terminal active:scale-95 duration-150">
+                    [ INITIALIZE SCAN ]
+                </button>
+</div>
+<div class="flex-1 overflow-y-auto mt-4 px-2">
+<ul class="flex flex-col gap-1">
+<li class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:text-on-surface hover:bg-surface-variant/30 transition-all duration-150 ease-in-out cursor-pointer rounded-r">
+<span class="material-symbols-outlined opacity-70" data-icon="dashboard">dashboard</span>
+<span>Command Center</span>
+</li>
+<li class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:text-on-surface hover:bg-surface-variant/30 transition-all duration-150 ease-in-out cursor-pointer rounded-r">
+<span class="material-symbols-outlined opacity-70" data-icon="security">security</span>
+<span>MACE Chains</span>
+</li>
+<li class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:text-on-surface hover:bg-surface-variant/30 transition-all duration-150 ease-in-out cursor-pointer rounded-r">
+<span class="material-symbols-outlined opacity-70" data-icon="biotech">biotech</span>
+<span>Threat Intel</span>
+</li>
+<li class="flex items-center gap-3 px-4 py-3 bg-primary-container text-on-primary-container border-r-4 border-primary duration-150 ease-in-out cursor-pointer rounded-r">
+<span class="material-symbols-outlined" data-icon="public">public</span>
+<span>Asset Map</span>
+</li>
+<li class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:text-on-surface hover:bg-surface-variant/30 transition-all duration-150 ease-in-out cursor-pointer rounded-r">
+<span class="material-symbols-outlined opacity-70" data-icon="terminal">terminal</span>
+<span>Logs</span>
+</li>
+</ul>
+</div>
+<div class="mt-auto px-2 pt-4 border-t border-outline-variant/30">
+<ul class="flex flex-col gap-1">
+<li class="flex items-center gap-3 px-4 py-2 text-on-surface-variant hover:text-on-surface hover:bg-surface-variant/30 transition-all duration-150 ease-in-out cursor-pointer text-[10px]">
+<span class="material-symbols-outlined text-[16px]" data-icon="monitor_heart">monitor_heart</span>
+<span>System Health</span>
+</li>
+<li class="flex items-center gap-3 px-4 py-2 text-on-surface-variant hover:text-on-surface hover:bg-surface-variant/30 transition-all duration-150 ease-in-out cursor-pointer text-[10px]">
+<span class="material-symbols-outlined text-[16px]" data-icon="help_center">help_center</span>
+<span>Support</span>
+</li>
+</ul>
+</div>
+</nav>
+<!-- Main Canvas: Topology Map -->
+<main class="flex-1 relative ml-0 md:ml-64 w-full h-full">
+<!-- Map Controls HUD -->
+<div class="absolute top-margin-desktop left-margin-desktop z-20 glass-panel p-2 flex flex-col gap-2 rounded">
+<button class="w-8 h-8 flex items-center justify-center bg-surface-variant hover:bg-primary-container hover:text-on-primary-container text-on-surface-variant transition-colors border border-outline-variant rounded-sm cursor-pointer" title="Zoom In">
+<span class="material-symbols-outlined text-sm">add</span>
+</button>
+<button class="w-8 h-8 flex items-center justify-center bg-surface-variant hover:bg-primary-container hover:text-on-primary-container text-on-surface-variant transition-colors border border-outline-variant rounded-sm cursor-pointer" title="Zoom Out">
+<span class="material-symbols-outlined text-sm">remove</span>
+</button>
+<button class="w-8 h-8 flex items-center justify-center bg-surface-variant hover:bg-primary-container hover:text-on-primary-container text-on-surface-variant transition-colors border border-outline-variant rounded-sm cursor-pointer mt-2" title="Reset View">
+<span class="material-symbols-outlined text-sm">filter_center_focus</span>
+</button>
+</div>
+<!-- Legend HUD -->
+<div class="absolute bottom-margin-desktop left-margin-desktop z-20 glass-panel p-4 font-data-terminal text-[10px] rounded">
+<div class="text-on-surface-variant mb-2 uppercase tracking-widest border-b border-outline-variant/50 pb-1">Legend</div>
+<div class="flex flex-col gap-2">
+<div class="flex items-center gap-2"><div class="w-3 h-3 bg-primary-fixed-dim shadow-[0_0_5px_rgba(60,215,255,0.8)]"></div><span class="text-on-surface">Server</span></div>
+<div class="flex items-center gap-2"><div class="w-3 h-3 bg-secondary-fixed-dim shadow-[0_0_5px_rgba(221,183,255,0.6)]"></div><span class="text-on-surface">Workstation</span></div>
+<div class="flex items-center gap-2"><div class="w-3 h-3 bg-tertiary shadow-[0_0_5px_rgba(0,255,136,0.6)]"></div><span class="text-on-surface">Firewall</span></div>
+<div class="flex items-center gap-2"><div class="w-3 h-3 bg-error shadow-[0_0_8px_rgba(255,180,171,0.9)] animate-pulse"></div><span class="text-on-surface">Compromised</span></div>
+</div>
+</div>
+<!-- Interactive SVG Topology -->
+<div class="w-full h-full cursor-move">
+<svg height="100%" preserveaspectratio="xMidYMid slice" viewbox="0 0 1000 800" width="100%">
+<g id="topology-layer" transform="translate(100, 50)">
+<!-- Lines (Edges) -->
+<line class="link-normal" x1="400" x2="200" y1="300" y2="200"></line>
+<line class="link-normal" x1="400" x2="250" y1="300" y2="450"></line>
+<line class="link-normal" x1="400" x2="600" y1="300" y2="250"></line>
+<line class="link-normal" x1="400" x2="650" y1="300" y2="400"></line>
+<line class="link-normal" x1="600" x2="800" y1="250" y2="150"></line>
+<line class="link-normal" x1="650" x2="850" y1="400" y2="500"></line>
+<line class="link-normal" x1="200" x2="100" y1="200" y2="100"></line>
+<!-- Anomalous Traffic Flow -->
+<line class="link-anomaly pulse-red" x1="850" x2="400" y1="500" y2="300"></line>
+<!-- Nodes (Vertices) -->
+<!-- Core Firewall -->
+<g class="cursor-pointer hover:opacity-80" transform="translate(400, 300)">
+<polygon class="node-firewall" points="0,-25 22,-12 22,12 0,25 -22,12 -22,-12"></polygon>
+<text class="hud-glow" fill="#d9e3f7" font-family="Space Mono" font-size="10" text-anchor="middle" x="0" y="40">FW-CORE-01</text>
+</g>
+<!-- Servers -->
+<g class="cursor-pointer hover:opacity-80" transform="translate(200, 200)">
+<rect class="node-server" height="30" width="30" x="-15" y="-15"></rect>
+<text fill="#d9e3f7" font-family="Space Mono" font-size="10" text-anchor="middle" x="0" y="30">DB-PROD-A</text>
+</g>
+<g class="cursor-pointer hover:opacity-80" transform="translate(250, 450)">
+<rect class="node-server" height="30" width="30" x="-15" y="-15"></rect>
+<text fill="#d9e3f7" font-family="Space Mono" font-size="10" text-anchor="middle" x="0" y="30">APP-WEB-02</text>
+</g>
+<!-- Workstations -->
+<g class="cursor-pointer hover:opacity-80" transform="translate(600, 250)">
+<circle class="node-workstation" r="12"></circle>
+<text fill="#bbc9cf" font-family="Space Mono" font-size="10" text-anchor="middle" x="0" y="25">WS-FIN-09</text>
+</g>
+<g class="cursor-pointer hover:opacity-80" transform="translate(650, 400)">
+<circle class="node-workstation" r="12"></circle>
+<text fill="#bbc9cf" font-family="Space Mono" font-size="10" text-anchor="middle" x="0" y="25">WS-ENG-42</text>
+</g>
+<!-- External Node -->
+<g class="cursor-pointer hover:opacity-80" transform="translate(100, 100)">
+<polygon class="node-external" points="0,-15 15,0 0,15 -15,0"></polygon>
+<text fill="#859398" font-family="Space Mono" font-size="10" text-anchor="middle" x="0" y="30">EXT-VPN-GW</text>
+</g>
+<!-- Compromised Node -->
+<g class="cursor-pointer pulse-border" transform="translate(850, 500)">
+<rect fill="none" height="40" stroke="#ffb4ab" stroke-width="2" width="40" x="-20" y="-20"></rect>
+<circle class="node-anomaly" r="12"></circle>
+<text fill="#ffb4ab" font-family="Space Mono" font-size="10" font-weight="bold" text-anchor="middle" x="0" y="35">UNKNOWN-IP</text>
+<circle class="pulse-red" fill="none" r="25" stroke="#ffb4ab" stroke-dasharray="2" stroke-width="1"></circle>
+</g>
+</g>
+</svg>
+</div>
+<!-- Global Threat Indicator Overlay -->
+<div class="absolute top-margin-desktop right-80 z-20 flex gap-2">
+<div class="bg-error-container/80 text-on-error-container border border-error px-3 py-1 font-data-terminal text-[10px] flex items-center gap-2 uppercase tracking-widest backdrop-blur-sm">
+<span class="w-2 h-2 bg-error rounded-none animate-ping"></span>
+                    Anomalous Traffic Detected
+                </div>
+</div>
+</main>
+<!-- Node Inspector Sidebar (Right) -->
+<aside class="w-80 bg-surface-container-high/80 backdrop-blur-xl border-l border-outline-variant hidden xl:flex flex-col h-full z-30 font-data-terminal">
+<div class="p-4 border-b border-outline-variant bg-surface-container-highest/50 relative overflow-hidden">
+<div class="scan-line"></div>
+<div class="flex justify-between items-start mb-2">
+<div class="text-[10px] text-on-surface-variant uppercase tracking-widest">Node Inspector</div>
+<span class="material-symbols-outlined text-outline text-sm cursor-pointer hover:text-primary transition-colors">close</span>
+</div>
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 flex items-center justify-center bg-error-container/20 border border-error">
+<span class="material-symbols-outlined text-error">warning</span>
+</div>
+<div>
+<div class="text-error font-bold text-lg">UNKNOWN-IP</div>
+<div class="text-on-surface-variant text-[10px]">EXTERNAL_ACTOR</div>
+</div>
+</div>
+</div>
+<div class="flex-1 overflow-y-auto p-4 flex flex-col gap-4">
+<!-- Shield Icon Image Placeholder -->
+<div class="w-full flex justify-center py-4">
+<img alt="Sentinel XDR Shield Logo" class="w-32 h-32 opacity-80 mix-blend-screen drop-shadow-[0_0_15px_rgba(0,212,255,0.4)]" src="https://lh3.googleusercontent.com/aida/AP1WRLvA5zXchZcdJCmvN4DdP_mFishHxJQlu5AgiJX_UjziLKyvjhVmStcL_R-m_qoaTnbXnpisAx_ocnoBB5gIt8u2UEZL7YZn9YxwGn6fqWK62HVj83jrWXY4huaoeFMfeJUbnSvq9i8Ga1ZIRHDjxV0jX1ODagfZOS1SL96fvI0bKul74blHP4dZm5rJ69E2SC9JBu6leHq5T87qI5AEmSCFZO0YJBo-OfSq1sR_D_BoQWCDtXY1hks3qw"/>
+</div>
+<!-- Metrics Bento Grid -->
+<div class="grid grid-cols-2 gap-2">
+<div class="glass-panel p-3 border-l-2 border-l-error">
+<div class="text-[9px] text-on-surface-variant mb-1">RISK SCORE</div>
+<div class="text-error font-headline-md text-headline-md">94<span class="text-xs text-on-surface-variant ml-1">/100</span></div>
+</div>
+<div class="glass-panel p-3 border-l-2 border-l-primary-fixed-dim">
+<div class="text-[9px] text-on-surface-variant mb-1">PACKET VOL</div>
+<div class="text-primary-fixed-dim font-headline-md text-headline-md">2.4<span class="text-xs text-on-surface-variant ml-1">GB/s</span></div>
+</div>
+</div>
+<!-- Details Panel -->
+<div class="glass-panel p-0 flex flex-col mt-2">
+<div class="bg-surface-variant/50 px-3 py-1.5 text-[10px] text-primary uppercase border-b border-outline-variant/50">Telemetry Data</div>
+<div class="p-3 flex flex-col gap-2 text-[11px]">
+<div class="flex justify-between border-b border-outline-variant/30 pb-1">
+<span class="text-on-surface-variant">IP Address:</span>
+<span class="text-on-surface">192.168.1.105</span>
+</div>
+<div class="flex justify-between border-b border-outline-variant/30 pb-1">
+<span class="text-on-surface-variant">MAC:</span>
+<span class="text-on-surface">00:1B:44:11:3A:B7</span>
+</div>
+<div class="flex justify-between border-b border-outline-variant/30 pb-1">
+<span class="text-on-surface-variant">OS Fingerprint:</span>
+<span class="text-on-surface">Unknown Linux</span>
+</div>
+<div class="flex justify-between pb-1">
+<span class="text-on-surface-variant">First Seen:</span>
+<span class="text-on-surface">12m 43s ago</span>
+</div>
+</div>
+</div>
+<!-- Live Stream Log -->
+<div class="glass-panel p-0 flex flex-col flex-1 mt-2 min-h-[150px]">
+<div class="bg-surface-variant/50 px-3 py-1.5 text-[10px] text-secondary uppercase border-b border-outline-variant/50 flex justify-between items-center">
+<span>Connection Stream</span>
+<span class="w-1.5 h-1.5 bg-tertiary rounded-none animate-pulse"></span>
+</div>
+<div class="p-2 flex flex-col gap-1 text-[9px] font-mono overflow-y-auto h-full text-on-surface-variant">
+<div class="text-error">&gt; TCP SYN 192.168.1.105:4444 -&gt; 10.0.0.5:22 [BLOCKED]</div>
+<div>&gt; ICMP ECHO REQ 192.168.1.105 -&gt; 10.0.0.1 [DROP]</div>
+<div class="text-primary">&gt; UDP 192.168.1.105:53 -&gt; 8.8.8.8:53 [ALLOW]</div>
+<div class="text-error">&gt; TCP SYN 192.168.1.105:8080 -&gt; 10.0.0.5:80 [BLOCKED]</div>
+<div>&gt; TCP RST 10.0.0.5:80 -&gt; 192.168.1.105:8080</div>
+<div class="opacity-50">_ waiting for data...</div>
+</div>
+</div>
+</div>
+<!-- Action Footer -->
+<div class="p-4 border-t border-outline-variant bg-surface-container-highest/30">
+<button class="w-full bg-error-container/20 border border-error text-error py-2 font-data-terminal text-xs hover:bg-error hover:text-on-error transition-colors flex items-center justify-center gap-2 cursor-pointer active:scale-95 duration-150">
+<span class="material-symbols-outlined text-sm">block</span>
+                    [ ISOLATE NODE ]
+                </button>
+</div>
+</aside>
+</div>
+</body></html>

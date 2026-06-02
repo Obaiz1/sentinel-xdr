@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Breach Simulation - SENTINEL XDR</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&amp;family=Space+Grotesk:wght@400..700&amp;family=Inter:wght@400..700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-container-highest": "#2c3545",
+                        "secondary": "#ddb7ff",
+                        "on-tertiary": "#003919",
+                        "secondary-fixed-dim": "#ddb7ff",
+                        "on-surface": "#d9e3f7",
+                        "on-error": "#690005",
+                        "tertiary-container": "#00df76",
+                        "on-secondary-fixed": "#2c0051",
+                        "on-primary-fixed": "#001f27",
+                        "primary": "#a8e8ff",
+                        "primary-fixed-dim": "#3cd7ff",
+                        "on-secondary": "#490080",
+                        "on-error-container": "#ffdad6",
+                        "outline": "#859398",
+                        "primary-fixed": "#b4ebff",
+                        "background": "#0a1422",
+                        "surface-dim": "#0a1422",
+                        "on-primary-container": "#00586b",
+                        "surface-container-high": "#212a39",
+                        "secondary-fixed": "#f0dbff",
+                        "on-secondary-container": "#d6a9ff",
+                        "on-secondary-fixed-variant": "#6900b3",
+                        "on-primary-fixed-variant": "#004e5f",
+                        "on-primary": "#003642",
+                        "surface-variant": "#2c3545",
+                        "surface-container-low": "#121c2a",
+                        "surface-container": "#16202f",
+                        "surface-container-lowest": "#050e1c",
+                        "on-tertiary-fixed": "#00210c",
+                        "on-tertiary-container": "#005d2d",
+                        "secondary-container": "#6f00be",
+                        "on-surface-variant": "#bbc9cf",
+                        "surface": "#0a1422",
+                        "error": "#ffb4ab",
+                        "inverse-on-surface": "#273140",
+                        "inverse-primary": "#00677e",
+                        "tertiary": "#00ff88",
+                        "surface-tint": "#3cd7ff",
+                        "surface-bright": "#303a49",
+                        "on-background": "#d9e3f7",
+                        "tertiary-fixed": "#60ff99",
+                        "tertiary-fixed-dim": "#00e479",
+                        "primary-container": "#00d4ff",
+                        "on-tertiary-fixed-variant": "#005228",
+                        "error-container": "#93000a",
+                        "outline-variant": "#3c494e",
+                        "inverse-surface": "#d9e3f7"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "margin-mobile": "16px",
+                        "gutter": "16px",
+                        "margin-desktop": "32px",
+                        "unit": "4px",
+                        "panel-padding": "24px"
+                    },
+                    "fontFamily": {
+                        "label-caps": ["Space Mono", "monospace"],
+                        "data-terminal": ["Space Mono", "monospace"],
+                        "headline-md": ["Space Grotesk", "sans-serif"],
+                        "display-lg": ["Space Grotesk", "sans-serif"],
+                        "body-main": ["Inter", "sans-serif"],
+                        "headline-md-mobile": ["Space Grotesk", "sans-serif"]
+                    },
+                    "fontSize": {
+                        "label-caps": ["12px", { "lineHeight": "16px", "fontWeight": "700" }],
+                        "data-terminal": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "letterSpacing": "0.02em", "fontWeight": "600" }],
+                        "display-lg": ["48px", { "lineHeight": "56px", "letterSpacing": "0.05em", "fontWeight": "700" }],
+                        "body-main": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "headline-md-mobile": ["20px", { "lineHeight": "28px", "fontWeight": "600" }]
+                    },
+                    "animation": {
+                        'pulse-fast': 'pulse 1s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'glitch': 'glitch 1s linear infinite',
+                        'scanline': 'scanline 4s linear infinite',
+                    },
+                    "keyframes": {
+                        glitch: {
+                            '2%, 64%': { transform: 'translate(2px,0) skew(0deg)' },
+                            '4%, 60%': { transform: 'translate(-2px,0) skew(0deg)' },
+                            '62%': { transform: 'translate(0,0) skew(5deg)' },
+                        },
+                        scanline: {
+                            '0%': { transform: 'translateY(-100%)' },
+                            '100%': { transform: 'translateY(100%)' }
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body {
+            background-color: #040a14;
+            background-image: linear-gradient(rgba(10, 20, 34, 0.9), rgba(10, 20, 34, 0.9)), 
+                              linear-gradient(90deg, rgba(60, 215, 255, 0.05) 1px, transparent 1px),
+                              linear-gradient(rgba(60, 215, 255, 0.05) 1px, transparent 1px);
+            background-size: 100% 100%, 32px 32px, 32px 32px;
+            overflow-x: hidden;
+        }
+        
+        .glass-panel {
+            background: rgba(33, 42, 57, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(60, 215, 255, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .glass-panel::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(180deg, rgba(255, 180, 171, 0.1) 0%, transparent 10%);
+            pointer-events: none;
+            animation: scanline 4s linear infinite;
+        }
+
+        .alert-glow {
+            box-shadow: 0 0 25px rgba(255, 180, 171, 0.4);
+            border-color: rgba(255, 180, 171, 0.6);
+        }
+
+        .terminal-input {
+            background: rgba(10, 20, 34, 0.8);
+            border: none;
+            border-bottom: 2px solid #ffb4ab;
+            color: #ffdad6;
+            outline: none;
+        }
+
+        .text-error-glow {
+            text-shadow: 0 0 10px rgba(255, 180, 171, 0.8);
+        }
+        
+        /* CRT Effect */
+        .crt::before {
+            content: " ";
+            display: block;
+            position: absolute;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            z-index: 2;
+            background-size: 100% 2px, 3px 100%;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body class="text-on-surface font-body-main min-h-screen crt">
+<!-- TopNavBar -->
+<nav class="flex justify-between items-center px-margin-desktop w-full fixed top-0 z-50 backdrop-blur-md shadow-[0_0_25px_rgba(255,180,171,0.3)] h-16 border-b bg-surface-container/90 border-primary">
+<div class="flex items-center gap-8">
+<span class="font-display-lg text-headline-md tracking-widest text-error animate-glitch text-error-glow">SENTINEL XDR</span>
+<div class="hidden md:flex gap-6"><a class="text-primary font-bold border-b-2 border-primary pb-1 font-label-caps text-label-caps" href="#">API: ONLINE</a> <a class="text-primary font-bold border-b-2 border-primary pb-1 font-label-caps text-label-caps" href="#">DB: SYNCED</a> <a class="text-on-surface-variant font-label-caps text-label-caps" href="#">LLM: ACTIVE</a> <a class="text-primary font-bold border-b-2 border-primary pb-1 font-label-caps text-label-caps" href="#">SNIFFER: NOMINAL</a></div>
+</div>
+<div class="flex items-center gap-4"><div class="bg-primary text-on-primary font-label-caps text-label-caps px-4 py-1 border border-primary shadow-[0_0_15px_rgba(168,232,255,0.4)]"> [ SYSTEM SECURE ] </div> <button class="text-primary hover:text-on-primary transition-colors duration-200 cursor-pointer active:scale-95"> <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">settings</span> </button> <button class="text-primary hover:text-on-primary transition-colors duration-200 cursor-pointer active:scale-95 relative"> <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">notifications</span> </button></div>
+</nav>
+<!-- SideNavBar (Desktop) -->
+<aside class="hidden md:flex flex-col h-full pt-unit w-64 border-r border-error fixed left-0 top-16 bg-surface-container-low/95 backdrop-blur-xl z-40 transition-all duration-300 ease-in-out">
+<div class="p-6 border-b border-error/30 mb-4 bg-error-container/20">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-none border border-error bg-surface flex items-center justify-center overflow-hidden relative">
+<img alt="Operator Avatar" class="w-full h-full object-cover opacity-50 mix-blend-luminosity" data-alt="A stylized, glitchy digital portrait of a cybersecurity operator, saturated in red warning lights against a dark terminal background. The image has a low-fi, high-tech aesthetic typical of a military SOC." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBxZWRRKUUcLIs7SRSpBCwrC50Sg_9D9n1muyANin3_mvWXOzpVAuo23zFO4sl1_gmlzSBjDbIJ4DdmdiEqppZ5ET_PtFP-Pjxw5seHjROtC1s_YFf4jmBcC7_-aC3ZGvHJAPAcHyrayxZyDu-L864yMeUAYtjKC6WHnpR3iNI1yBKfeP_tub9v4AlrYrTcp84RvxDYRApG3hpRtaAtZzrqXzGjQU4g3D0qG1tpHb8Tzp8B__9kKH44uqvsD-fho-MHCco-2CXyDEk"/>
+<div class="absolute inset-0 bg-error/20 animate-pulse"></div>
+</div>
+<div>
+<h3 class="font-label-caps text-label-caps text-error">OP-UNIT-01</h3>
+<p class="font-label-caps text-[10px] animate-pulse text-primary/70">CLEARANCE: LEVEL 4 - VIGILANT</p>
+</div>
+</div>
+</div>
+<nav class="flex-1 px-2 space-y-1 bg-surface-container/90 border-primary">
+<a class="flex items-center gap-3 bg-error-container/40 text-error border-l-4 border-error px-4 py-3 font-label-caps text-label-caps" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+                Command Center
+            </a>
+<a class="flex items-center gap-3 text-error/70 px-4 py-3 hover:bg-error-container/20 hover:text-error transition-colors font-label-caps text-label-caps" href="#">
+<span class="material-symbols-outlined">security</span>
+                MACE Chains
+            </a>
+<a class="flex items-center gap-3 text-error/70 px-4 py-3 hover:bg-error-container/20 hover:text-error transition-colors font-label-caps text-label-caps" href="#">
+<span class="material-symbols-outlined">biotech</span>
+                Threat Intelligence
+            </a>
+<a class="flex items-center gap-3 text-error/70 px-4 py-3 hover:bg-error-container/20 hover:text-error transition-colors font-label-caps text-label-caps" href="#">
+<span class="material-symbols-outlined">memory</span>
+                XDR Engines
+            </a>
+</nav>
+<div class="p-4 border-t border-error/30 mt-auto">
+<button class="w-full text-on-error font-label-caps text-label-caps py-2 hover:bg-error/80 transition-colors animate-pulse">[ INITIATE SCAN ]</button>
+<div class="mt-4 space-y-1">
+<a class="flex items-center gap-3 text-error/70 px-4 py-2 hover:text-error font-label-caps text-label-caps" href="#">
+<span class="material-symbols-outlined text-[16px]">terminal</span>
+                    System Logs
+                </a>
+<a class="flex items-center gap-3 text-error/70 px-4 py-2 hover:text-error font-label-caps text-label-caps" href="#">
+<span class="material-symbols-outlined text-[16px]">psychology</span>
+                    ARIA Help
+                </a>
+</div>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="pt-20 pb-margin-desktop px-margin-mobile md:px-margin-desktop md:ml-64 md:mr-80 min-h-screen relative">
+<!-- Background Grid Distortion (Simulated) -->
+<div class="absolute inset-0 pointer-events-none z-0 overflow-hidden opacity-30">
+<div class="w-[200%] h-[200%] absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rotate-12 scale-150 animate-pulse" style="background-image: repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(255,180,171,0.05) 10px, rgba(255,180,171,0.05) 20px);"></div>
+</div>
+<div class="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-gutter max-w-[1600px] mx-auto">
+<!-- Global Alert Banner -->
+<div class="col-span-1 lg:col-span-12 glass-panel p-4 flex items-center justify-between bg-surface-container-high"> <div class="flex items-center gap-4"> <span class="material-symbols-outlined text-primary text-4xl">verified_user</span> <div> <h2 class="font-headline-md text-headline-md text-primary tracking-widest">GLOBAL SENSOR NETWORK</h2> <p class="font-data-terminal text-data-terminal text-on-surface-variant">SYSTEM SCAN COMPLETE. ALL NODES REPORTING NOMINAL.</p> </div> </div> <div class="text-right"> <p class="font-data-terminal text-data-terminal text-primary">THREAT LEVEL: <span class="font-bold">NONE</span></p> <p class="font-data-terminal text-data-terminal text-on-surface-variant">LAST AUDIT: 00:02:15 AGO</p> </div> </div>
+<!-- Threat Map Canvas -->
+<div class="col-span-1 lg:col-span-8 glass-panel h-[500px] flex flex-col border-primary/20"> <div class="border-b border-primary/30 p-2 flex justify-between items-center bg-surface-container"> <span class="font-label-caps text-label-caps text-primary">MAP-VIEW-01 :: GLOBAL SENSORS</span> <span class="font-label-caps text-label-caps text-tertiary flex items-center gap-2"> <span class="w-2 h-2 bg-tertiary rounded-full"></span> LIVE </span> </div> <div class="flex-1 relative bg-[url('https://images.unsplash.com/photo-1524661135-423995f22d0b?ixlib=rb-4.0.3&amp;auto=format&amp;fit=crop&amp;w=1200&amp;q=80')] bg-cover bg-center blend-overlay"> <div class="absolute inset-0 bg-surface/80 mix-blend-multiply"></div> <div class="absolute bottom-4 left-4 space-y-2"> <div class="bg-surface/90 border border-primary/50 p-2 font-data-terminal text-[10px] text-primary"> &gt; UPTIME: 99.9%<br/> &gt; ACTIVE NODES: 4,102<br/> &gt; STATUS: ENCRYPTED </div> </div> </div> </div>
+<!-- Gauges & Telemetry -->
+<div class="col-span-1 lg:col-span-4 flex flex-col gap-gutter"><div class="glass-panel p-4 flex-1"> <h3 class="font-label-caps text-label-caps text-primary border-b border-primary/30 pb-2 mb-4">SYSTEM TELEMETRY</h3> <div class="space-y-6"> <div> <div class="flex justify-between font-data-terminal text-[12px] text-on-surface-variant mb-1"> <span>PACKET VOLUME</span> <span class="text-tertiary font-bold">NOMINAL (14%)</span> </div> <div class="h-2 bg-surface-container w-full relative overflow-hidden"> <div class="absolute top-0 left-0 h-full bg-tertiary w-[14%]"></div> </div> </div> <div> <div class="flex justify-between font-data-terminal text-[12px] text-on-surface-variant mb-1"> <span>THREAT COUNT</span> <span class="text-tertiary font-bold">0 ACTIVE</span> </div> <div class="h-2 bg-surface-container w-full relative overflow-hidden"> <div class="absolute top-0 left-0 h-full bg-tertiary w-[0%]"></div> </div> </div> <div> <div class="flex justify-between font-data-terminal text-[12px] text-on-surface-variant mb-1"> <span>CPU LOAD (STABLE)</span> <span class="text-tertiary font-bold">22.4%</span> </div> <div class="h-2 bg-surface-container w-full relative overflow-hidden"> <div class="absolute top-0 left-0 h-full bg-tertiary w-[22%]"></div> </div> </div> </div> </div> <div class="glass-panel p-4"> <h3 class="font-label-caps text-label-caps text-primary border-b border-primary/30 pb-2 mb-4">MONITORING TOOLS</h3> <div class="space-y-3"> <button class="w-full border border-primary bg-transparent text-primary font-label-caps py-2 hover:bg-primary/20 transition-colors text-left px-4"> &gt; RUN NETWORK_AUDIT </button> <button class="w-full border border-primary bg-transparent text-primary font-label-caps py-2 hover:bg-primary/20 transition-colors text-left px-4"> &gt; VERIFY_INTEGRITY </button> <button class="w-full bg-primary text-on-primary font-label-caps py-2 hover:bg-primary/80 transition-colors text-center font-bold"> [ DEPLOY PATROL DRONES ] </button> </div> </div></div>
+<!-- Terminal Output -->
+<div class="col-span-1 lg:col-span-12 glass-panel h-64 flex flex-col border border-error/50">
+<div class="border-b border-error/30 p-2 flex justify-between items-center bg-error-container/20">
+<span class="font-label-caps text-label-caps text-error">SYS-LOG :: RAW_STREAM</span>
+<span class="material-symbols-outlined text-error/50 text-[16px]">terminal</span>
+</div>
+<div class="flex-1 p-4 font-data-terminal text-[12px] text-error/80 overflow-y-hidden relative"><div class="space-y-1"> <p>&gt; System initialized. Kernel 5.4.0-sentinel-x64.</p> <p>&gt; Checking network interfaces... [OK]</p> <p class="text-tertiary">&gt; All firewall rules verified. Monitoring active.</p> <p>&gt; Loading security definitions: v24.11.02 [CURRENT]</p> <p>&gt; Routine log rotation completed.</p> <p class="text-primary">&gt; INFO: System integrity check passed at 14:32:00.</p> </div> <div class="mt-4 flex"> <span class="text-primary mr-2">user@sentinel:~#</span> <input class="bg-transparent border-none text-primary font-data-terminal text-[12px] w-full focus:ring-0 placeholder-primary/30" type="text" value="status --all"/> </div></div>
+</div>
+</div>
+</main>
+<!-- NavigationDrawer (Right Panel - ARIA COPILOT) -->
+<aside class="hidden xl:flex flex-col h-full p-panel-padding w-80 border-l border-error fixed right-0 top-16 bg-surface-container-high/95 backdrop-blur-md shadow-[-5px_0_20px_rgba(255,180,171,0.2)] z-40 animate-pulse-subtle">
+<div class="mb-6">
+<h2 class="text-error font-bold font-headline-md text-headline-md tracking-wider flex items-center gap-2">
+<span class="material-symbols-outlined">smart_toy</span>
+                ARIA COPILOT
+            </h2>
+<p class="font-data-terminal text-[10px] text-error/70 tracking-widest mt-1">AI-POWERED THREAT ANALYSIS</p>
+</div>
+<div class="flex border-b border-error/30 mb-4">
+<button class="flex-1 pb-2 font-data-terminal text-data-terminal text-error border-b-2 border-error text-center flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-[18px]">stream</span> Live Stream
+            </button>
+<button class="flex-1 pb-2 font-data-terminal text-data-terminal text-on-surface-variant hover:text-error transition-colors text-center flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-[18px]">auto_awesome</span> Neural Insights
+            </button>
+</div>
+<div class="flex-1 overflow-y-auto space-y-4 pr-2"><div class="bg-surface-variant/50 border border-primary/30 p-3"> <div class="flex gap-2 items-start"> <span class="material-symbols-outlined text-tertiary text-[18px] mt-1">check_circle</span> <div> <p class="font-data-terminal text-[12px] text-on-surface">Status Update: All security protocols are currently within normal operating parameters.</p> </div> </div> </div> <div class="bg-surface-variant/30 border border-primary/20 p-2 font-data-terminal text-[10px] text-primary/60"> Monitoring passive vectors...<br/> System health: 100%<br/> No threats detected in the last 24 hours. </div></div>
+<div class="mt-4 pt-4 border-t border-error/30">
+<div class="flex items-center bg-surface border border-error/50 p-1">
+<span class="material-symbols-outlined text-error/50 ml-2">chat</span>
+<input class="bg-transparent border-none text-error font-data-terminal text-[12px] w-full focus:ring-0 placeholder-error/30" placeholder="Query ARIA..." type="text"/>
+</div>
+</div>
+</aside>
+</body></html>

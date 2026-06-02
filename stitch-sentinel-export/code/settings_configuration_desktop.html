@@ -1,0 +1,302 @@
+<!DOCTYPE html><html class="dark" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Settings - Sentinel XDR</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-tertiary-fixed": "#00210c",
+                        "on-secondary-container": "#d6a9ff",
+                        "surface-container": "#16202f",
+                        "surface-container-high": "#212a39",
+                        "primary-fixed": "#b4ebff",
+                        "surface": "#0a1422",
+                        "secondary-fixed-dim": "#ddb7ff",
+                        "primary-container": "#00d4ff",
+                        "surface-container-highest": "#2c3545",
+                        "on-background": "#d9e3f7",
+                        "surface-container-lowest": "#050e1c",
+                        "on-tertiary-container": "#005d2d",
+                        "on-error": "#690005",
+                        "on-primary-fixed-variant": "#004e5f",
+                        "surface-container-low": "#121c2a",
+                        "secondary-container": "#6f00be",
+                        "on-primary-fixed": "#001f27",
+                        "on-error-container": "#ffdad6",
+                        "on-tertiary-fixed-variant": "#005228",
+                        "on-secondary-fixed": "#2c0051",
+                        "on-secondary-fixed-variant": "#6900b3",
+                        "outline-variant": "#3c494e",
+                        "secondary": "#ddb7ff",
+                        "primary": "#a8e8ff",
+                        "on-secondary": "#490080",
+                        "inverse-surface": "#d9e3f7",
+                        "primary-fixed-dim": "#3cd7ff",
+                        "inverse-primary": "#00677e",
+                        "on-primary-container": "#00586b",
+                        "background": "#0a1422",
+                        "secondary-fixed": "#f0dbff",
+                        "error": "#ffb4ab",
+                        "surface-dim": "#0a1422",
+                        "surface-variant": "#2c3545",
+                        "on-tertiary": "#003919",
+                        "on-primary": "#003642",
+                        "tertiary": "#00ff88",
+                        "tertiary-fixed-dim": "#00e479",
+                        "outline": "#859398",
+                        "on-surface": "#d9e3f7",
+                        "inverse-on-surface": "#273140",
+                        "tertiary-container": "#00df76",
+                        "error-container": "#93000a",
+                        "tertiary-fixed": "#60ff99",
+                        "surface-tint": "#3cd7ff",
+                        "surface-bright": "#303a49",
+                        "on-surface-variant": "#bbc9cf"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "gutter": "16px",
+                        "margin-desktop": "32px",
+                        "panel-padding": "24px",
+                        "unit": "4px",
+                        "margin-mobile": "16px"
+                    },
+                    "fontFamily": {
+                        "data-terminal": ["Space Mono", "monospace"],
+                        "display-lg": ["Space Grotesk", "sans-serif"],
+                        "label-caps": ["Space Mono", "monospace"],
+                        "headline-md-mobile": ["Space Grotesk", "sans-serif"],
+                        "headline-md": ["Space Grotesk", "sans-serif"],
+                        "body-main": ["Inter", "sans-serif"]
+                    },
+                    "fontSize": {
+                        "data-terminal": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "display-lg": ["48px", { "lineHeight": "56px", "letterSpacing": "0.05em", "fontWeight": "700" }],
+                        "label-caps": ["12px", { "lineHeight": "16px", "fontWeight": "700" }],
+                        "headline-md-mobile": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "letterSpacing": "0.02em", "fontWeight": "600" }],
+                        "body-main": ["16px", { "lineHeight": "24px", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&amp;family=Space+Grotesk:wght@300..700&amp;family=Inter:wght@100..900&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<style>
+        body { background-color: #040a14; background-image: radial-gradient(circle at center, rgba(0,212,255,0.03) 0%, transparent 100%); }
+        .hud-scanline { position: absolute; top: 0; left: 0; width: 100%; height: 2px; background: linear-gradient(to right, transparent, rgba(168,232,255,0.8), transparent); animation: scan 3s linear infinite; opacity: 0.5; pointer-events: none; }
+        @keyframes scan { 0% { top: -5%; } 100% { top: 105%; } }
+        .glass-panel { background: rgba(10, 20, 34, 0.6); backdrop-filter: blur(12px); border: 1px solid rgba(60, 73, 78, 0.4); box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5); }
+        .glass-panel:hover { border-color: rgba(168, 232, 255, 0.3); }
+        .neon-glow { box-shadow: 0 0 15px rgba(0,212,255,0.2); }
+        .terminal-input:focus { border-bottom-color: #a8e8ff; outline: none; }
+    </style>
+</head>
+<body class="bg-surface text-on-surface font-body-main antialiased min-h-screen overflow-x-hidden selection:bg-primary/30"><div class="hud-scanline fixed inset-0 z-[100] opacity-[0.03]"></div>
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full border-b border-outline-variant bg-surface/80 backdrop-blur-md shadow-[0_0_15px_rgba(0,212,255,0.1)] flex justify-between items-center px-margin-desktop h-16 z-50">
+<div class="flex items-center gap-4"><img src="https://lh3.googleusercontent.com/aida/AP1WRLuNfmBq8DMaRct6iCMXC29J1TMKjYdnZ50mhbfWOIMBrvdQe_Exn41Q8_VrmVV3uQtLXA5ppoEFA-h9IukLqm9i33fmv8jVn3UoOnwwEE142os7uxaZ06BKjZJcxwCJBF9zKMpo5Mg1daiH6VzCWcmVz-NdPwNWV87ikvidnSo_FiqgiKK3_XtQ9lHREkbOA34JD9jVKZA99brZuZaHx8u_XiDmQdvmpqmCNz7_vHgS06QXIpNSgtrGWQ" alt="Sentinel Logo" class="h-10 w-auto mr-2"><span class="font-display-lg text-headline-md tracking-widest text-primary uppercase">SENTINEL XDR</span></div>
+<div class="flex items-center gap-6">
+<div class="flex gap-4">
+<span class="material-symbols-outlined text-primary cursor-pointer active:scale-95 hover:text-primary hover:bg-primary/10 transition-all p-2 rounded">database</span>
+<span class="material-symbols-outlined text-primary cursor-pointer active:scale-95 hover:text-primary hover:bg-primary/10 transition-all p-2 rounded">api</span>
+<span class="material-symbols-outlined text-primary cursor-pointer active:scale-95 hover:text-primary hover:bg-primary/10 transition-all p-2 rounded">memory</span>
+</div>
+<button class="font-data-terminal text-data-terminal text-primary border border-primary px-4 py-1.5 hover:bg-primary hover:text-surface transition-colors">
+                [ SYSTEM_SYNC ]
+            </button>
+<img alt="Operator Avatar" class="w-8 h-8 rounded-full border border-primary/50 object-cover" data-alt="A futuristic avatar of a cybersecurity operator in a high-tech SOC. Soft cyan lighting illuminates the subject's face against a dark, technical background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBP13RKKLz7ZbXj90u_HUHTPhPuWXrg1bx380kJGyGgkXOlxo-6AgkZfvZHa0JcNIMe_rPP-vPqGcSxi4dbieO8RUt_iPTUk7PqweBL-lxQQxmzXLu2o5VpcMxqX_Hwu7jw5zJiyYSQwkXM1f2-E_EN6CdzPNIIzgvhRIRnwBsY_x5fWl6nE_kNMcT3Lw9HrqMP8TyaLZC1oNujxJGQ7mZCHnU8lieEUPVKrCurU_a4Ktw3yTmLw_SWjoyFlnvGh1SZ8gFbbzKzJl4">
+</div>
+</header>
+<!-- SideNavBar -->
+<nav class="hidden md:flex fixed left-0 top-0 h-full w-64 border-r border-outline-variant bg-surface-container-lowest/90 backdrop-blur-xl flex-col py-panel-padding z-40 mt-16">
+<div class="px-6 mb-8"><img src="https://lh3.googleusercontent.com/aida/AP1WRLvA5zXchZcdJCmvN4DdP_mFishHxJQlu5AgiJX_UjziLKyvjhVmStcL_R-m_qoaTnbXnpisAx_ocnoBB5gIt8u2UEZL7YZn9YxwGn6fqWK62HVj83jrWXY4huaoeFMfeJUbnSvq9i8Ga1ZIRHDjxV0jX1ODagfZOS1SL96fvI0bKul74blHP4dZm5rJ69E2SC9JBu6leHq5T87qI5AEmSCFZO0YJBo-OfSq1sR_D_BoQWCDtXY1hks3qw" alt="Sentinel Icon" class="w-12 h-12 mb-4 opacity-90">
+<h2 class="font-display-lg text-headline-md-mobile text-primary">SEC-UNIT-04</h2>
+<p class="font-label-caps text-label-caps text-on-surface-variant mt-1 tracking-wider">STATUS: VIGILANT</p>
+</div>
+<ul class="flex flex-col gap-2 flex-grow px-2"><li class=""><a class="flex items-center gap-3 px-4 py-2.5 text-on-surface-variant hover:bg-primary/10 hover:text-primary transition-colors duration-200 rounded font-label-caps text-label-caps" href="#"><span class="material-symbols-outlined text-[18px]">dashboard</span>COMMAND CENTER</a></li><li class=""><a class="flex items-center gap-3 px-4 py-2.5 text-on-surface-variant hover:bg-primary/10 hover:text-primary transition-colors duration-200 rounded font-label-caps text-label-caps" href="#"><span class="material-symbols-outlined text-[18px]">admin_panel_settings</span>CONTROL PANEL</a></li><li class=""><a class="flex items-center gap-3 px-4 py-2.5 text-on-surface-variant hover:bg-primary/10 hover:text-primary transition-colors duration-200 rounded font-label-caps text-label-caps" href="#"><span class="material-symbols-outlined text-[18px]">smart_toy</span>ARIA COPILOT</a></li><li class=""><a class="flex items-center gap-3 px-4 py-2.5 text-on-surface-variant hover:bg-primary/10 hover:text-primary transition-colors duration-200 rounded font-label-caps text-label-caps" href="#"><span class="material-symbols-outlined text-[18px]">memory</span>XDR ENGINES</a></li><li class=""><a class="flex items-center gap-3 px-4 py-2.5 text-on-surface-variant hover:bg-primary/10 hover:text-primary transition-colors duration-200 rounded font-label-caps text-label-caps" href="#"><span class="material-symbols-outlined text-[18px]">hub</span>THREAT INTELLIGENCE</a></li><li class=""><a class="flex items-center gap-3 px-4 py-2.5 text-on-surface-variant hover:bg-primary/10 hover:text-primary transition-colors duration-200 rounded font-label-caps text-label-caps" href="#"><span class="material-symbols-outlined text-[18px]">link</span>MACE CHAINS</a></li><li class=""><a class="flex items-center gap-3 px-4 py-2.5 text-on-surface-variant hover:bg-primary/10 hover:text-primary transition-colors duration-200 rounded font-label-caps text-label-caps" href="#"><span class="material-symbols-outlined text-[18px]">notifications_active</span>LIVE ALERTS</a></li><li class=""><a class="flex items-center gap-3 px-4 py-2.5 text-primary border-l-4 border-primary bg-primary/5 transition-colors duration-200 rounded-r font-label-caps text-label-caps" href="#"><span class="material-symbols-outlined text-[18px]" style="font-variation-settings: 'FILL' 1;">settings</span>SETTINGS</a></li><li class=""><a class="flex items-center gap-3 px-4 py-2.5 text-on-surface-variant hover:bg-primary/10 hover:text-primary transition-colors duration-200 rounded font-label-caps text-label-caps" href="#"><span class="material-symbols-outlined text-[18px]">history</span>LEGACY UI</a></li></ul>
+<div class="px-6 mt-auto">
+<button class="w-full text-center font-data-terminal text-data-terminal text-on-surface-variant border border-outline-variant py-2 hover:border-primary hover:text-primary transition-colors opacity-70">
+                [ PURGE_CACHE ]
+            </button>
+<div class="mt-4">
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-primary/10 hover:text-primary transition-colors duration-200 rounded font-label-caps text-label-caps justify-center" href="#">
+<span class="material-symbols-outlined text-[18px]">psychology</span>
+                    CO-PILOT
+                </a>
+</div>
+</div>
+</nav>
+<!-- Main Content Canvas -->
+<main class="pt-24 pl-0 md:pl-64 pr-0 md:pr-80 min-h-screen relative p-margin-desktop">
+<div class="max-w-6xl mx-auto space-y-8">
+<header class="mb-8 border-b border-outline-variant pb-4">
+<h1 class="font-display-lg text-headline-md text-primary flex items-center gap-2">
+<span class="material-symbols-outlined text-3xl">tune</span>
+                    SYSTEM CONFIGURATION
+                </h1>
+<p class="font-data-terminal text-data-terminal text-on-surface-variant mt-2">Adjust core parameters and API integrations. Changes sync globally.</p>
+</header>
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+<!-- API Connection Panel -->
+<section class="glass-panel p-panel-padding relative overflow-hidden rounded-DEFAULT">
+<div class="hud-scanline"></div>
+<div class="flex justify-between items-start mb-6 border-b border-outline-variant pb-2">
+<h3 class="font-label-caps text-label-caps text-primary tracking-widest flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">api</span>
+                            API CONNECTION
+                        </h3>
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-tertiary animate-pulse"></span>
+<span class="font-data-terminal text-data-terminal text-tertiary uppercase text-xs">Online</span>
+</div>
+</div>
+<div class="space-y-4">
+<div>
+<label class="font-data-terminal text-data-terminal text-on-surface-variant block mb-1 text-xs uppercase">Primary Endpoint URL</label>
+<input class="terminal-input w-full bg-surface-container-lowest border-t-0 border-l-0 border-r-0 border-b border-outline-variant font-data-terminal text-data-terminal text-primary p-2 focus:ring-0 rounded-none transition-colors" readonly="" type="text" value="wss://sentinel.xdr.core/v2/stream">
+</div>
+<div>
+<label class="font-data-terminal text-data-terminal text-on-surface-variant block mb-1 text-xs uppercase">Auth Token</label>
+<div class="flex gap-2">
+<input class="terminal-input w-full bg-surface-container-lowest border-t-0 border-l-0 border-r-0 border-b border-outline-variant font-data-terminal text-data-terminal text-primary p-2 focus:ring-0 rounded-none transition-colors" type="password" value="************************">
+<button class="font-data-terminal text-data-terminal text-primary hover:bg-primary/10 px-3 py-1 border border-primary/30 transition-colors">
+                                    REGEN
+                                </button>
+</div>
+</div>
+</div>
+</section>
+<!-- System Polling Intervals -->
+<section class="glass-panel p-panel-padding relative overflow-hidden rounded-DEFAULT">
+<div class="hud-scanline" style="animation-delay: 1.5s;"></div>
+<div class="mb-6 border-b border-outline-variant pb-2">
+<h3 class="font-label-caps text-label-caps text-primary tracking-widest flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">schedule</span>
+                            POLLING INTERVALS (MS)
+                        </h3>
+</div>
+<div class="space-y-5">
+<div class="flex items-center justify-between">
+<span class="font-data-terminal text-data-terminal text-on-surface">Alert Stream</span>
+<div class="flex items-center gap-3">
+<input class="w-32 accent-primary h-1 bg-surface-container-highest rounded-lg appearance-none cursor-pointer" max="5000" min="100" type="range" value="500">
+<span class="font-data-terminal text-data-terminal text-primary w-12 text-right">500</span>
+</div>
+</div>
+<div class="flex items-center justify-between">
+<span class="font-data-terminal text-data-terminal text-on-surface">Node Stats</span>
+<div class="flex items-center gap-3">
+<input class="w-32 accent-primary h-1 bg-surface-container-highest rounded-lg appearance-none cursor-pointer" max="10000" min="1000" type="range" value="2000">
+<span class="font-data-terminal text-data-terminal text-primary w-12 text-right">2000</span>
+</div>
+</div>
+<div class="flex items-center justify-between">
+<span class="font-data-terminal text-data-terminal text-on-surface">Chain Sync</span>
+<div class="flex items-center gap-3">
+<input class="w-32 accent-primary h-1 bg-surface-container-highest rounded-lg appearance-none cursor-pointer" max="60000" min="5000" type="range" value="15000">
+<span class="font-data-terminal text-data-terminal text-primary w-12 text-right">15000</span>
+</div>
+</div>
+</div>
+</section>
+</div>
+<!-- Legacy UI Toggle Section -->
+<section class="glass-panel p-panel-padding mt-6 flex justify-between items-center rounded-DEFAULT border-l-2 border-secondary">
+<div>
+<h4 class="font-label-caps text-label-caps text-secondary flex items-center gap-2 mb-1">
+<span class="material-symbols-outlined text-sm">history</span>
+                        LEGACY INTERFACE
+                    </h4>
+<p class="font-data-terminal text-data-terminal text-on-surface-variant text-sm">Revert to pre-V4 operator dashboard. Not recommended for active threats.</p>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input class="sr-only peer" type="checkbox" value="">
+<div class="w-11 h-6 bg-surface-container-highest peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-on-surface-variant after:border-outline-variant after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-secondary border border-outline-variant"></div>
+</label>
+</section>
+<div class="flex justify-end gap-4 mt-8 border-t border-outline-variant pt-6">
+<button class="font-data-terminal text-data-terminal text-on-surface-variant px-6 py-2 hover:text-on-surface transition-colors">
+                    [ DISCARD ]
+                </button>
+<button class="bg-primary text-surface font-label-caps text-label-caps px-6 py-2 hover:bg-primary-fixed-dim transition-colors rounded-sm flex items-center gap-2 neon-glow">
+<span class="material-symbols-outlined text-sm">save</span>
+                    COMMIT CHANGES
+                </button>
+</div>
+</div>
+</main>
+<!-- NavigationDrawer (ARIA Copilot) -->
+<aside class="hidden md:flex fixed right-0 top-16 h-[calc(100vh-64px)] w-80 border-l border-outline-variant bg-surface-container/60 backdrop-blur-lg flex-col p-gutter z-40 shadow-[-10px_0_20px_rgba(0,255,136,0.05)]">
+<div class="mb-6 border-b border-outline-variant pb-4">
+<h2 class="font-display-lg text-headline-md text-tertiary flex items-center gap-2">
+<span class="material-symbols-outlined">smart_toy</span>
+                ARIA_COPILOT
+            </h2>
+<p class="font-data-terminal text-data-terminal text-tertiary/70 mt-1 flex items-center gap-2 text-xs">
+<span class="w-1.5 h-1.5 rounded-full bg-tertiary animate-pulse-slow"></span>
+                NEURAL_LINK: ACTIVE
+            </p>
+</div>
+<div class="flex bg-surface-container-lowest border border-outline-variant rounded-sm mb-6 p-1">
+<button class="flex-1 font-data-terminal text-data-terminal text-tertiary font-bold bg-tertiary/10 py-1.5 text-center text-xs">
+<span class="material-symbols-outlined text-[14px] align-middle mr-1">auto_awesome</span>INSIGHTS
+            </button>
+<button class="flex-1 font-data-terminal text-data-terminal text-on-surface-variant hover:text-tertiary-fixed-dim py-1.5 text-center text-xs transition-colors">
+<span class="material-symbols-outlined text-[14px] align-middle mr-1">bolt</span>ACTIONS
+            </button>
+<button class="flex-1 font-data-terminal text-data-terminal text-on-surface-variant hover:text-tertiary-fixed-dim py-1.5 text-center text-xs transition-colors">
+<span class="material-symbols-outlined text-[14px] align-middle mr-1">history</span>HISTORY
+            </button>
+</div>
+<div class="flex-grow overflow-y-auto space-y-4 pr-2 custom-scrollbar">
+<!-- Insight Cards -->
+<div class="bg-surface-container-low border border-tertiary/30 p-3 rounded-sm relative">
+<div class="absolute top-0 left-0 w-1 h-full bg-tertiary"></div>
+<div class="flex items-start gap-2">
+<span class="material-symbols-outlined text-tertiary text-sm mt-0.5">info</span>
+<div>
+<h5 class="font-label-caps text-label-caps text-tertiary">SYSTEM HEALTH</h5>
+<p class="font-data-terminal text-data-terminal text-on-surface text-xs mt-1 leading-relaxed">Polling intervals optimized for current load. No latency detected on API endpoint.</p>
+</div>
+</div>
+</div>
+<div class="bg-surface-container-low border border-secondary/30 p-3 rounded-sm relative">
+<div class="absolute top-0 left-0 w-1 h-full bg-secondary"></div>
+<div class="flex items-start gap-2">
+<span class="material-symbols-outlined text-secondary text-sm mt-0.5">warning</span>
+<div>
+<h5 class="font-label-caps text-label-caps text-secondary">LEGACY UI WARNING</h5>
+<p class="font-data-terminal text-data-terminal text-on-surface text-xs mt-1 leading-relaxed">Enabling legacy UI will disable real-time threat map rendering modules.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="mt-4 pt-4 border-t border-outline-variant">
+<div class="relative">
+<span class="material-symbols-outlined absolute left-2 top-2 text-tertiary/50 text-sm">chat</span>
+<input class="w-full bg-surface-container-lowest border border-outline-variant text-on-surface font-data-terminal text-data-terminal text-sm py-1.5 pl-8 pr-2 focus:border-tertiary focus:outline-none focus:ring-0 placeholder-on-surface-variant/50" placeholder="Query ARIA..." type="text">
+</div>
+</div>
+</aside>
+<style>
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #3c494e; border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #859398; }
+        .animate-pulse-slow { animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+    </style>
+
+
+</body></html>

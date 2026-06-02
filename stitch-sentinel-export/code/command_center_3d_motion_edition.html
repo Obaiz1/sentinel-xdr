@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>SENTINEL XDR - Command Center</title>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Google Fonts: Space Grotesk, Space Mono, Inter -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Space+Grotesk:wght@400;500;600;700&amp;family=Space+Mono:ital,wght@0,400;0,700;1,400&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Theme Configuration -->
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "surface-container-highest": "#2c3545",
+                    "tertiary-fixed-dim": "#00e479",
+                    "on-tertiary-fixed-variant": "#005228",
+                    "on-tertiary-fixed": "#00210c",
+                    "outline-variant": "#3c494e",
+                    "on-primary-fixed": "#001f27",
+                    "surface-dim": "#0a1422",
+                    "surface-container": "#16202f",
+                    "secondary-fixed-dim": "#ddb7ff",
+                    "secondary-fixed": "#f0dbff",
+                    "on-tertiary": "#003919",
+                    "tertiary": "#00ff88",
+                    "primary-fixed": "#b4ebff",
+                    "secondary-container": "#6f00be",
+                    "inverse-on-surface": "#273140",
+                    "surface-container-high": "#212a39",
+                    "secondary": "#ddb7ff",
+                    "on-surface": "#d9e3f7",
+                    "on-secondary-fixed": "#2c0051",
+                    "primary-container": "#00d4ff",
+                    "on-background": "#d9e3f7",
+                    "surface-tint": "#3cd7ff",
+                    "on-error-container": "#ffdad6",
+                    "on-secondary-fixed-variant": "#6900b3",
+                    "on-secondary": "#490080",
+                    "inverse-surface": "#d9e3f7",
+                    "background": "#0a1422",
+                    "surface-container-low": "#121c2a",
+                    "tertiary-container": "#00df76",
+                    "primary-fixed-dim": "#3cd7ff",
+                    "on-surface-variant": "#bbc9cf",
+                    "error-container": "#93000a",
+                    "outline": "#859398",
+                    "on-primary-fixed-variant": "#004e5f",
+                    "surface": "#0a1422",
+                    "primary": "#a8e8ff",
+                    "inverse-primary": "#00677e",
+                    "on-tertiary-container": "#005d2d",
+                    "error": "#ffb4ab",
+                    "tertiary-fixed": "#60ff99",
+                    "on-secondary-container": "#d6a9ff",
+                    "on-primary": "#003642",
+                    "on-error": "#690005",
+                    "surface-variant": "#2c3545",
+                    "on-primary-container": "#00586b",
+                    "surface-container-lowest": "#050e1c",
+                    "surface-bright": "#303a49"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "panel-padding": "24px",
+                    "margin-mobile": "16px",
+                    "unit": "4px",
+                    "gutter": "16px",
+                    "margin-desktop": "32px"
+            },
+            "fontFamily": {
+                    "headline-md": [
+                            "spaceGrotesk"
+                    ],
+                    "data-terminal": [
+                            "spaceMono"
+                    ],
+                    "body-main": [
+                            "inter"
+                    ],
+                    "label-caps": [
+                            "spaceMono"
+                    ],
+                    "headline-md-mobile": [
+                            "spaceGrotesk"
+                    ],
+                    "display-lg": [
+                            "spaceGrotesk"
+                    ]
+            },
+            "fontSize": {
+                    "headline-md": [
+                            "24px",
+                            {
+                                    "lineHeight": "32px",
+                                    "letterSpacing": "0.02em",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "data-terminal": [
+                            "14px",
+                            {
+                                    "lineHeight": "20px",
+                                    "fontWeight": "400"
+                            }
+                    ],
+                    "body-main": [
+                            "16px",
+                            {
+                                    "lineHeight": "24px",
+                                    "fontWeight": "400"
+                            }
+                    ],
+                    "label-caps": [
+                            "12px",
+                            {
+                                    "lineHeight": "16px",
+                                    "fontWeight": "700"
+                            }
+                    ],
+                    "headline-md-mobile": [
+                            "20px",
+                            {
+                                    "lineHeight": "28px",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "display-lg": [
+                            "48px",
+                            {
+                                    "lineHeight": "56px",
+                                    "letterSpacing": "0.05em",
+                                    "fontWeight": "700"
+                            }
+                    ]
+            }
+          }
+        }
+      }
+    </script>
+<style>
+        :root {
+            --mouse-x: 50%;
+            --mouse-y: 50%;
+            --scroll-y: 0px;
+        }
+
+        /* Custom Animations & Tech Brutalism Effects */
+        .scanlines {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background: linear-gradient(to bottom, transparent 50%, rgba(0, 212, 255, 0.05) 51%);
+            background-size: 100% 4px;
+            pointer-events: none;
+            z-index: 9999;
+            animation: scanline-scroll 10s linear infinite;
+        }
+
+        .glitch-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            pointer-events: none;
+            z-index: 9998;
+            opacity: 0.03;
+            background-image: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,255,255,0.5) 2px, rgba(0,255,255,0.5) 4px);
+            animation: glitch-anim 0.2s infinite;
+        }
+
+        @keyframes scanline-scroll {
+            0% { background-position: 0 0; }
+            100% { background-position: 0 100vh; }
+        }
+
+        @keyframes glitch-anim {
+            0% { transform: translateY(0); opacity: 0.03; }
+            20% { transform: translateY(-2px); opacity: 0.05; }
+            40% { transform: translateY(2px); opacity: 0.02; }
+            60% { transform: translateY(-1px); opacity: 0.04; }
+            80% { transform: translateY(1px); opacity: 0.03; }
+            100% { transform: translateY(0); opacity: 0.03; }
+        }
+
+        .hex-grid-bg {
+            background-color: #0a1422;
+            background-image: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M20 0l20 11.5v23L20 40 0 28.5v-23z' fill='none' stroke='rgba(60, 215, 255, 0.05)' stroke-width='1'/%3E%3C/svg%3E");
+            background-attachment: fixed;
+            transform: translateY(calc(var(--scroll-y) * 0.2));
+            will-change: transform;
+        }
+
+        /* Animated Grid Floor */
+        .grid-floor-container {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            perspective: 1000px; z-index: -1; overflow: hidden;
+            pointer-events: none;
+            transform: translateY(calc(var(--scroll-y) * 0.1));
+            will-change: transform;
+        }
+        .grid-floor {
+            position: absolute; bottom: -50vh; left: -50vw; width: 200vw; height: 200vh;
+            background-image: 
+                linear-gradient(to right, rgba(60, 215, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(60, 215, 255, 0.03) 1px, transparent 1px);
+            background-size: 60px 60px;
+            transform: rotateX(75deg);
+            transform-origin: top center;
+        }
+
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 0 15px rgba(60, 215, 255, 0.2), inset 0 0 10px rgba(60, 215, 255, 0.1); }
+            50% { box-shadow: 0 0 25px rgba(60, 215, 255, 0.5), inset 0 0 20px rgba(60, 215, 255, 0.3); }
+        }
+
+        .panel-glass {
+            background: rgba(22, 32, 47, 0.6);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(133, 147, 152, 0.2);
+            position: relative;
+            overflow: hidden;
+            /* Dynamic Lighting */
+            background-image: radial-gradient(
+                800px circle at var(--mouse-x) var(--mouse-y),
+                rgba(60, 215, 255, 0.05),
+                transparent 40%
+            );
+        }
+        
+        .panel-glass::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%; width: 50%; height: 2px;
+            background: linear-gradient(90deg, transparent, rgba(60, 215, 255, 0.8), transparent);
+            animation: scan-line 4s linear infinite;
+        }
+
+        /* 3D Interactive Tilt */
+        .interactive-tilt {
+            transition: transform 0.1s ease-out, box-shadow 0.1s ease-out;
+            transform-style: preserve-3d;
+        }
+        .interactive-tilt:hover {
+            box-shadow: 0 20px 40px -5px rgba(0, 0, 0, 0.6), 0 0 30px -5px rgba(60, 215, 255, 0.2);
+            z-index: 10;
+        }
+
+        /* 3D Card Hover Tilt (Legacy for non-interactive elements) */
+        .card-tilt {
+            transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1), box-shadow 0.3s ease;
+        }
+        .card-tilt:hover {
+            transform: translateY(-4px) scale(1.02);
+            box-shadow: 0 15px 30px -5px rgba(0, 0, 0, 0.5), 0 0 20px -5px rgba(60, 215, 255, 0.3);
+            z-index: 10;
+        }
+        .card-tilt-error:hover {
+            box-shadow: 0 15px 30px -5px rgba(0, 0, 0, 0.5), 0 0 20px -5px rgba(255, 60, 60, 0.3);
+        }
+
+        /* Staggered Entrance Animations */
+        .stagger-item {
+            opacity: 0;
+            transform: translateY(30px) translateZ(-50px);
+            transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+            will-change: opacity, transform;
+        }
+        .stagger-item.is-visible {
+            opacity: 1;
+            transform: translateY(0) translateZ(0);
+        }
+
+        @keyframes scan-line {
+            0% { left: -100%; opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { left: 200%; opacity: 0; }
+        }
+
+        /* 3D Wireframe Globe CSS Approximation */
+        .cyber-globe-container {
+            perspective: 1200px;
+            transform-style: preserve-3d;
+            width: 340px; height: 340px;
+            position: relative;
+            transform: translateZ(50px); /* Lift off background */
+        }
+        .globe-ring {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            border: 1px dashed rgba(60, 215, 255, 0.5);
+            border-radius: 50%;
+            transform-style: preserve-3d;
+            box-shadow: 0 0 20px inset rgba(60, 215, 255, 0.1);
+        }
+        .globe-ring:nth-child(1) { border: 2px solid rgba(60, 215, 255, 0.1); }
+        .globe-ring:nth-child(2) { border-style: solid; border-color: rgba(60, 215, 255, 0.3); }
+        .globe-ring:nth-child(3) { border-style: dotted; border-width: 2px; }
+        .globe-ring:nth-child(4) { border-color: rgba(0, 255, 136, 0.3); }
+        
+        /* Attack Arcs */
+        .attack-arc-path {
+            stroke-dasharray: 6 6;
+        }
+
+        /* Breathing Animation for Avatar */
+        @keyframes breath {
+            0%, 100% { transform: scale(1); opacity: 0.8; box-shadow: 0 0 10px rgba(221, 183, 255, 0.4); }
+            50% { transform: scale(1.1); opacity: 1; box-shadow: 0 0 20px rgba(221, 183, 255, 0.8); }
+        }
+        .breathing-glow {
+            animation: breath 3s ease-in-out infinite;
+        }
+
+        /* Streaming Text Effect */
+        @keyframes stream-text {
+            0% { opacity: 0; transform: translateY(5px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+        .stream-text {
+            animation: stream-text 0.4s ease-out forwards;
+            opacity: 0;
+        }
+
+        /* Data Particles */
+        .data-particle {
+            position: absolute;
+            background: #3cd7ff;
+            border-radius: 50%;
+            pointer-events: none;
+            opacity: 0;
+        }
+
+        /* Motion Preferences */
+        @media (prefers-reduced-motion: no-preference) {
+            .globe-ring:nth-child(1) { animation: rotate-ring-1 24s linear infinite; }
+            .globe-ring:nth-child(2) { animation: rotate-ring-2 30s linear infinite reverse; }
+            .globe-ring:nth-child(3) { animation: rotate-ring-3 36s linear infinite; }
+            .globe-ring:nth-child(4) { animation: rotate-ring-4 40s linear infinite reverse; }
+
+            .grid-floor { animation: move-grid-floor 15s linear infinite; }
+            .attack-arc-path { animation: dash-move 1.5s linear infinite; }
+
+            .data-particle:nth-child(1) { animation: float-up 8s linear infinite; left: 10%; width: 2px; height: 2px; animation-delay: 0s; }
+            .data-particle:nth-child(2) { animation: float-up 12s linear infinite; left: 30%; width: 3px; height: 3px; animation-delay: 2s; }
+            .data-particle:nth-child(3) { animation: float-up 10s linear infinite; left: 60%; width: 2px; height: 2px; animation-delay: 4s; }
+            .data-particle:nth-child(4) { animation: float-up 15s linear infinite; left: 85%; width: 4px; height: 4px; animation-delay: 1s; }
+            .data-particle:nth-child(5) { animation: float-up 9s linear infinite; left: 50%; width: 2px; height: 2px; animation-delay: 5s; }
+        }
+
+        @keyframes rotate-ring-1 { 100% { transform: rotateZ(360deg) rotateX(60deg) rotateY(0deg); } }
+        @keyframes rotate-ring-2 { 100% { transform: rotateZ(360deg) rotateX(70deg) rotateY(45deg); } }
+        @keyframes rotate-ring-3 { 100% { transform: rotateZ(360deg) rotateX(50deg) rotateY(90deg); } }
+        @keyframes rotate-ring-4 { 100% { transform: rotateZ(360deg) rotateX(80deg) rotateY(-45deg); } }
+
+        @keyframes move-grid-floor {
+            0% { transform: rotateX(75deg) translateY(0); }
+            100% { transform: rotateX(75deg) translateY(60px); }
+        }
+
+        @keyframes dash-move {
+            to { stroke-dashoffset: -24; }
+        }
+
+        @keyframes float-up {
+            0% { transform: translateY(100vh); opacity: 0; box-shadow: 0 0 0 #3cd7ff; }
+            10% { opacity: 0.6; box-shadow: 0 0 10px #3cd7ff; }
+            90% { opacity: 0.6; box-shadow: 0 0 10px #3cd7ff; }
+            100% { transform: translateY(-20vh); opacity: 0; box-shadow: 0 0 0 #3cd7ff; }
+        }
+
+        /* Terminal typing effect */
+        .typing-cursor::after {
+            content: '_';
+            animation: blink 1s step-end infinite;
+            color: #3cd7ff;
+        }
+        @keyframes blink { 50% { opacity: 0; } }
+        
+        /* Custom Scrollbar for Terminal */
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(60, 215, 255, 0.3); border-radius: 4px; }
+    </style>
+</head>
+<body class="bg-background text-on-background min-h-screen font-body-main antialiased selection:bg-primary selection:text-on-primary overflow-x-hidden">
+<div class="fixed inset-0 hex-grid-bg -z-20"></div>
+<div class="scanlines"></div>
+<div class="glitch-overlay"></div>
+<div class="grid-floor-container">
+<div class="grid-floor"></div>
+</div>
+<!-- Background Data Particles -->
+<div class="fixed inset-0 pointer-events-none -z-10 overflow-hidden" style="transform: translateY(calc(var(--scroll-y) * 0.15)); will-change: transform;">
+<div class="data-particle"></div>
+<div class="data-particle"></div>
+<div class="data-particle"></div>
+<div class="data-particle"></div>
+<div class="data-particle"></div>
+</div>
+<!-- APP SHELL: TOP APP BAR -->
+<header class="fixed top-0 left-0 right-0 z-50 flex justify-between items-center px-margin-desktop bg-surface-dim/80 backdrop-blur-md dark:bg-surface-dim/80 border-b border-outline-variant shadow-[0_4px_30px_rgba(0,0,0,0.5)] h-16">
+<div class="flex items-center gap-4"><div class="w-8 h-8 flex items-center justify-center"><img alt="Sentinel Logo" class="w-full h-full object-contain drop-shadow-[0_0_5px_rgba(60,215,255,0.4)]" src="https://lh3.googleusercontent.com/aida/AP1WRLuNfmBq8DMaRct6iCMXC29J1TMKjYdnZ50mhbfWOIMBrvdQe_Exn41Q8_VrmVV3uQtLXA5ppoEFA-h9IukLqm9i33fmv8jVn3UoOnwwEE142os7uxaZ06BKjZJcxwCJBF9zKMpo5Mg1daiH6VzCWcmVz-NdPwNWV87ikvidnSo_FiqgiKK3_XtQ9lHREkbOA34JD9jVKZA99brZuZaHx8u_XiDmQdvmpqmCNz7_vHgS06QXIpNSgtrGWQ"/></div>
+<span class="font-display-lg text-display-lg font-bold tracking-widest text-primary drop-shadow-[0_0_10px_rgba(60,215,255,0.5)] hidden md:block" style="font-size: 24px; line-height: 24px;">SENTINEL XDR</span>
+</div>
+<div class="flex items-center gap-6">
+<div class="hidden lg:flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-tertiary animate-pulse"></span>
+<span class="font-label-caps text-label-caps text-primary tracking-widest uppercase">SYSTEM LIVE</span>
+</div>
+<div class="hidden lg:block font-data-terminal text-data-terminal text-on-surface-variant">
+                Last sync: 04:20:00
+            </div>
+<div class="flex items-center gap-2 border-l border-outline-variant/50 pl-6">
+<button class="p-2 rounded hover:bg-primary/10 hover:text-primary transition-all duration-300 text-on-surface-variant flex items-center justify-center group active:scale-95 active:brightness-125">
+<span class="material-symbols-outlined group-hover:animate-spin-slow">refresh</span>
+</button>
+<button class="p-2 rounded hover:bg-primary/10 hover:text-primary transition-all duration-300 text-on-surface-variant flex items-center justify-center relative active:scale-95 active:brightness-125">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-1 right-1 w-2 h-2 rounded-full bg-error border border-surface-dim breathing-glow"></span>
+</button>
+<button class="p-2 rounded hover:bg-primary/10 hover:text-primary transition-all duration-300 text-on-surface-variant flex items-center justify-center active:scale-95 active:brightness-125">
+<span class="material-symbols-outlined">settings</span>
+</button>
+</div>
+</div>
+</header>
+<!-- APP SHELL: SIDE NAV BAR -->
+<nav class="fixed left-0 top-0 h-full flex flex-col pt-20 z-40 bg-surface-container/60 backdrop-blur-xl dark:bg-surface-container/60 border-r border-outline-variant/30 shadow-[10px_0_30px_rgba(0,0,0,0.3)] w-64 hidden md:flex">
+<!-- Header Info -->
+<div class="px-6 pb-6 border-b border-outline-variant/30 flex items-center gap-4">
+<div class="w-12 h-12 rounded flex items-center justify-center relative overflow-hidden">
+<img alt="Sentinel Icon" class="w-full h-full object-contain drop-shadow-[0_0_8px_rgba(60,215,255,0.4)]" src="https://lh3.googleusercontent.com/aida/AP1WRLuNfmBq8DMaRct6iCMXC29J1TMKjYdnZ50mhbfWOIMBrvdQe_Exn41Q8_VrmVV3uQtLXA5ppoEFA-h9IukLqm9i33fmv8jVn3UoOnwwEE142os7uxaZ06BKjZJcxwCJBF9zKMpo5Mg1daiH6VzCWcmVz-NdPwNWV87ikvidnSo_FiqgiKK3_XtQ9lHREkbOA34JD9jVKZA99brZuZaHx8u_XiDmQdvmpqmCNz7_vHgS06QXIpNSgtrGWQ"/>
+</div>
+<div>
+<h2 class="font-label-caps text-label-caps text-primary tracking-wider uppercase">SENTINEL XDR</h2>
+<p class="font-data-terminal text-[10px] text-on-surface-variant opacity-70">OPERATOR-01 // SOC</p>
+</div>
+</div>
+<!-- Main Nav -->
+<div class="flex-1 overflow-y-auto py-4 px-2 space-y-1">
+<!-- Active Tab -->
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg bg-primary/20 text-primary border-r-4 border-primary shadow-[inset_0_0_15px_rgba(60,215,255,0.2)] hover:translate-x-1 duration-300 transition-transform" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">security</span>
+<span class="font-data-terminal text-data-terminal tracking-wide">Command Center</span>
+</a>
+<!-- Inactive Tabs -->
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-bright/20 hover:backdrop-blur-sm transition-colors duration-200 hover:translate-x-1" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-data-terminal text-data-terminal tracking-wide">Control Panel</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-bright/20 hover:backdrop-blur-sm transition-colors duration-200 hover:translate-x-1" href="#">
+<span class="material-symbols-outlined">psychology</span>
+<span class="font-data-terminal text-data-terminal tracking-wide flex-1">ARIA Copilot</span>
+<span class="text-[9px] bg-tertiary/20 text-tertiary px-1.5 py-0.5 rounded border border-tertiary/30">AI</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-bright/20 hover:backdrop-blur-sm transition-colors duration-200 hover:translate-x-1" href="#">
+<span class="material-symbols-outlined">memory</span>
+<span class="font-data-terminal text-data-terminal tracking-wide">XDR Engines</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-bright/20 hover:backdrop-blur-sm transition-colors duration-200 hover:translate-x-1" href="#">
+<span class="material-symbols-outlined">biotech</span>
+<span class="font-data-terminal text-data-terminal tracking-wide">Threat Intelligence</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-bright/20 hover:backdrop-blur-sm transition-colors duration-200 hover:translate-x-1" href="#">
+<span class="material-symbols-outlined">lan</span>
+<span class="font-data-terminal text-data-terminal tracking-wide">MACE Chains</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-bright/20 hover:backdrop-blur-sm transition-colors duration-200 hover:translate-x-1" href="#">
+<span class="material-symbols-outlined">notifications_active</span>
+<span class="font-data-terminal text-data-terminal tracking-wide flex-1">Live Alerts</span>
+<span class="w-2 h-2 rounded-full bg-error animate-pulse"></span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-bright/20 hover:backdrop-blur-sm transition-colors duration-200 hover:translate-x-1" href="#">
+<span class="material-symbols-outlined">settings_suggest</span>
+<span class="font-data-terminal text-data-terminal tracking-wide">Settings</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-bright/20 hover:backdrop-blur-sm transition-colors duration-200 hover:translate-x-1 opacity-50" href="#">
+<span class="material-symbols-outlined">history</span>
+<span class="font-data-terminal text-data-terminal tracking-wide">Legacy UI</span>
+</a>
+</div>
+<!-- CTA & Footer -->
+<div class="p-4 border-t border-outline-variant/30 space-y-4">
+<button class="w-full bg-primary text-on-primary-fixed font-label-caps text-label-caps py-3 rounded hover:bg-primary-fixed transition-colors shadow-[0_0_15px_rgba(168,232,255,0.3)] hover:shadow-[0_0_25px_rgba(168,232,255,0.6)] flex items-center justify-center gap-2 group">
+<span class="material-symbols-outlined text-[18px] group-hover:scale-110 transition-transform">radar</span>
+                INITIATE SCAN
+            </button>
+<div class="flex flex-col gap-1">
+<a class="flex items-center gap-2 px-2 py-1.5 text-on-surface-variant hover:text-on-surface transition-colors" href="#">
+<span class="material-symbols-outlined text-[16px]">help_center</span>
+<span class="font-data-terminal text-[11px]">Support</span>
+</a>
+<a class="flex items-center gap-2 px-2 py-1.5 text-on-surface-variant hover:text-on-surface transition-colors" href="#">
+<span class="material-symbols-outlined text-[16px]">description</span>
+<span class="font-data-terminal text-[11px]">Documentation</span>
+</a>
+</div>
+</div>
+</nav>
+<!-- MAIN CANVAS -->
+<main class="md:ml-64 pt-24 pb-12 px-margin-desktop min-h-screen grid grid-cols-1 md:grid-cols-12 gap-gutter relative z-10" style="perspective: 1000px;">
+<!-- LEFT COLUMN: Hero & Metrics (Spans 8 cols) -->
+<div class="md:col-span-8 flex flex-col gap-gutter">
+<!-- Hero: Global Threat Map / Wireframe Globe -->
+<section class="panel-glass interactive-tilt stagger-item rounded-xl h-[400px] flex items-center justify-center relative overflow-hidden" style="background-image: radial-gradient(circle at center, rgba(0, 212, 255, 0.05) 0%, transparent 70%);">
+<!-- Background Particle Effect Image Proxy -->
+<div class="absolute inset-0 opacity-30 mix-blend-screen bg-cover bg-center pointer-events-none" data-alt="A highly complex digital network visualization background. It features a dense, abstract web of glowing cyan and green data lines interconnecting across a deep, dark cybernetic void. The nodes pulse with light, suggesting active information flow and a high-tech surveillance matrix aesthetic." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAsLSIi926RlmDf1b8gi0QJxmJU7c0ZgABG8xL1Az-GU-x2G5zUhCimFNwUM-EwdXkJy3vLmHaVhI9aFe3_hru7w7xa8ijlndNP_w7n7AAlUgrQUb1niSUtuRAboquiNSVCw4owxLMqTNPxdpYgkmStYrCOYI5tYrWJkBKe-hjOc7hX9kY7yA40JzAIWjBrideGVFqMnt9czAJKOKoEbXJ6hpQLwzNbO9jlB9djYiDE7AsAqHrlr6DnCzZ-5y9c-Ut33X6BJQD2VWo'); transform: translateZ(-20px);">
+</div>
+<!-- Telemetry Overlays -->
+<div class="absolute top-6 left-6 z-10 flex flex-col gap-2" style="transform: translateZ(30px);">
+<div class="flex items-center gap-2 bg-surface-container-high/80 border border-outline-variant px-3 py-1.5 rounded backdrop-blur-sm">
+<span class="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></span>
+<span class="font-data-terminal text-label-caps text-on-surface tracking-widest">SYS.MONITORING: ACTIVE</span>
+</div>
+<div class="font-data-terminal text-[10px] text-primary/70 flex flex-col">
+<span class="">LAT: 31.5204 N</span>
+<span class="">LON: 74.3587 E</span>
+</div>
+</div>
+<div class="absolute bottom-6 right-6 z-10" style="transform: translateZ(40px);">
+<div class="bg-surface-variant/90 border border-primary/50 px-4 py-2 rounded-sm backdrop-blur flex items-center gap-3">
+<span class="material-symbols-outlined text-primary text-[20px] breathing-glow" style="font-variation-settings: 'FILL' 1;">my_location</span>
+<div>
+<p class="font-label-caps text-label-caps text-on-surface uppercase tracking-wider">Intercept Origin</p>
+<p class="font-headline-md text-headline-md text-primary" style="font-size: 20px; line-height: 24px;">LAHORE, PK</p>
+</div>
+</div>
+</div>
+<!-- 3D CSS Wireframe Globe -->
+<div class="cyber-globe-container">
+<div class="globe-ring" style="transform: rotateX(60deg) rotateY(0deg);"></div>
+<div class="globe-ring" style="transform: rotateX(70deg) rotateY(45deg);"></div>
+<div class="globe-ring" style="transform: rotateX(50deg) rotateY(90deg);"></div>
+<div class="globe-ring" style="transform: rotateX(80deg) rotateY(-45deg);"></div>
+<!-- Core Glow -->
+<div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-12 h-12 bg-primary rounded-full blur-[30px] animate-pulse opacity-60"></div>
+<div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-2 h-2 bg-white rounded-full box-shadow-[0_0_10px_#fff]"></div>
+<!-- Attack Arcs -->
+<svg class="absolute inset-0 w-full h-full overflow-visible pointer-events-none" style="transform: rotateX(60deg) rotateZ(30deg); transform-style: preserve-3d;">
+<path class="attack-arc-path" d="M 50 170 Q 200 20 300 220" fill="none" stroke="rgba(255, 60, 60, 0.8)" stroke-width="2.5"></path>
+<path class="attack-arc-path" d="M 120 300 Q 250 150 300 220" fill="none" stroke="rgba(255, 60, 60, 0.5)" stroke-width="1.5" style="animation-delay: 0.5s; stroke-dasharray: 4 4;"></path>
+<circle cx="300" cy="220" fill="#ff3c3c" r="5" style="animation: pulse-glow 2s infinite;"></circle>
+<circle cx="50" cy="170" fill="#3cd7ff" r="3" style="opacity: 0.7;"></circle>
+<circle cx="120" cy="300" fill="#3cd7ff" r="3" style="opacity: 0.7;"></circle>
+</svg>
+</div>
+</section>
+<!-- Metrics Grid -->
+<section class="grid grid-cols-2 lg:grid-cols-3 gap-gutter">
+<!-- Card 1 -->
+<div class="panel-glass stagger-item interactive-tilt rounded-lg p-panel-padding flex flex-col justify-between group hover:border-primary/50 cursor-default">
+<div class="flex justify-between items-start mb-4" style="transform: translateZ(20px);">
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary transition-colors">network_wifi</span>
+<span class="font-data-terminal text-[10px] text-tertiary border border-tertiary/30 px-1.5 py-0.5 rounded bg-tertiary/10">+12% /hr</span>
+</div>
+<div style="transform: translateZ(10px);">
+<h3 class="font-label-caps text-label-caps text-on-surface-variant uppercase mb-1">Packets Captured</h3>
+<p class="font-headline-md text-headline-md text-on-surface tracking-tight group-hover:text-primary transition-colors">4,291.8M</p>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="panel-glass stagger-item interactive-tilt rounded-lg p-panel-padding flex flex-col justify-between group hover:border-error/50 cursor-default relative overflow-hidden" style="transition-delay: 0.1s;">
+<div class="absolute top-0 right-0 w-16 h-16 bg-error/10 rounded-bl-full blur-xl"></div>
+<div class="flex justify-between items-start mb-4 relative z-10" style="transform: translateZ(20px);">
+<span class="material-symbols-outlined text-error">warning</span>
+<span class="w-2 h-2 rounded-full bg-error breathing-glow"></span>
+</div>
+<div class="relative z-10" style="transform: translateZ(10px);">
+<h3 class="font-label-caps text-label-caps text-on-surface-variant uppercase mb-1">Critical Threats</h3>
+<p class="font-headline-md text-headline-md text-error tracking-tight">14</p>
+</div>
+</div>
+<!-- Card 3 -->
+<div class="panel-glass stagger-item interactive-tilt rounded-lg p-panel-padding flex flex-col justify-between group hover:border-secondary/50 cursor-default" style="transition-delay: 0.2s;">
+<div class="flex justify-between items-start mb-4" style="transform: translateZ(20px);">
+<span class="material-symbols-outlined text-secondary">psychology</span>
+</div>
+<div style="transform: translateZ(10px);">
+<h3 class="font-label-caps text-label-caps text-on-surface-variant uppercase mb-1">AI Analyzed</h3>
+<p class="font-headline-md text-headline-md text-secondary tracking-tight">98.4%</p>
+</div>
+</div>
+<!-- Card 4 -->
+<div class="panel-glass stagger-item interactive-tilt rounded-lg p-panel-padding flex flex-col justify-between group hover:border-primary/50 cursor-default" style="transition-delay: 0.3s;">
+<div class="flex justify-between items-start mb-4" style="transform: translateZ(20px);">
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary transition-colors">notifications</span>
+<span class="font-data-terminal text-[10px] text-on-surface-variant">Last 24h</span>
+</div>
+<div style="transform: translateZ(10px);">
+<h3 class="font-label-caps text-label-caps text-on-surface-variant uppercase mb-1">Alerts Detected</h3>
+<p class="font-headline-md text-headline-md text-on-surface tracking-tight group-hover:text-primary transition-colors">1,042</p>
+</div>
+</div>
+<!-- Card 5 -->
+<div class="panel-glass stagger-item interactive-tilt rounded-lg p-panel-padding flex flex-col justify-between group hover:border-tertiary/50 cursor-default" style="transition-delay: 0.4s;">
+<div class="flex justify-between items-start mb-4" style="transform: translateZ(20px);">
+<span class="material-symbols-outlined text-tertiary">hub</span>
+</div>
+<div style="transform: translateZ(10px);">
+<h3 class="font-label-caps text-label-caps text-on-surface-variant uppercase mb-1">Active Chains</h3>
+<p class="font-headline-md text-headline-md text-tertiary tracking-tight">03</p>
+</div>
+</div>
+<!-- Card 6 -->
+<div class="panel-glass stagger-item interactive-tilt rounded-lg p-panel-padding flex flex-col justify-between group hover:border-primary/50 cursor-default" style="transition-delay: 0.5s;">
+<div class="flex justify-between items-start mb-4" style="transform: translateZ(20px);">
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary transition-colors">speed</span>
+<span class="font-data-terminal text-[10px] text-tertiary border border-tertiary/30 px-1.5 py-0.5 rounded bg-tertiary/10">Stable</span>
+</div>
+<div style="transform: translateZ(10px);">
+<h3 class="font-label-caps text-label-caps text-on-surface-variant uppercase mb-1">Queue Load</h3>
+<p class="font-headline-md text-headline-md text-on-surface tracking-tight group-hover:text-primary transition-colors">14.2ms</p>
+</div>
+</div>
+</section>
+</div>
+<!-- RIGHT COLUMN: ARIA Copilot (Spans 4 cols) -->
+<aside class="md:col-span-4 h-full">
+<div class="panel-glass stagger-item interactive-tilt border-primary/30 rounded-xl h-[calc(100vh-8rem)] flex flex-col sticky top-24 shadow-[0_0_30px_rgba(0,212,255,0.05)]" style="transition-delay: 0.6s;">
+<!-- Copilot Header -->
+<div class="p-4 border-b border-outline-variant/30 flex items-center justify-between bg-surface-container-high/50" style="transform: translateZ(15px);">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full border border-secondary flex items-center justify-center bg-secondary/10 relative overflow-hidden breathing-glow shadow-[0_0_15px_rgba(221,183,255,0.3)]">
+<span class="material-symbols-outlined text-secondary text-[16px]">neurology</span>
+</div>
+<div>
+<h2 class="font-label-caps text-label-caps text-on-surface uppercase tracking-wider">ARIA Copilot</h2>
+<p class="font-data-terminal text-[10px] text-primary typing-cursor">Analyst Online</p>
+</div>
+</div>
+<button class="text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-[20px]">more_vert</span>
+</button>
+</div>
+<!-- Chat / Terminal History -->
+<div class="flex-1 overflow-y-auto p-4 font-data-terminal text-[13px] space-y-4 flex flex-col justify-end" style="transform: translateZ(10px);">
+<div class="space-y-1 text-on-surface-variant">
+<p class="opacity-50 stream-text" style="animation-delay: 0.1s;">[04:15:22] <span class="text-primary">SYS&gt;</span> Initializing MACE chain analysis...</p>
+<p class="opacity-50 stream-text" style="animation-delay: 0.3s;">[04:15:24] <span class="text-primary">SYS&gt;</span> 3 anomalous vectors detected in region: PK-LAH.</p>
+</div>
+<!-- User Prompt -->
+<div class="bg-surface-variant/50 p-3 rounded-lg border border-outline-variant/30 self-end max-w-[85%] stream-text" style="animation-delay: 0.6s;">
+<p class="text-on-surface"><span class="text-primary font-bold mr-2">OP-01&gt;</span>ARIA, isolate traffic from IP 192.168.x.x communicating with the Lahore node. Check for known CVEs.</p>
+</div>
+<!-- AI Response -->
+<div class="bg-secondary/5 p-3 rounded-lg border border-secondary/30 self-start max-w-[90%] relative overflow-hidden stream-text" style="animation-delay: 0.9s;">
+<div class="absolute left-0 top-0 bottom-0 w-1 bg-secondary/50"></div>
+<p class="text-on-surface-variant mb-2"><span class="text-secondary font-bold mr-2">ARIA&gt;</span>Isolating traffic pattern...</p>
+<p class="text-on-surface mb-2 stream-text" style="animation-delay: 1.5s;">Match found. The payload signature aligns with a mutated variant of <span class="text-error bg-error/10 px-1 rounded border border-error/20">CVE-2023-48795</span> (Terrapin Attack).</p>
+<div class="bg-surface-dim p-2 rounded text-[11px] font-mono text-tertiary mb-2 border border-outline-variant stream-text" style="animation-delay: 2.0s;">
+                            &gt; Strict KEX protocol bypassed.<br/>
+                            &gt; Sequence numbers manipulated.<br/>
+                            &gt; Action: Recommend immediate session termination.
+                        </div>
+<button class="font-label-caps text-[10px] text-background bg-secondary px-2 py-1 rounded hover:bg-secondary-fixed transition-colors inline-block mt-1 stream-text card-tilt" style="animation-delay: 2.5s; opacity: 1;">
+                            [ EXECUTE TERMINATION ]
+                        </button>
+</div>
+</div>
+<!-- Input Area -->
+<div class="p-4 border-t border-outline-variant/30 bg-surface-container-lowest/50 backdrop-blur-md" style="transform: translateZ(15px);">
+<div class="relative flex items-center">
+<span class="text-primary font-data-terminal absolute left-3 select-none">&gt;_</span>
+<input class="w-full bg-surface-dim/80 border-none border-b-2 border-primary focus:ring-0 focus:border-primary text-on-surface font-data-terminal text-[13px] pl-10 pr-10 py-3 rounded-t-sm transition-all placeholder-on-surface-variant/50" placeholder="Query telemetry, analyze threats, or run commands..." type="text"/>
+<button class="absolute right-2 p-1.5 text-primary hover:bg-primary/20 rounded transition-colors flex items-center justify-center card-tilt">
+<span class="material-symbols-outlined text-[18px]">send</span>
+</button>
+</div>
+</div>
+</div>
+</aside>
+</main>
+<script>
+        // 3D Tilt Effect
+        document.querySelectorAll('.interactive-tilt').forEach(item => {
+            item.addEventListener('mousemove', (e) => {
+                const rect = item.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                const centerX = rect.width / 2;
+                const centerY = rect.height / 2;
+                
+                const rotateX = ((y - centerY) / centerY) * -5; // max 5deg tilt
+                const rotateY = ((x - centerX) / centerX) * 5;
+
+                item.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02, 1.02, 1.02)`;
+            });
+
+            item.addEventListener('mouseleave', () => {
+                item.style.transform = `perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)`;
+            });
+        });
+
+        // Mouse Tracking for Dynamic Lighting
+        document.body.addEventListener('mousemove', (e) => {
+            document.documentElement.style.setProperty('--mouse-x', `${e.clientX}px`);
+            document.documentElement.style.setProperty('--mouse-y', `${e.clientY}px`);
+        });
+
+        // Depth Scrolling (Parallax)
+        window.addEventListener('scroll', () => {
+            document.documentElement.style.setProperty('--scroll-y', `${window.scrollY}px`);
+        });
+
+        // Intersection Observer for Staggered Entrances
+        const observerOptions = {
+            root: null,
+            rootMargin: '0px',
+            threshold: 0.1
+        };
+
+        const observer = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('is-visible');
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.stagger-item').forEach(el => {
+            observer.observe(el);
+        });
+    </script>
+</body></html>

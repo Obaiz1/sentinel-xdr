@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <!-- Shield Base -->
+  <path d="M50 5 L85 20 C85 50 75 80 50 95 C25 80 15 50 15 20 L50 5Z" fill="rgba(7, 17, 31, 0.9)" stroke="#00d4ff" stroke-width="2" />
+  <!-- Futuristic S -->
+  <path d="M35 35 H65 V45 H45 V55 H65 V65 H35" fill="none" stroke="#00d4ff" stroke-width="4" stroke-linecap="square" />
+  <!-- AI Core -->
+  <circle cx="50" cy="50" r="5" fill="#a855f7">
+    <animate attributeName="opacity" values="0.4;1;0.4" dur="2s" repeatCount="indefinite" />
+  </circle>
+  <!-- Pulse Dot -->
+  <circle cx="70" cy="25" r="2" fill="#00ff88" />
+</svg>

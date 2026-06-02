@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Post-Breach Stabilization Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&amp;family=Space+Mono:ital,wght@0,400;0,700;1,400&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-tertiary-fixed": "#00210c",
+                        "on-primary-container": "#00586b",
+                        "on-secondary-container": "#d6a9ff",
+                        "inverse-on-surface": "#273140",
+                        "on-primary": "#003642",
+                        "tertiary": "#00ff88",
+                        "primary-fixed-dim": "#3cd7ff",
+                        "inverse-primary": "#00677e",
+                        "surface-container-low": "#121c2a",
+                        "secondary": "#ddb7ff",
+                        "on-error": "#690005",
+                        "outline": "#859398",
+                        "background": "#0a1422",
+                        "surface-container-high": "#212a39",
+                        "on-primary-fixed": "#001f27",
+                        "on-primary-fixed-variant": "#004e5f",
+                        "secondary-fixed-dim": "#ddb7ff",
+                        "on-tertiary": "#003919",
+                        "tertiary-fixed": "#60ff99",
+                        "tertiary-container": "#00df76",
+                        "inverse-surface": "#d9e3f7",
+                        "surface-container-highest": "#2c3545",
+                        "on-tertiary-container": "#005d2d",
+                        "primary": "#a8e8ff",
+                        "surface-container-lowest": "#050e1c",
+                        "tertiary-fixed-dim": "#00e479",
+                        "on-error-container": "#ffdad6",
+                        "surface-tint": "#3cd7ff",
+                        "outline-variant": "#3c494e",
+                        "on-secondary-fixed": "#2c0051",
+                        "error": "#ffb4ab",
+                        "surface-bright": "#303a49",
+                        "surface-dim": "#0a1422",
+                        "primary-container": "#00d4ff",
+                        "primary-fixed": "#b4ebff",
+                        "secondary-fixed": "#f0dbff",
+                        "secondary-container": "#6f00be",
+                        "error-container": "#93000a",
+                        "on-secondary-fixed-variant": "#6900b3",
+                        "on-background": "#d9e3f7",
+                        "on-surface": "#d9e3f7",
+                        "on-secondary": "#490080",
+                        "surface-container": "#16202f",
+                        "on-surface-variant": "#bbc9cf",
+                        "on-tertiary-fixed-variant": "#005228",
+                        "surface-variant": "#2c3545",
+                        "surface": "#0a1422"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "panel-padding": "24px",
+                        "gutter": "16px",
+                        "margin-mobile": "16px",
+                        "margin-desktop": "32px",
+                        "unit": "4px"
+                    },
+                    "fontFamily": {
+                        "headline-md": ["Space Grotesk", "sans-serif"],
+                        "label-caps": ["Space Mono", "monospace"],
+                        "display-lg": ["Space Grotesk", "sans-serif"],
+                        "body-main": ["Inter", "sans-serif"],
+                        "headline-md-mobile": ["Space Grotesk", "sans-serif"],
+                        "data-terminal": ["Space Mono", "monospace"]
+                    },
+                    "fontSize": {
+                        "headline-md": ["24px", { "lineHeight": "32px", "letterSpacing": "0.02em", "fontWeight": "600" }],
+                        "label-caps": ["12px", { "lineHeight": "16px", "fontWeight": "700", "letterSpacing": "0.05em", "textTransform": "uppercase" }],
+                        "display-lg": ["48px", { "lineHeight": "56px", "letterSpacing": "0.05em", "fontWeight": "700" }],
+                        "body-main": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "headline-md-mobile": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "data-terminal": ["14px", { "lineHeight": "20px", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body {
+            background-color: #040a14;
+            background-image: linear-gradient(rgba(60, 215, 255, 0.05) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(60, 215, 255, 0.05) 1px, transparent 1px);
+            background-size: 32px 32px;
+        }
+        
+        .hud-scanline {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: rgba(60, 215, 255, 0.5);
+            box-shadow: 0 0 10px rgba(60, 215, 255, 0.8);
+            opacity: 0.5;
+            animation: scan 4s linear infinite;
+            z-index: 10;
+            pointer-events: none;
+        }
+        
+        @keyframes scan {
+            0% { top: 0%; opacity: 0; }
+            10% { opacity: 0.5; }
+            90% { opacity: 0.5; }
+            100% { top: 100%; opacity: 0; }
+        }
+
+        .terminal-cursor {
+            display: inline-block;
+            width: 8px;
+            height: 14px;
+            background-color: theme('colors.primary');
+            animation: blink 1s step-end infinite;
+            vertical-align: middle;
+            margin-left: 4px;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+
+        .glow-active {
+            box-shadow: 0 0 15px rgba(60, 215, 255, 0.4);
+        }
+        
+        .glow-success {
+            box-shadow: 0 0 15px rgba(0, 255, 136, 0.4);
+        }
+
+        ::-webkit-scrollbar {
+            width: 4px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: theme('colors.outline-variant');
+        }
+    </style>
+</head>
+<body class="text-on-surface font-body-main antialiased overflow-x-hidden pt-16 md:pl-64 pr-0 md:pr-80">
+<!-- TopAppBar -->
+<nav class="fixed top-0 w-full z-50 bg-surface/80 backdrop-blur-md border-b border-outline-variant shadow-[0_0_15px_rgba(60,215,255,0.1)] flex justify-between items-center px-margin-desktop py-2">
+<div class="flex items-center gap-4">
+<span class="font-display-lg text-display-lg tracking-tighter text-primary-fixed-dim">SENTINEL XDR</span>
+<div class="hidden md:flex gap-4 ml-8">
+<span class="font-data-terminal text-data-terminal text-primary">STATUS: API ONLINE</span>
+<span class="font-data-terminal text-data-terminal text-primary">DB: SYNCED</span>
+<span class="font-data-terminal text-data-terminal text-primary">LATENCY: 12MS</span>
+</div>
+</div>
+<div class="flex items-center gap-4 text-on-surface-variant font-data-terminal text-data-terminal">
+<button class="hover:text-primary-fixed hover:bg-surface-variant/50 transition-colors p-2 rounded cursor-pointer active:scale-95 duration-200">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="hover:text-primary-fixed hover:bg-surface-variant/50 transition-colors p-2 rounded cursor-pointer active:scale-95 duration-200">
+<span class="material-symbols-outlined">settings</span>
+</button>
+<button class="hover:text-primary-fixed hover:bg-surface-variant/50 transition-colors p-2 rounded cursor-pointer active:scale-95 duration-200">
+<span class="material-symbols-outlined">power_settings_new</span>
+</button>
+</div>
+</nav>
+<!-- SideNavBar (Desktop) -->
+<nav class="hidden md:flex flex-col fixed left-0 h-full w-64 z-40 bg-surface-container-lowest/90 backdrop-blur-xl border-r border-outline-variant py-panel-padding top-0 pt-24">
+<div class="px-6 mb-8">
+<div class="flex items-center gap-3 mb-2">
+<div class="w-10 h-10 rounded-full bg-surface-variant flex items-center justify-center border border-outline-variant overflow-hidden">
+<img alt="Operator Profile" class="w-full h-full object-cover opacity-80 mix-blend-luminosity" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBoYbg_1nliWDDjUqs0qwhOqXcYIc7Zc-1oLjMeGsvF3hnjBiE-ilWynv0FtZBkyhTbZhkJhOA6EH-cCdDII7Mc7kvXQUknfrzFQxwOw2w8afsKq-DGDvL0fLk_yUoUsnRMxkRSw4eKVG-1HqYj4PgPExtrP-jDNCf_V5zbp4y4bM7Zx2nPm6BwzXuFpJg6pfrK3GyON47W-om6kd-DdmAz1ChxaGLHNCOrBvXE31KODXbVqoRwY545V9zRvfR14DVQ0eazi9QjFY4"/>
+</div>
+<div>
+<div class="font-headline-md text-headline-md text-primary text-sm">OPERATOR-01</div>
+<div class="font-label-caps text-label-caps text-on-surface-variant text-[10px]">SECTOR-7G</div>
+</div>
+</div>
+<button class="w-full mt-4 border border-primary text-primary font-data-terminal text-data-terminal py-2 hover:bg-primary/10 transition-colors">
+                [ INITIALIZE SCAN ]
+            </button>
+</div>
+<div class="flex-1 flex flex-col gap-1 px-4">
+<a class="flex items-center gap-3 px-4 py-3 bg-primary-container text-on-primary-container border-r-4 border-primary font-label-caps text-label-caps duration-150 ease-in-out" href="#">
+<span class="material-symbols-outlined text-[18px]">dashboard</span>
+                Command Center
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:text-on-surface hover:bg-surface-variant/30 transition-all font-label-caps text-label-caps duration-150 ease-in-out" href="#">
+<span class="material-symbols-outlined text-[18px]">security</span>
+                MACE Chains
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:text-on-surface hover:bg-surface-variant/30 transition-all font-label-caps text-label-caps duration-150 ease-in-out" href="#">
+<span class="material-symbols-outlined text-[18px]">biotech</span>
+                Threat Intel
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:text-on-surface hover:bg-surface-variant/30 transition-all font-label-caps text-label-caps duration-150 ease-in-out" href="#">
+<span class="material-symbols-outlined text-[18px]">public</span>
+                Asset Map
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:text-on-surface hover:bg-surface-variant/30 transition-all font-label-caps text-label-caps duration-150 ease-in-out" href="#">
+<span class="material-symbols-outlined text-[18px]">terminal</span>
+                Logs
+            </a>
+</div>
+<div class="mt-auto px-4 flex flex-col gap-1 border-t border-outline-variant pt-4 mx-4">
+<a class="flex items-center gap-3 px-4 py-2 text-on-surface-variant hover:text-on-surface hover:bg-surface-variant/30 transition-all font-label-caps text-label-caps duration-150 ease-in-out" href="#">
+<span class="material-symbols-outlined text-[18px]">monitor_heart</span>
+                System Health
+            </a>
+<a class="flex items-center gap-3 px-4 py-2 text-on-surface-variant hover:text-on-surface hover:bg-surface-variant/30 transition-all font-label-caps text-label-caps duration-150 ease-in-out" href="#">
+<span class="material-symbols-outlined text-[18px]">help_center</span>
+                Support
+            </a>
+</div>
+</nav>
+<!-- NavigationDrawer (ARIA Copilot - Right Side) -->
+<aside class="hidden xl:flex flex-col fixed right-0 top-16 h-[calc(100vh-64px)] w-80 z-40 bg-surface-container-high/60 backdrop-blur-lg border-l border-outline-variant shadow-[-10px_0_20px_rgba(111,0,190,0.1)] p-gutter">
+<div class="flex items-center gap-3 mb-6 pb-4 border-b border-outline-variant/50">
+<span class="material-symbols-outlined text-secondary text-2xl animate-pulse-slow">psychology</span>
+<div>
+<h2 class="font-label-caps text-label-caps text-secondary">ARIA NEURAL LINK</h2>
+<p class="font-data-terminal text-data-terminal text-on-secondary-container text-xs opacity-70">PROCESSING STREAM...</p>
+</div>
+</div>
+<div class="flex-1 overflow-y-auto pr-2 space-y-4">
+<div class="bg-secondary-container/20 border border-secondary/30 rounded p-4 relative overflow-hidden">
+<div class="absolute top-0 right-0 w-8 h-8 bg-gradient-to-bl from-secondary/20 to-transparent pointer-events-none"></div>
+<div class="flex items-start gap-2 mb-2">
+<span class="material-symbols-outlined text-secondary text-sm mt-0.5" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<span class="font-label-caps text-[10px] text-secondary">FINAL ASSESSMENT</span>
+</div>
+<p class="font-data-terminal text-data-terminal text-on-surface mb-2">
+                    Threat Actor Expelled. System Re-hardening Initiated. Operation Red October concluded successfully.
+                </p>
+<div class="text-[10px] font-data-terminal text-on-surface-variant opacity-60 flex justify-between">
+<span>SYS_TIME: 14:02:59Z</span>
+<span>CONF: 99.9%</span>
+</div>
+</div>
+<div class="space-y-2">
+<div class="flex justify-between items-center text-xs font-data-terminal text-on-surface-variant">
+<span>POST-MORTEM DB</span>
+<span class="text-tertiary">SYNCING <span class="terminal-cursor h-3 w-1.5 inline-block bg-tertiary"></span></span>
+</div>
+<div class="w-full bg-surface-variant h-1 rounded-full overflow-hidden">
+<div class="bg-tertiary h-full w-[85%]"></div>
+</div>
+</div>
+</div>
+<div class="mt-4 pt-4 border-t border-outline-variant/50">
+<button class="w-full border border-secondary/50 text-secondary font-data-terminal text-data-terminal py-2 hover:bg-secondary/10 transition-colors text-xs flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-sm">download</span>
+                EXPORT REPORT
+            </button>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="p-margin-mobile md:p-margin-desktop min-h-screen">
+<!-- Header -->
+<header class="mb-8 flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
+<div>
+<div class="flex items-center gap-2 mb-2">
+<span class="bg-tertiary/20 text-tertiary font-label-caps text-label-caps px-2 py-0.5 border border-tertiary/30">SIMULATION COMPLETE</span>
+<span class="font-data-terminal text-data-terminal text-on-surface-variant text-xs">ID: OP-RED-OCT</span>
+</div>
+<h1 class="font-display-lg text-display-lg text-primary mb-2">Post-Breach Stabilization</h1>
+<p class="font-body-main text-body-main text-on-surface-variant max-w-2xl">
+                    System returning to baseline parameters. Threat containment verified across all sectors. Transitioning from critical incident response to active monitoring state.
+                </p>
+</div>
+<div class="text-right">
+<div class="font-label-caps text-label-caps text-on-surface-variant mb-1">SYSTEM STATUS</div>
+<div class="font-headline-md text-headline-md text-tertiary flex items-center gap-2 justify-end">
+<span class="w-2 h-2 rounded-full bg-tertiary animate-pulse"></span>
+                    SECURE CYAN
+                </div>
+</div>
+</header>
+<!-- Key Stats Bento Grid -->
+<section class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+<!-- Stat 1 -->
+<div class="bg-surface-container/40 backdrop-blur border border-outline-variant/50 p-6 relative overflow-hidden group hover:border-primary/50 transition-colors">
+<div class="absolute top-0 right-0 w-16 h-16 bg-gradient-to-bl from-primary/10 to-transparent"></div>
+<div class="font-label-caps text-label-caps text-on-surface-variant mb-2">ATTACK STAGES NEUTRALIZED</div>
+<div class="font-display-lg text-display-lg text-on-surface flex items-baseline gap-2">
+                    4<span class="text-xl text-on-surface-variant">/4</span>
+</div>
+<div class="mt-4 flex gap-1">
+<div class="h-1 flex-1 bg-tertiary shadow-[0_0_8px_rgba(0,255,136,0.5)]"></div>
+<div class="h-1 flex-1 bg-tertiary shadow-[0_0_8px_rgba(0,255,136,0.5)]"></div>
+<div class="h-1 flex-1 bg-tertiary shadow-[0_0_8px_rgba(0,255,136,0.5)]"></div>
+<div class="h-1 flex-1 bg-tertiary shadow-[0_0_8px_rgba(0,255,136,0.5)]"></div>
+</div>
+</div>
+<!-- Stat 2 -->
+<div class="bg-surface-container/40 backdrop-blur border border-outline-variant/50 p-6 relative overflow-hidden group hover:border-tertiary/50 transition-colors">
+<div class="absolute top-0 right-0 w-16 h-16 bg-gradient-to-bl from-tertiary/10 to-transparent"></div>
+<div class="font-label-caps text-label-caps text-on-surface-variant mb-2">DATA RECOVERY</div>
+<div class="font-display-lg text-display-lg text-tertiary">
+                    99.8%
+                </div>
+<div class="mt-4 text-xs font-data-terminal text-on-surface-variant flex justify-between">
+<span>VOL: 42.8 TB</span>
+<span class="text-tertiary">VERIFIED</span>
+</div>
+</div>
+<!-- Stat 3 -->
+<div class="bg-surface-container/40 backdrop-blur border border-outline-variant/50 p-6 relative overflow-hidden group hover:border-primary/50 transition-colors glow-active">
+<div class="hud-scanline"></div>
+<div class="font-label-caps text-label-caps text-on-surface-variant mb-2">COMPROMISED NODES REMAINING</div>
+<div class="font-display-lg text-display-lg text-primary">
+                    0
+                </div>
+<div class="mt-4 text-xs font-data-terminal text-primary flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">shield</span>
+                    ALL SECTORS SECURED
+                </div>
+</div>
+</section>
+<!-- Main Layout: Timeline & Detail Map -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+<!-- Mitigation Timeline -->
+<section class="lg:col-span-1 bg-surface-container/40 backdrop-blur border border-outline-variant/50 p-6 flex flex-col h-[600px]">
+<div class="flex justify-between items-center mb-6 pb-4 border-b border-outline-variant">
+<h3 class="font-headline-md text-headline-md text-on-surface">Mitigation Timeline</h3>
+<span class="font-label-caps text-label-caps text-on-surface-variant border border-outline-variant px-2 py-1 bg-surface-variant/50">T-MINUS 00:00:00</span>
+</div>
+<div class="flex-1 overflow-y-auto pr-4 space-y-6 relative before:absolute before:inset-0 before:ml-2 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-error before:via-primary before:to-tertiary">
+<!-- Event 1 (Past/Red) -->
+<div class="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active">
+<div class="flex items-center justify-center w-5 h-5 rounded-full border-2 border-surface bg-error text-surface shadow-[0_0_10px_rgba(255,180,171,0.6)] z-10 absolute left-0 md:left-1/2 md:-translate-x-1/2"></div>
+<div class="w-[calc(100%-2rem)] md:w-[calc(50%-2rem)] p-3 rounded border border-error/30 bg-error/5 ml-auto md:ml-0 md:mr-auto text-right">
+<div class="font-data-terminal text-data-terminal text-error mb-1 text-xs">T-04:12:00</div>
+<div class="font-label-caps text-label-caps text-on-surface">Initial Breach Detected</div>
+<div class="text-xs text-on-surface-variant mt-1 font-body-main">Node Delta-9 compromised.</div>
+</div>
+</div>
+<!-- Event 2 -->
+<div class="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group">
+<div class="flex items-center justify-center w-5 h-5 rounded-full border-2 border-surface bg-primary text-surface shadow-[0_0_10px_rgba(168,232,255,0.6)] z-10 absolute left-0 md:left-1/2 md:-translate-x-1/2"></div>
+<div class="w-[calc(100%-2rem)] md:w-[calc(50%-2rem)] p-3 rounded border border-primary/30 bg-primary/5 ml-auto md:mr-0 md:ml-auto">
+<div class="font-data-terminal text-data-terminal text-primary mb-1 text-xs">T-03:45:22</div>
+<div class="font-label-caps text-label-caps text-on-surface">Quarantine Initiated</div>
+<div class="text-xs text-on-surface-variant mt-1 font-body-main">Sector 7 isolated from main grid.</div>
+</div>
+</div>
+<!-- Event 3 -->
+<div class="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group">
+<div class="flex items-center justify-center w-5 h-5 rounded-full border-2 border-surface bg-primary text-surface shadow-[0_0_10px_rgba(168,232,255,0.6)] z-10 absolute left-0 md:left-1/2 md:-translate-x-1/2"></div>
+<div class="w-[calc(100%-2rem)] md:w-[calc(50%-2rem)] p-3 rounded border border-primary/30 bg-primary/5 ml-auto md:ml-0 md:mr-auto text-right">
+<div class="font-data-terminal text-data-terminal text-primary mb-1 text-xs">T-01:20:05</div>
+<div class="font-label-caps text-label-caps text-on-surface">Actor Expulsion</div>
+<div class="text-xs text-on-surface-variant mt-1 font-body-main">Malicious payloads purged.</div>
+</div>
+</div>
+<!-- Event 4 (Current/Green) -->
+<div class="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group">
+<div class="flex items-center justify-center w-5 h-5 rounded-full border-2 border-surface bg-tertiary text-surface shadow-[0_0_15px_rgba(0,255,136,0.8)] z-10 absolute left-0 md:left-1/2 md:-translate-x-1/2"></div>
+<div class="w-[calc(100%-2rem)] md:w-[calc(50%-2rem)] p-3 rounded border border-tertiary/50 bg-tertiary/10 ml-auto md:mr-0 md:ml-auto relative overflow-hidden">
+<div class="absolute inset-0 bg-tertiary/5 animate-pulse"></div>
+<div class="font-data-terminal text-data-terminal text-tertiary mb-1 text-xs relative z-10">T-00:00:00 (NOW)</div>
+<div class="font-label-caps text-label-caps text-on-surface relative z-10">System Stabilized</div>
+<div class="text-xs text-on-surface-variant mt-1 font-body-main relative z-10">Baseline operations resumed.</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Network Topology Visualization -->
+<section class="lg:col-span-2 bg-surface-container/40 backdrop-blur border border-outline-variant/50 p-1 flex flex-col h-[600px] relative">
+<!-- Header inside the border box but floating -->
+<div class="absolute top-4 left-4 right-4 flex justify-between items-start z-20 pointer-events-none">
+<div class="bg-surface/80 backdrop-blur p-3 border border-outline-variant rounded shadow-lg pointer-events-auto">
+<div class="font-label-caps text-label-caps text-on-surface-variant mb-1">VISUALIZATION</div>
+<h3 class="font-headline-md text-headline-md text-on-surface">Network Topology Restored</h3>
+</div>
+<div class="flex gap-2 pointer-events-auto">
+<button class="bg-surface/80 backdrop-blur border border-outline-variant p-2 hover:bg-surface-variant transition-colors rounded text-on-surface-variant">
+<span class="material-symbols-outlined text-sm">zoom_in</span>
+</button>
+<button class="bg-surface/80 backdrop-blur border border-outline-variant p-2 hover:bg-surface-variant transition-colors rounded text-on-surface-variant">
+<span class="material-symbols-outlined text-sm">filter_alt</span>
+</button>
+</div>
+</div>
+<!-- The "Map" Area -->
+<div class="flex-1 w-full h-full bg-[#030710] relative overflow-hidden border border-outline-variant/30 flex items-center justify-center">
+<!-- Decorative Radial Gradient for depth -->
+<div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-primary/5 via-surface/80 to-surface pointer-events-none z-0"></div>
+<!-- Placeholder for actual data visualization/canvas. Using CSS to simulate nodes and connections -->
+<div class="relative w-full max-w-lg aspect-square z-10">
+<!-- Center Core -->
+<div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-24 h-24 rounded-full border-2 border-primary/30 flex items-center justify-center">
+<div class="w-16 h-16 rounded-full bg-primary/10 border border-primary/50 flex items-center justify-center glow-active">
+<span class="material-symbols-outlined text-primary text-3xl">dns</span>
+</div>
+<!-- Pulse effect -->
+<div class="absolute inset-0 rounded-full border border-primary/50 animate-ping opacity-20"></div>
+</div>
+<!-- Node 1 (Top Left) -->
+<div class="absolute top-1/4 left-1/4 -translate-x-1/2 -translate-y-1/2 group">
+<div class="w-10 h-10 rounded border border-tertiary/50 bg-surface flex items-center justify-center z-10 relative">
+<span class="material-symbols-outlined text-tertiary text-sm">router</span>
+</div>
+<div class="absolute top-full mt-1 left-1/2 -translate-x-1/2 font-data-terminal text-[10px] text-on-surface-variant whitespace-nowrap">N-ALPHA</div>
+</div>
+<!-- Connection Core to Node 1 -->
+<svg class="absolute inset-0 w-full h-full pointer-events-none" style="z-index: 5;">
+<line stroke="theme('colors.primary')" stroke-dasharray="4" stroke-opacity="0.3" stroke-width="1" x1="50%" x2="25%" y1="50%" y2="25%"></line>
+<circle cx="37.5%" cy="37.5%" fill="theme('colors.primary')" opacity="0.6" r="2">
+<animate attributename="opacity" dur="2s" repeatcount="indefinite" values="0.2;1;0.2"></animate>
+</circle>
+</svg>
+<!-- Node 2 (Top Right) - Was compromised, now secure -->
+<div class="absolute top-1/4 right-1/4 translate-x-1/2 -translate-y-1/2 group">
+<div class="w-10 h-10 rounded border border-primary/50 bg-surface flex items-center justify-center z-10 relative glow-active">
+<span class="material-symbols-outlined text-primary text-sm">hub</span>
+</div>
+<div class="absolute top-full mt-1 left-1/2 -translate-x-1/2 font-data-terminal text-[10px] text-primary whitespace-nowrap">SEC-7 (RESTORED)</div>
+</div>
+<!-- Connection Core to Node 2 -->
+<svg class="absolute inset-0 w-full h-full pointer-events-none" style="z-index: 5;">
+<line stroke="theme('colors.primary')" stroke-opacity="0.6" stroke-width="2" x1="50%" x2="75%" y1="50%" y2="25%"></line>
+<circle class="animate-pulse" cx="62.5%" cy="37.5%" fill="theme('colors.primary')" r="3"></circle>
+</svg>
+<!-- Node 3 (Bottom) -->
+<div class="absolute bottom-1/4 left-1/2 -translate-x-1/2 translate-y-1/2 group">
+<div class="w-10 h-10 rounded border border-tertiary/50 bg-surface flex items-center justify-center z-10 relative">
+<span class="material-symbols-outlined text-tertiary text-sm">storage</span>
+</div>
+<div class="absolute top-full mt-1 left-1/2 -translate-x-1/2 font-data-terminal text-[10px] text-on-surface-variant whitespace-nowrap">DB-MAIN</div>
+</div>
+<!-- Connection Core to Node 3 -->
+<svg class="absolute inset-0 w-full h-full pointer-events-none" style="z-index: 5;">
+<line stroke="theme('colors.tertiary')" stroke-dasharray="2" stroke-opacity="0.4" stroke-width="1" x1="50%" x2="50%" y1="50%" y2="75%"></line>
+</svg>
+</div>
+</div>
+</section>
+</div>
+</main>
+</body></html>

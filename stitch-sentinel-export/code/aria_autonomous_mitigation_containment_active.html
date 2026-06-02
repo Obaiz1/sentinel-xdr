@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>ARIA Autonomous Mitigation Interface</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&amp;family=Space+Mono:wght@400;700&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-tertiary-fixed": "#00210c",
+                        "on-primary-container": "#00586b",
+                        "on-secondary-container": "#d6a9ff",
+                        "inverse-on-surface": "#273140",
+                        "on-primary": "#003642",
+                        "tertiary": "#00ff88",
+                        "primary-fixed-dim": "#3cd7ff",
+                        "inverse-primary": "#00677e",
+                        "surface-container-low": "#121c2a",
+                        "secondary": "#ddb7ff",
+                        "on-error": "#690005",
+                        "outline": "#859398",
+                        "background": "#0a1422",
+                        "surface-container-high": "#212a39",
+                        "on-primary-fixed": "#001f27",
+                        "on-primary-fixed-variant": "#004e5f",
+                        "secondary-fixed-dim": "#ddb7ff",
+                        "on-tertiary": "#003919",
+                        "tertiary-fixed": "#60ff99",
+                        "tertiary-container": "#00df76",
+                        "inverse-surface": "#d9e3f7",
+                        "surface-container-highest": "#2c3545",
+                        "on-tertiary-container": "#005d2d",
+                        "primary": "#a8e8ff",
+                        "surface-container-lowest": "#050e1c",
+                        "tertiary-fixed-dim": "#00e479",
+                        "on-error-container": "#ffdad6",
+                        "surface-tint": "#3cd7ff",
+                        "outline-variant": "#3c494e",
+                        "on-secondary-fixed": "#2c0051",
+                        "error": "#ffb4ab",
+                        "surface-bright": "#303a49",
+                        "surface-dim": "#0a1422",
+                        "primary-container": "#00d4ff",
+                        "primary-fixed": "#b4ebff",
+                        "secondary-fixed": "#f0dbff",
+                        "secondary-container": "#6f00be",
+                        "error-container": "#93000a",
+                        "on-secondary-fixed-variant": "#6900b3",
+                        "on-background": "#d9e3f7",
+                        "on-surface": "#d9e3f7",
+                        "on-secondary": "#490080",
+                        "surface-container": "#16202f",
+                        "on-surface-variant": "#bbc9cf",
+                        "on-tertiary-fixed-variant": "#005228",
+                        "surface-variant": "#2c3545",
+                        "surface": "#0a1422"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "panel-padding": "24px",
+                        "gutter": "16px",
+                        "margin-mobile": "16px",
+                        "margin-desktop": "32px",
+                        "unit": "4px"
+                    },
+                    "fontFamily": {
+                        "headline-md": ["Space Grotesk"],
+                        "label-caps": ["Space Mono"],
+                        "display-lg": ["Space Grotesk"],
+                        "body-main": ["Inter"],
+                        "headline-md-mobile": ["Space Grotesk"],
+                        "data-terminal": ["Space Mono"]
+                    },
+                    "fontSize": {
+                        "headline-md": ["24px", { "lineHeight": "32px", "letterSpacing": "0.02em", "fontWeight": "600" }],
+                        "label-caps": ["12px", { "lineHeight": "16px", "fontWeight": "700" }],
+                        "display-lg": ["48px", { "lineHeight": "56px", "letterSpacing": "0.05em", "fontWeight": "700" }],
+                        "body-main": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "headline-md-mobile": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "data-terminal": ["14px", { "lineHeight": "20px", "fontWeight": "400" }]
+                    },
+                    "animation": {
+                        "pulse-slow": "pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite",
+                        "scan": "scan 4s linear infinite",
+                        "blink": "blink 1s step-end infinite",
+                        "float": "float 6s ease-in-out infinite",
+                    },
+                    "keyframes": {
+                        scan: {
+                            '0%': { transform: 'translateY(-100%)' },
+                            '100%': { transform: 'translateY(1000%)' }
+                        },
+                        blink: {
+                            '0%, 100%': { opacity: 1 },
+                            '50%': { opacity: 0 }
+                        },
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-10px)' }
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body {
+            background-color: #040a14;
+            background-image: 
+                linear-gradient(rgba(10, 20, 34, 0.8), rgba(10, 20, 34, 0.8)),
+                linear-gradient(0deg, transparent 24%, rgba(60, 215, 255, 0.05) 25%, rgba(60, 215, 255, 0.05) 26%, transparent 27%, transparent 74%, rgba(60, 215, 255, 0.05) 75%, rgba(60, 215, 255, 0.05) 76%, transparent 77%, transparent),
+                linear-gradient(90deg, transparent 24%, rgba(60, 215, 255, 0.05) 25%, rgba(60, 215, 255, 0.05) 26%, transparent 27%, transparent 74%, rgba(60, 215, 255, 0.05) 75%, rgba(60, 215, 255, 0.05) 76%, transparent 77%, transparent);
+            background-size: 100% 100%, 50px 50px, 50px 50px;
+        }
+        
+        .glass-panel {
+            background: rgba(18, 28, 42, 0.6);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(60, 215, 255, 0.2);
+        }
+
+        .glow-active {
+            box-shadow: 0 0 15px rgba(60, 215, 255, 0.4);
+        }
+        
+        .scan-line {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, rgba(60, 215, 255, 0.8), transparent);
+            box-shadow: 0 0 10px rgba(60, 215, 255, 0.5);
+            z-index: 10;
+            pointer-events: none;
+        }
+
+        /* Webkit scrollbar for data streams */
+        ::-webkit-scrollbar {
+            width: 4px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(10, 20, 34, 0.5); 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(60, 215, 255, 0.3); 
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(60, 215, 255, 0.6); 
+        }
+    </style>
+</head>
+<body class="text-on-surface font-body-main antialiased h-screen overflow-hidden flex flex-col">
+<!-- TopAppBar -->
+<nav class="bg-surface/80 backdrop-blur-md fixed top-0 w-full z-50 border-b border-outline-variant shadow-[0_0_15px_rgba(60,215,255,0.1)] flex justify-between items-center px-margin-desktop py-2 w-full">
+<div class="flex items-center gap-6">
+<span class="font-display-lg text-display-lg tracking-tighter text-primary-fixed-dim">SENTINEL XDR</span>
+<div class="hidden md:flex gap-4">
+<span class="text-on-surface-variant font-data-terminal text-data-terminal hover:text-primary-fixed hover:bg-surface-variant/50 transition-colors px-2 py-1 rounded cursor-pointer active:scale-95 duration-200">STATUS: API ONLINE</span>
+<span class="text-on-surface-variant font-data-terminal text-data-terminal hover:text-primary-fixed hover:bg-surface-variant/50 transition-colors px-2 py-1 rounded cursor-pointer active:scale-95 duration-200">DB: SYNCED</span>
+<span class="text-on-surface-variant font-data-terminal text-data-terminal hover:text-primary-fixed hover:bg-surface-variant/50 transition-colors px-2 py-1 rounded cursor-pointer active:scale-95 duration-200">LATENCY: 12MS</span>
+</div>
+</div>
+<div class="flex gap-4 items-center">
+<span class="material-symbols-outlined text-primary hover:text-primary-fixed cursor-pointer active:scale-95 duration-200" data-icon="notifications">notifications</span>
+<span class="material-symbols-outlined text-primary hover:text-primary-fixed cursor-pointer active:scale-95 duration-200" data-icon="settings">settings</span>
+<span class="material-symbols-outlined text-primary hover:text-primary-fixed cursor-pointer active:scale-95 duration-200" data-icon="power_settings_new">power_settings_new</span>
+</div>
+</nav>
+<!-- SideNavBar -->
+<aside class="hidden md:flex flex-col bg-surface-container-lowest/90 backdrop-blur-xl fixed left-0 h-full w-64 z-40 border-r border-outline-variant py-panel-padding pt-24">
+<div class="px-6 mb-8 flex items-center gap-3">
+<div class="w-10 h-10 bg-surface-variant rounded border border-primary/30 flex items-center justify-center overflow-hidden">
+<span class="material-symbols-outlined text-primary" data-icon="person">person</span>
+</div>
+<div>
+<div class="font-headline-md text-headline-md text-primary truncate text-sm">OPERATOR-01</div>
+<div class="font-label-caps text-label-caps text-on-surface-variant">SECTOR-7G</div>
+</div>
+</div>
+<nav class="flex-1 flex flex-col gap-1 px-4">
+<div class="text-on-surface-variant hover:text-on-surface hover:bg-surface-variant/30 transition-all duration-150 ease-in-out font-label-caps text-label-caps flex items-center gap-3 p-3 rounded-DEFAULT cursor-pointer">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+                Command Center
+            </div>
+<div class="bg-primary-container text-on-primary-container border-r-4 border-primary duration-150 ease-in-out font-label-caps text-label-caps flex items-center gap-3 p-3 rounded-l-DEFAULT cursor-pointer">
+<span class="material-symbols-outlined" data-icon="security">security</span>
+                MACE Chains
+            </div>
+<div class="text-on-surface-variant hover:text-on-surface hover:bg-surface-variant/30 transition-all duration-150 ease-in-out font-label-caps text-label-caps flex items-center gap-3 p-3 rounded-DEFAULT cursor-pointer">
+<span class="material-symbols-outlined" data-icon="biotech">biotech</span>
+                Threat Intel
+            </div>
+<div class="text-on-surface-variant hover:text-on-surface hover:bg-surface-variant/30 transition-all duration-150 ease-in-out font-label-caps text-label-caps flex items-center gap-3 p-3 rounded-DEFAULT cursor-pointer">
+<span class="material-symbols-outlined" data-icon="public">public</span>
+                Asset Map
+            </div>
+<div class="text-on-surface-variant hover:text-on-surface hover:bg-surface-variant/30 transition-all duration-150 ease-in-out font-label-caps text-label-caps flex items-center gap-3 p-3 rounded-DEFAULT cursor-pointer">
+<span class="material-symbols-outlined" data-icon="terminal">terminal</span>
+                Logs
+            </div>
+</nav>
+<div class="px-4 mt-auto">
+<button class="w-full border border-primary text-primary font-data-terminal text-data-terminal py-2 bg-transparent hover:bg-primary/10 transition-colors uppercase tracking-widest text-xs mb-4">
+                [ INITIALIZE SCAN ]
+            </button>
+<div class="flex flex-col gap-1">
+<div class="text-on-surface-variant hover:text-on-surface hover:bg-surface-variant/30 transition-all duration-150 ease-in-out font-label-caps text-label-caps flex items-center gap-3 p-3 rounded-DEFAULT cursor-pointer">
+<span class="material-symbols-outlined" data-icon="monitor_heart">monitor_heart</span>
+                    System Health
+                </div>
+<div class="text-on-surface-variant hover:text-on-surface hover:bg-surface-variant/30 transition-all duration-150 ease-in-out font-label-caps text-label-caps flex items-center gap-3 p-3 rounded-DEFAULT cursor-pointer">
+<span class="material-symbols-outlined" data-icon="help_center">help_center</span>
+                    Support
+                </div>
+</div>
+</div>
+</aside>
+<!-- Main Canvas -->
+<main class="flex-1 md:ml-64 mt-16 p-margin-mobile md:p-margin-desktop h-[calc(100vh-64px)] md:mr-80 overflow-y-auto relative z-10">
+<!-- Status Header -->
+<div class="flex items-center justify-between mb-8">
+<div>
+<h1 class="font-headline-md text-headline-md text-primary flex items-center gap-3">
+<span class="material-symbols-outlined animate-pulse" data-icon="shield">shield</span>
+                    ARIA AUTONOMOUS MITIGATION
+                </h1>
+<div class="font-data-terminal text-data-terminal text-on-surface-variant flex items-center gap-2 mt-1">
+<span class="w-2 h-2 rounded-full bg-error animate-blink inline-block"></span>
+                    THREAT DETECTED: CRITICAL SEVERITY
+                </div>
+</div>
+<div class="glass-panel px-4 py-2 border-l-4 border-l-primary flex items-center gap-3">
+<span class="font-label-caps text-label-caps text-primary tracking-widest">[ CONTAINMENT IN PROGRESS ]</span>
+<div class="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
+</div>
+</div>
+<!-- Central Visualization -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-6 h-[500px]">
+<!-- Left: Progress Metrics -->
+<div class="lg:col-span-4 flex flex-col gap-4">
+<div class="glass-panel p-6 h-full relative overflow-hidden flex flex-col justify-center">
+<div class="scan-line animate-scan"></div>
+<div class="font-data-terminal text-data-terminal text-on-surface-variant mb-6 border-b border-primary/30 pb-2">MITIGATION PROTOCOLS</div>
+<div class="space-y-6">
+<!-- Subnet Isolation -->
+<div>
+<div class="flex justify-between font-label-caps text-label-caps mb-2">
+<span class="text-primary flex items-center gap-2"><span class="material-symbols-outlined text-[16px]" data-icon="lan">lan</span> Subnet Isolation</span>
+<span class="text-primary-fixed">78%</span>
+</div>
+<div class="h-1 bg-surface-container-highest w-full overflow-hidden">
+<div class="h-full bg-primary w-[78%] relative">
+<div class="absolute right-0 top-0 bottom-0 w-4 bg-white/50 animate-pulse"></div>
+</div>
+</div>
+</div>
+<!-- Credential Rotation -->
+<div>
+<div class="flex justify-between font-label-caps text-label-caps mb-2">
+<span class="text-primary flex items-center gap-2"><span class="material-symbols-outlined text-[16px]" data-icon="key">key</span> Credential Rotation</span>
+<span class="text-primary-fixed">42%</span>
+</div>
+<div class="h-1 bg-surface-container-highest w-full overflow-hidden">
+<div class="h-full bg-primary w-[42%] relative">
+<div class="absolute right-0 top-0 bottom-0 w-4 bg-white/50 animate-pulse"></div>
+</div>
+</div>
+</div>
+<!-- Packet Scrubbing -->
+<div>
+<div class="flex justify-between font-label-caps text-label-caps mb-2">
+<span class="text-primary flex items-center gap-2"><span class="material-symbols-outlined text-[16px]" data-icon="filter_alt">filter_alt</span> Packet Scrubbing</span>
+<span class="text-primary-fixed">95%</span>
+</div>
+<div class="h-1 bg-surface-container-highest w-full overflow-hidden">
+<div class="h-full bg-primary w-[95%] relative">
+<div class="absolute right-0 top-0 bottom-0 w-4 bg-white/50 animate-pulse"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Center: 3D Shield Orb Placeholder -->
+<div class="lg:col-span-8 glass-panel flex items-center justify-center relative overflow-hidden group glow-active border-primary/50">
+<div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-primary/10 via-transparent to-transparent opacity-50 group-hover:opacity-100 transition-opacity duration-1000"></div>
+<!-- Abstract Shield Representation -->
+<div class="relative w-64 h-64 flex items-center justify-center animate-float">
+<!-- Outer rings -->
+<div class="absolute inset-0 rounded-full border border-primary/30 animate-[spin_10s_linear_infinite]"></div>
+<div class="absolute inset-4 rounded-full border-2 border-primary/20 border-t-primary/80 animate-[spin_7s_linear_infinite_reverse]"></div>
+<div class="absolute inset-8 rounded-full border border-primary/40 border-b-primary/90 animate-[spin_15s_linear_infinite]"></div>
+<!-- Core -->
+<div class="absolute inset-16 bg-primary/10 rounded-full backdrop-blur-sm border border-primary flex items-center justify-center shadow-[0_0_30px_rgba(60,215,255,0.6)]">
+<span class="material-symbols-outlined text-[64px] text-primary animate-pulse-slow" data-icon="security">security</span>
+</div>
+<!-- Connecting lines -->
+<div class="absolute top-1/2 left-0 w-full h-[1px] bg-primary/20"></div>
+<div class="absolute top-0 left-1/2 h-full w-[1px] bg-primary/20"></div>
+</div>
+<div class="absolute bottom-4 left-0 w-full text-center font-data-terminal text-data-terminal text-primary/70 tracking-[0.3em] uppercase">
+                    NEURAL FIREWALL ERECTING...
+                </div>
+</div>
+</div>
+</main>
+<!-- NavigationDrawer (ARIA Copilot) -->
+<aside class="hidden md:flex flex-col bg-surface-container-high/60 backdrop-blur-lg fixed right-0 top-16 h-[calc(100vh-64px)] w-80 z-40 border-l border-outline-variant shadow-[-10px_0_20px_rgba(111,0,190,0.1)] p-gutter">
+<div class="flex items-center gap-3 mb-6 border-b border-secondary/30 pb-4">
+<span class="material-symbols-outlined text-secondary animate-pulse-slow text-2xl" data-icon="psychology">psychology</span>
+<div>
+<div class="font-label-caps text-label-caps text-secondary">ARIA NEURAL LINK</div>
+<div class="font-data-terminal text-data-terminal text-on-secondary-container text-[10px]">PROCESSING STREAM...</div>
+</div>
+</div>
+<div class="flex-1 overflow-y-auto pr-2 space-y-3 font-data-terminal text-data-terminal text-[12px]">
+<!-- Log Entries -->
+<div class="bg-black/40 p-2 border-l-2 border-secondary hover:bg-secondary-container/20 transition-colors">
+<div class="text-secondary/60 mb-1">T-00:00:12</div>
+<div class="text-on-secondary-container">&gt; Blocked unauthorized access attempt from IP 192.168.1.45. Signature matches known exploit.</div>
+</div>
+<div class="bg-black/40 p-2 border-l-2 border-secondary hover:bg-secondary-container/20 transition-colors">
+<div class="text-secondary/60 mb-1">T-00:00:08</div>
+<div class="text-on-secondary-container">&gt; Isolated container SEC-NODE-X9. Terminating rogue processes.</div>
+</div>
+<div class="bg-black/40 p-2 border-l-2 border-tertiary hover:bg-secondary-container/20 transition-colors">
+<div class="text-tertiary/60 mb-1">T-00:00:05</div>
+<div class="text-tertiary">&gt; Successfully patched vulnerability in auth service. Traffic routing normalized.</div>
+</div>
+<div class="bg-black/40 p-2 border-l-2 border-secondary hover:bg-secondary-container/20 transition-colors">
+<div class="text-secondary/60 mb-1">T-00:00:02</div>
+<div class="text-on-secondary-container">&gt; Escalating privileges for automated containment script. Awaiting checksum validation.</div>
+</div>
+<div class="bg-black/40 p-2 border-l-2 border-secondary hover:bg-secondary-container/20 transition-colors relative">
+<div class="text-secondary/60 mb-1">T-00:00:00</div>
+<div class="text-secondary-fixed-dim">&gt; Generating defensive signatures... <span class="animate-blink inline-block w-2 h-4 bg-secondary align-middle"></span></div>
+</div>
+</div>
+<div class="mt-4 pt-4 border-t border-secondary/30">
+<div class="font-label-caps text-label-caps text-secondary text-center">AI OVERWATCH ACTIVE</div>
+</div>
+</aside>
+</body></html>
