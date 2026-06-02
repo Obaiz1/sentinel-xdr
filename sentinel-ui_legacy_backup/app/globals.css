@@ -1,0 +1,356 @@
+/* ── globals.css — Full upgrade for SENTINEL XDR ─────────────────── */
+@import "tailwindcss";
+
+:root {
+  --neon-blue: #00d4ff;
+  --neon-green: #00ff88;
+  --neon-red: #ff3366;
+  --neon-orange: #ff9900;
+  --neon-yellow: #ffd700;
+  --neon-purple: #a855f7;
+  --bg-deep: #040a14;
+  --bg-card: rgba(6, 15, 32, 0.85);
+  --bg-card-border: rgba(0, 212, 255, 0.15);
+  --text-primary: #e2e8f0;
+  --text-muted: #4a6080;
+  --font-mono: 'Share Tech Mono', monospace;
+  --font-display: 'Orbitron', monospace;
+}
+
+@theme inline {
+  --color-background: var(--bg-deep);
+  --color-foreground: var(--text-primary);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* Force dark UA rendering for native form controls / scrollbars everywhere */
+:root { color-scheme: dark; }
+
+html { scroll-behavior: smooth; overflow-x: hidden; }
+
+body {
+  background: var(--bg-deep);
+  color: var(--text-primary);
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  min-height: 100vh;
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+/* Media never forces horizontal overflow (charts/canvas size themselves) */
+img, video { max-width: 100%; height: auto; }
+
+/* ── Scrollbar ───────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: #040a14; }
+::-webkit-scrollbar-thumb { background: var(--neon-blue); border-radius: 2px; }
+
+/* ── Scanline overlay ────────────────────────────────────────────── */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg, transparent, transparent 3px,
+    rgba(0,212,255,0.012) 3px, rgba(0,212,255,0.012) 4px
+  );
+  pointer-events: none;
+  z-index: 9998;
+  animation: scanlines 10s linear infinite;
+}
+
+@keyframes scanlines {
+  0% { background-position: 0 0; }
+  100% { background-position: 0 200px; }
+}
+
+/* ── CRT vignette ────────────────────────────────────────────────── */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(ellipse at center, transparent 60%, rgba(0,0,0,0.7) 100%);
+  pointer-events: none;
+  z-index: 9997;
+}
+
+/* ── Neon utilities ──────────────────────────────────────────────── */
+.glow-blue  { box-shadow: 0 0 20px rgba(0,212,255,0.35), 0 0 60px rgba(0,212,255,0.12); }
+.glow-green { box-shadow: 0 0 20px rgba(0,255,136,0.35), 0 0 60px rgba(0,255,136,0.12); }
+.glow-red   { box-shadow: 0 0 20px rgba(255,51,102,0.35), 0 0 60px rgba(255,51,102,0.12); }
+.glow-purple{ box-shadow: 0 0 20px rgba(168,85,247,0.35), 0 0 60px rgba(168,85,247,0.12); }
+
+.text-glow-blue  { text-shadow: 0 0 12px rgba(0,212,255,0.9),  0 0 30px rgba(0,212,255,0.4); }
+.text-glow-green { text-shadow: 0 0 12px rgba(0,255,136,0.9),  0 0 30px rgba(0,255,136,0.4); }
+.text-glow-red   { text-shadow: 0 0 12px rgba(255,51,102,0.9), 0 0 30px rgba(255,51,102,0.4); }
+
+/* ── Glass cards ─────────────────────────────────────────────────── */
+.glass-card {
+  background: var(--bg-card);
+  border: 1px solid var(--bg-card-border);
+  border-radius: 14px;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+.glass-card:hover {
+  border-color: rgba(0,212,255,0.35);
+  box-shadow: 0 0 30px rgba(0,212,255,0.08);
+}
+
+/* ── Gradient text ───────────────────────────────────────────────── */
+.gradient-text {
+  background: linear-gradient(135deg, var(--neon-blue) 0%, var(--neon-green) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.gradient-text-red {
+  background: linear-gradient(135deg, #ff3366 0%, #ff9900 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ── Hex grid pattern ────────────────────────────────────────────── */
+.hex-bg {
+  background-image: radial-gradient(circle at 1px 1px, rgba(0,212,255,0.04) 1px, transparent 0);
+  background-size: 40px 40px;
+}
+
+/* ── Font utilities ──────────────────────────────────────────────── */
+.font-display { font-family: var(--font-display); }
+.font-mono    { font-family: var(--font-mono); }
+
+/* ── Pulse animations ────────────────────────────────────────────── */
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%       { opacity: 0.4; transform: scale(1.4); }
+}
+.pulse-dot { display: inline-block; animation: pulse-dot 1.5s ease-in-out infinite; }
+
+@keyframes pulse-ring {
+  0%   { transform: scale(1); opacity: 0.8; }
+  100% { transform: scale(2.5); opacity: 0; }
+}
+
+/* ── Float animation ─────────────────────────────────────────────── */
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-12px); }
+}
+.animate-float { animation: float 5s ease-in-out infinite; }
+
+/* ── Radar spin ──────────────────────────────────────────────────── */
+@keyframes radar { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+.animate-radar { animation: radar 3s linear infinite; }
+
+/* ── Threat badges ───────────────────────────────────────────────── */
+.badge-critical {
+  background: rgba(255,51,102,0.14); border: 1px solid rgba(255,51,102,0.6);
+  color: #ff3366; border-radius: 6px; padding: 2px 9px;
+  font-size: 0.68rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
+  font-family: var(--font-mono);
+}
+.badge-high {
+  background: rgba(255,153,0,0.14); border: 1px solid rgba(255,153,0,0.6);
+  color: #ff9900; border-radius: 6px; padding: 2px 9px;
+  font-size: 0.68rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
+  font-family: var(--font-mono);
+}
+.badge-medium {
+  background: rgba(168,85,247,0.14); border: 1px solid rgba(168,85,247,0.6);
+  color: #a855f7; border-radius: 6px; padding: 2px 9px;
+  font-size: 0.68rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
+  font-family: var(--font-mono);
+}
+.badge-low {
+  background: rgba(0,255,136,0.1); border: 1px solid rgba(0,255,136,0.5);
+  color: #00ff88; border-radius: 6px; padding: 2px 9px;
+  font-size: 0.68rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
+  font-family: var(--font-mono);
+}
+
+/* ── Table hover ─────────────────────────────────────────────────── */
+.table-row-hover:hover {
+  background: rgba(0,212,255,0.05) !important;
+  border-color: rgba(0,212,255,0.3) !important;
+}
+
+/* ── Chat bubbles ────────────────────────────────────────────────── */
+.chat-bubble-user {
+  background: linear-gradient(135deg, rgba(0,212,255,0.18), rgba(0,212,255,0.08));
+  border: 1px solid rgba(0,212,255,0.3);
+  border-radius: 14px 14px 4px 14px;
+}
+.chat-bubble-ai {
+  background: rgba(6,15,32,0.9);
+  border: 1px solid rgba(0,255,136,0.2);
+  border-radius: 14px 14px 14px 4px;
+}
+
+/* ── Scrollytelling section ──────────────────────────────────────── */
+.scroll-section {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  position: relative;
+}
+.scroll-sticky {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* ── Section divider ─────────────────────────────────────────────── */
+.section-line {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(0,212,255,0.4), transparent);
+  margin: 3rem 0;
+}
+
+/* ── Neon border ─────────────────────────────────────────────────── */
+.neon-border {
+  border: 1px solid transparent;
+  background: linear-gradient(var(--bg-card), var(--bg-card)) padding-box,
+              linear-gradient(135deg, rgba(0,212,255,0.5), rgba(0,255,136,0.3)) border-box;
+  border-radius: 14px;
+}
+
+/* ── Shimmer loader ──────────────────────────────────────────────── */
+@keyframes shimmer { 0% { background-position: -200% center; } 100% { background-position: 200% center; } }
+.shimmer {
+  background: linear-gradient(90deg, transparent 0%, rgba(0,212,255,0.1) 50%, transparent 100%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+/* ── Scrollytelling reveal ───────────────────────────────────────── */
+.reveal-on-scroll {
+  opacity: 0;
+  transform: translateY(40px);
+  transition: opacity 0.8s ease, transform 0.8s ease;
+}
+.reveal-on-scroll.visible {
+  opacity: 1;
+  transform: none;
+}
+
+/* ── Form controls — global dark cyber theme ─────────────────────── */
+input, select, textarea {
+  background: rgba(0, 212, 255, 0.05);
+  color: var(--text-primary);
+  border: 1px solid rgba(0, 212, 255, 0.25);
+  border-radius: 8px;
+  font-family: var(--font-mono);
+  outline: none;
+  color-scheme: dark; /* dark native popup/calendar/spinner */
+}
+input::placeholder, textarea::placeholder { color: var(--text-muted); opacity: 1; }
+
+input:focus, select:focus, textarea:focus {
+  border-color: rgba(0, 212, 255, 0.6);
+  box-shadow: 0 0 0 2px rgba(0, 212, 255, 0.18);
+}
+input:disabled, select:disabled, textarea:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+/* Native <option> popup (fallback when native select is used) */
+select option,
+select optgroup {
+  background: #040a14;
+  color: var(--text-primary);
+}
+/* Kill the white/yellow autofill background */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+textarea:-webkit-autofill {
+  -webkit-text-fill-color: var(--text-primary);
+  -webkit-box-shadow: 0 0 0 1000px #060f20 inset;
+  box-shadow: 0 0 0 1000px #060f20 inset;
+  caret-color: var(--text-primary);
+  transition: background-color 9999s ease-in-out 0s;
+}
+/* Validation states */
+.field-error { border-color: rgba(255,51,102,0.7) !important; box-shadow: 0 0 0 2px rgba(255,51,102,0.18) !important; }
+.field-success { border-color: rgba(0,255,136,0.7) !important; box-shadow: 0 0 0 2px rgba(0,255,136,0.18) !important; }
+
+/* ── Custom dark dropdown (Dropdown.tsx) ─────────────────────────── */
+.sx-dropdown { position: relative; width: 100%; }
+.sx-dropdown__trigger {
+  width: 100%;
+  display: flex; align-items: center; gap: 8px;
+  background: rgba(0, 212, 255, 0.05);
+  border: 1px solid rgba(0, 212, 255, 0.25);
+  border-radius: 8px;
+  padding: 7px 10px;
+  font-family: var(--font-mono); font-size: 11px;
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.sx-dropdown__trigger:hover:not(:disabled) { border-color: rgba(0,212,255,0.5); }
+.sx-dropdown[data-open="true"] .sx-dropdown__trigger {
+  border-color: rgba(0,212,255,0.6);
+  box-shadow: 0 0 0 2px rgba(0,212,255,0.18);
+}
+.sx-dropdown__trigger:disabled { opacity: 0.55; cursor: not-allowed; }
+.sx-dropdown__value {
+  flex: 1; text-align: left;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.sx-dropdown__caret { color: var(--neon-blue); font-size: 10px; flex-shrink: 0; }
+
+.sx-dropdown__menu {
+  position: absolute; left: 0; right: 0; top: calc(100% + 6px);
+  z-index: 1200;
+  list-style: none; margin: 0; padding: 4px;
+  max-height: 220px; overflow-y: auto;
+  background: #040a14;
+  border: 1px solid rgba(0, 212, 255, 0.4);
+  border-radius: 10px;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.6), 0 0 24px rgba(0,212,255,0.18);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+}
+.sx-dropdown__option {
+  padding: 7px 10px; border-radius: 6px;
+  font-family: var(--font-mono); font-size: 11px;
+  color: var(--text-primary);
+  cursor: pointer;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.sx-dropdown__option:hover { background: rgba(0, 212, 255, 0.12); color: var(--neon-blue); }
+.sx-dropdown__option.is-active {
+  background: rgba(0, 212, 255, 0.08);
+  color: var(--neon-blue);
+  border: 1px solid rgba(0, 212, 255, 0.4);
+}
+.sx-dropdown__empty {
+  padding: 8px 10px; font-family: var(--font-mono); font-size: 11px; color: var(--text-muted);
+}
+.sx-dropdown__menu::-webkit-scrollbar { width: 6px; }
+.sx-dropdown__menu::-webkit-scrollbar-track { background: transparent; }
+.sx-dropdown__menu::-webkit-scrollbar-thumb { background: rgba(0,212,255,0.4); border-radius: 3px; }
+
+/* ── Data stream effect ──────────────────────────────────────────── */
+@keyframes data-stream {
+  0%   { transform: translateY(-100%); opacity: 0; }
+  10%  { opacity: 1; }
+  90%  { opacity: 1; }
+  100% { transform: translateY(100vh); opacity: 0; }
+}
+.data-stream-line {
+  position: fixed;
+  top: 0;
+  width: 1px;
+  background: linear-gradient(180deg, transparent, var(--neon-green), transparent);
+  animation: data-stream 3s linear infinite;
+  pointer-events: none;
+  z-index: 9996;
+}

@@ -1,0 +1,22 @@
+<svg width="256" height="256" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="SENTINEL XDR logo">
+  <defs>
+    <linearGradient id="shield" x1="0" y1="0" x2="64" y2="64" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#00d4ff"/>
+      <stop offset="1" stop-color="#00ff88"/>
+    </linearGradient>
+    <radialGradient id="core" cx="0.5" cy="0.45" r="0.55">
+      <stop stop-color="#c79bff"/>
+      <stop offset="1" stop-color="#a855f7" stop-opacity="0.15"/>
+    </radialGradient>
+  </defs>
+  <path d="M32 3 L57 13 V31 C57 46 46 56 32 61 C18 56 7 46 7 31 V13 Z" fill="rgba(0,212,255,0.06)" stroke="url(#shield)" stroke-width="2" stroke-linejoin="round"/>
+  <g stroke="rgba(0,212,255,0.30)" stroke-width="1">
+    <path d="M7 24 H20 M44 24 H57 M7 40 H18 M46 40 H57"/>
+    <circle cx="20" cy="24" r="1.6" fill="#00d4ff" stroke="none"/>
+    <circle cx="44" cy="24" r="1.6" fill="#00d4ff" stroke="none"/>
+  </g>
+  <path d="M40 21 C40 18 35 17 31 17 C26 17 23 19 23 23 C23 31 41 27 41 36 C41 41 36 44 31 44 C26 44 22 42 22 39" fill="none" stroke="url(#shield)" stroke-width="3.4" stroke-linecap="round"/>
+  <circle cx="32" cy="30" r="6" fill="url(#core)"/>
+  <circle cx="32" cy="30" r="2.4" fill="#a855f7"/>
+  <circle cx="32" cy="55" r="2.4" fill="#00ff88"/>
+</svg>
