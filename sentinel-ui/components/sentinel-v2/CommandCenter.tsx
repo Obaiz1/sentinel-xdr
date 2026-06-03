@@ -7,6 +7,7 @@ import { api, type SystemStatus, type Statistics, type AlertsResponse, type Chai
 import { usePolling } from "./usePolling";
 import StateMessage from "./StateMessage";
 import { useNav } from "./NavContext";
+import DetailModal, { type DetailKind } from "./DetailModal";
 import { IconWifi, IconWarning, IconScan, IconBell, IconNetwork, IconGauge } from "./Icons";
 
 const HeroGlobe = dynamic(() => import("@/components/HeroGlobe"), { ssr: false });
@@ -59,6 +60,7 @@ function DrawerRow({ label, value, color = "var(--neon-blue)" }: { label: string
 export default function CommandCenter() {
   const nav = useNav();
   const [drawer, setDrawer] = useState<"ai" | "queue" | null>(null);
+  const [modal, setModal] = useState<DetailKind | null>(null);
 
   const { data, state, refetch } = usePolling<Combined>(
     async (signal) => {
@@ -118,10 +120,10 @@ export default function CommandCenter() {
         <div className="cc-kpis"><div style={{ gridColumn: "1 / -1" }}><div className="sv-card"><StateMessage state={state} onRetry={refetch} compact /></div></div></div>
       ) : (
         <div className="cc-kpis">
-          <Kpi icon={<IconWifi />} color="#00d4ff" value={fmt(k.packets)} label="Packets Captured" chip={sourceChip(k.demo, k.snifferOn, k.packets > 0)} onClick={() => nav.navigate("control")} />
-          <Kpi icon={<IconWarning />} color="#ff3366" value={String(k.critical)} label="Critical Threats" chip={sourceChip(k.demo, k.snifferOn, k.critical > 0)} onClick={() => { nav.setAlertFilter("Critical"); nav.navigate("alerts"); }} />
-          <Kpi icon={<IconScan />} color="#00ff88" value={fmt(k.analyzed)} label="AI Analyzed" chip={sourceChip(k.demo, k.snifferOn, k.analyzed > 0)} onClick={() => setDrawer("ai")} />
-          <Kpi icon={<IconBell />} color="#ff9900" value={fmt(k.alerts)} label="Alerts Detected" chip={sourceChip(k.demo, k.snifferOn, k.alerts > 0)} onClick={() => { nav.setAlertFilter(null); nav.navigate("alerts"); }} />
+          <Kpi icon={<IconWifi />} color="#00d4ff" value={fmt(k.packets)} label="Packets Captured" chip={sourceChip(k.demo, k.snifferOn, k.packets > 0)} onClick={() => setModal("packets")} />
+          <Kpi icon={<IconWarning />} color="#ff3366" value={String(k.critical)} label="Critical Threats" chip={sourceChip(k.demo, k.snifferOn, k.critical > 0)} onClick={() => setModal("threats")} />
+          <Kpi icon={<IconScan />} color="#00ff88" value={fmt(k.analyzed)} label="AI Analyzed" chip={sourceChip(k.demo, k.snifferOn, k.analyzed > 0)} onClick={() => setModal("ai")} />
+          <Kpi icon={<IconBell />} color="#ff9900" value={fmt(k.alerts)} label="Alerts Detected" chip={sourceChip(k.demo, k.snifferOn, k.alerts > 0)} onClick={() => setModal("alerts")} />
           <Kpi icon={<IconNetwork />} color="#a855f7" value={String(k.chains).padStart(2, "0")} label="Active Chains" chip={sourceChip(k.demo, k.snifferOn, k.chains > 0)} onClick={() => nav.navigate("chains")} />
           <Kpi icon={<IconGauge />} color={queueColor} value={`${k.queue}${k.queueMax ? `/${k.queueMax}` : ""}`} label="Queue Load" chip={sourceChip(k.demo, k.snifferOn, true)} onClick={() => setDrawer("queue")} />
         </div>
@@ -164,6 +166,11 @@ export default function CommandCenter() {
             </motion.div>
           </>
         )}
+      </AnimatePresence>
+
+      {/* ── KPI detail modal (packets / threats / AI / alerts) ── */}
+      <AnimatePresence>
+        {modal && <DetailModal kind={modal} onClose={() => setModal(null)} />}
       </AnimatePresence>
     </div>
   );
