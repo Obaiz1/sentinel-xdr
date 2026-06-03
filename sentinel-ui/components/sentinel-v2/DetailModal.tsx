@@ -3,6 +3,7 @@
 import { useMemo, useState, type ReactNode } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { api, type Alert, type AlertsResponse } from "@/lib/apiClient";
+import { downloadReport } from "@/lib/pdfReport";
 import { usePolling } from "./usePolling";
 import StateMessage from "./StateMessage";
 
@@ -68,6 +69,12 @@ function Row({ alert, kind, color }: { alert: Alert; kind: DetailKind; color: st
 export default function DetailModal({ kind, onClose }: { kind: DetailKind; onClose: () => void }) {
   const meta = META[kind];
   const [proto, setProto] = useState("All");
+  const [pdfBusy, setPdfBusy] = useState(false);
+
+  async function makePdf() {
+    setPdfBusy(true);
+    try { await downloadReport(kind); } catch { /* surfaced via no download */ } finally { setPdfBusy(false); }
+  }
 
   const { data, state, refetch } = usePolling<AlertsResponse>(
     () => api.getAlerts({ limit: 100, level: kind === "threats" ? "Critical" : undefined }),
@@ -111,7 +118,8 @@ export default function DetailModal({ kind, onClose }: { kind: DetailKind; onClo
           <span className="sv-dot" style={{ background: meta.color, boxShadow: `0 0 8px ${meta.color}` }} />
           <span style={{ fontFamily: "var(--font-display)", fontSize: 14, letterSpacing: "0.14em", color: meta.color }}>{meta.title}</span>
           <span style={{ fontFamily: "var(--font-mono)", fontSize: 10, color: "var(--text-muted)" }}>{rows.length} records</span>
-          <div style={{ marginLeft: "auto", display: "flex", gap: 8 }}>
+          <div style={{ marginLeft: "auto", display: "flex", gap: 8, flexWrap: "wrap" }}>
+            <button type="button" className="sv-btn" style={{ height: 32, minHeight: 32 }} disabled={pdfBusy} onClick={makePdf}>{pdfBusy ? "Generating…" : "📄 Generate PDF"}</button>
             <button type="button" className="sv-btn sv-btn-ghost" style={{ height: 32, minHeight: 32 }} onClick={() => downloadJson(`sentinel-${kind}.json`, rows)}>⤓ Export JSON</button>
             <button type="button" onClick={onClose} aria-label="Close" style={{ background: "transparent", border: "none", color: "var(--text-muted)", cursor: "pointer", fontSize: 22, width: 32, height: 32 }}>×</button>
           </div>
