@@ -5,7 +5,7 @@
  */
 import { jsPDF } from "jspdf";
 import autoTable from "jspdf-autotable";
-import { api, type Statistics } from "./apiClient";
+import { api, type Statistics, type Alert } from "./apiClient";
 
 export type ReportType = "threats" | "packets" | "ai" | "alerts" | "mace" | "full";
 
@@ -219,4 +219,44 @@ export async function previewReport(type: ReportType): Promise<void> {
   const { doc } = await generateReport(type);
   const url = doc.output("bloburl");
   window.open(url, "_blank", "noopener,noreferrer");
+}
+
+/** Single-alert PDF (Live Alert detail). */
+export function downloadAlertPdf(a: Alert, nodeId?: string): void {
+  const doc = new jsPDF({ unit: "pt", format: "a4" });
+  const id = `SXDR-ALERT-${a.id}-${new Date().toISOString().replace(/[-:T.]/g, "").slice(0, 14)}`;
+  const dateStr = new Date().toLocaleString();
+  let y = 92;
+  y = sectionTitle(doc, y, "Alert Overview");
+  y = table(doc, y, ["Field", "Value"], [
+    ["Alert ID", String(a.id)],
+    ["Timestamp", a.timestamp ?? "—"],
+    ["Severity", a.threat_level ?? "—"],
+    ["Vector / Type", a.attack_vector ?? "Anomaly"],
+    ["Source", `${a.src_ip ?? "?"}${a.src_port ? ":" + a.src_port : ""}`],
+    ["Destination", `${a.dst_ip ?? "?"}${a.dst_port ? ":" + a.dst_port : ""}`],
+    ["Node ID", nodeId ?? "—"],
+    ["Protocol", a.protocol ?? "—"],
+    ["TCP flags", a.tcp_flags ?? "—"],
+    ["MITRE technique", a.mitre_technique ?? "—"],
+    ["Confidence", a.confidence != null ? `${Math.round(a.confidence)}%` : "—"],
+    ["Status", a.status ?? "open"],
+  ]);
+  if (a.explanation) { y = sectionTitle(doc, y, "AI Analysis"); y = paragraph(doc, y, a.explanation); }
+  y = sectionTitle(doc, y, "Recommended Action");
+  y = paragraph(doc, y, a.recommended_action ?? "Investigate the affected node, isolate if confirmed, and generate a forensic report.");
+  sectionTitle(doc, y, "Conclusion");
+  paragraph(doc, y + 18, `This ${a.threat_level ?? "alert"} requires operator review. Correlate with related alerts and the active MACE chains before remediation.`);
+
+  const pages = doc.getNumberOfPages();
+  const W = doc.internal.pageSize.getWidth();
+  const H = doc.internal.pageSize.getHeight();
+  for (let p = 1; p <= pages; p++) {
+    doc.setPage(p);
+    drawHeader(doc, "threats", id, dateStr);
+    doc.setTextColor(110, 125, 145); doc.setFontSize(7.5);
+    doc.text("SENTINEL XDR · Confidential — authorized recipients only", 40, H - 16);
+    doc.text(`Page ${p} of ${pages}`, W - 40, H - 16, { align: "right" });
+  }
+  doc.save(`${id}.pdf`);
 }
