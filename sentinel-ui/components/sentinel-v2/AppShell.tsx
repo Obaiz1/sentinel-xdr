@@ -5,6 +5,7 @@ import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
 import SentinelLogo from "./SentinelLogo";
 import AriaPanel from "./AriaPanel";
+import SearchOverlay from "./SearchOverlay";
 import { NavContext, type NavApi } from "./NavContext";
 import { IconAria, IconBell, IconLegacy, IconMenu, IconScan, IconSearch, IconSettings, IconSupport, IconDoc, IconUser, IconSun, IconMoon } from "./Icons";
 
@@ -24,6 +25,7 @@ export default function AppShell({ views }: { views: ViewDef[] }) {
   const [view, setView] = useState(firstView);
   const [drawer, setDrawer] = useState(false);
   const [aria, setAria] = useState(false);
+  const [search, setSearch] = useState(false);
   const [alertFilter, setAlertFilterState] = useState<string | null>(null);
   const [sync, setSync] = useState("");
   const [theme, setTheme] = useState<"dark" | "light">("dark");
@@ -47,6 +49,15 @@ export default function AppShell({ views }: { views: ViewDef[] }) {
     document.documentElement.setAttribute("data-theme", next);
     try { localStorage.setItem("sxdr-theme", next); } catch { /* ignore */ }
   }
+
+  // Ctrl/Cmd+K opens global search.
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k") { e.preventDefault(); setSearch((s) => !s); }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
 
   function scrollMainTop() {
     document.querySelector(".cc-main")?.scrollTo({ top: 0, behavior: "smooth" });
@@ -99,10 +110,12 @@ export default function AppShell({ views }: { views: ViewDef[] }) {
           <button type="button" className="cc-icon-btn cc-hamburger" aria-label="Open menu" onClick={() => setDrawer(true)}><IconMenu /></button>
           <Link href="/" style={{ textDecoration: "none" }}><SentinelLogo variant="full" /></Link>
 
-          <div className="sv-hide-mobile" style={{ display: "flex", alignItems: "center", gap: 8, marginLeft: 8, padding: "0 12px", height: 34, borderRadius: 9, border: "1px solid rgba(0,212,255,0.14)", background: "rgba(0,212,255,0.04)", color: "var(--text-muted)", minWidth: 180 }}>
+          <button type="button" className="sv-hide-mobile" onClick={() => setSearch(true)} aria-label="Open global search" style={{ display: "flex", alignItems: "center", gap: 8, marginLeft: 8, padding: "0 12px", height: 34, borderRadius: 9, border: "1px solid rgba(0,212,255,0.14)", background: "rgba(0,212,255,0.04)", color: "var(--text-muted)", minWidth: 220, cursor: "pointer", fontFamily: "var(--font-mono)", fontSize: 11 }}>
             <IconSearch style={{ width: 14, height: 14 }} />
-            <span style={{ fontFamily: "var(--font-mono)", fontSize: 11 }}>Query system…</span>
-          </div>
+            <span>Query system…</span>
+            <span style={{ marginLeft: "auto", fontSize: 9, opacity: 0.7, border: "1px solid rgba(0,212,255,0.2)", borderRadius: 4, padding: "1px 5px" }}>Ctrl K</span>
+          </button>
+          <button type="button" className="cc-icon-btn cc-mobile-search" onClick={() => setSearch(true)} aria-label="Search"><IconSearch /></button>
 
           <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 10 }}>
             <span className="cc-status-pill"><span className="sv-dot sv-pulse-dot" style={{ background: "var(--neon-green)", boxShadow: "0 0 8px var(--neon-green)" }} />SYSTEM LIVE</span>
@@ -146,6 +159,11 @@ export default function AppShell({ views }: { views: ViewDef[] }) {
               </motion.div>
             </>
           )}
+        </AnimatePresence>
+
+        {/* Global search (Ctrl/Cmd+K) */}
+        <AnimatePresence>
+          {search && <SearchOverlay onClose={() => setSearch(false)} onNavigate={(v) => { setView(v); scrollMainTop(); }} onOpenAria={() => setAria(true)} />}
         </AnimatePresence>
       </div>
     </NavContext.Provider>
