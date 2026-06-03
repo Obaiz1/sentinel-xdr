@@ -1,12 +1,39 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { api, ApiError, type SystemStatus, type InterfacesResponse } from "@/lib/apiClient";
+import { api, ApiError, type SystemStatus, type InterfacesResponse, type Statistics } from "@/lib/apiClient";
+import { downloadReport } from "@/lib/pdfReport";
 import { usePolling } from "./usePolling";
 import Card from "./Card";
 import Dropdown, { type DropdownOption } from "@/components/Dropdown";
 
 type SnifferUi = "idle" | "starting" | "running" | "stopping" | "error" | "offline" | "admin-required";
+
+interface SniffSummary {
+  durationMs: number;
+  captured: number;
+  flagged: number;
+  analyzed: number;
+  critical: number;
+  protocols: Array<{ protocol: string; count: number }>;
+  topSources: Array<{ src_ip: string; count: number }>;
+  mode: string;
+}
+
+function fmtDuration(ms: number): string {
+  const s = Math.max(0, Math.floor(ms / 1000));
+  const h = String(Math.floor(s / 3600)).padStart(2, "0");
+  const m = String(Math.floor((s % 3600) / 60)).padStart(2, "0");
+  const ss = String(s % 60).padStart(2, "0");
+  return `${h}:${m}:${ss}`;
+}
+
+function riskFromSummary(critical: number, flagged: number): { score: number; label: string; color: string } {
+  const score = Math.min(100, critical * 10 + Math.min(40, Math.round(flagged / 5)));
+  const label = score >= 70 ? "CRITICAL" : score >= 40 ? "ELEVATED" : "NOMINAL";
+  const color = score >= 70 ? "var(--neon-red)" : score >= 40 ? "var(--neon-orange)" : "var(--neon-green)";
+  return { score, label, color };
+}
 
 /** Friendly label for Windows raw interface names like \Device\NPF_{GUID}. */
 function friendly(raw: string): string {
@@ -52,6 +79,14 @@ export default function SnifferControlPanel() {
   const [demoOverride, setDemoOverride] = useState<boolean | null>(null);
   const [busy, setBusy] = useState(false);
 
+  // Live statistics (protocol breakdown / top sources) for the session view + summary.
+  const statsPoll = usePolling<Statistics>(() => api.getStatistics(), 4000);
+  const stats = statsPoll.data;
+  const [sessionStart, setSessionStart] = useState<number | null>(null);
+  const [, setTick] = useState(0); // drives the 1s session timer re-render
+  const [summary, setSummary] = useState<SniffSummary | null>(null);
+  const [pdfBusy, setPdfBusy] = useState(false);
+
   const demoOn = demoOverride ?? !!status?.demo?.running;
   const offline = statusPoll.state === "offline" || statusPoll.state === "error";
   // Cloud detection: backend reports its platform in /status. Non-Windows ⇒ no Npcap/live capture.
@@ -82,6 +117,16 @@ export default function SnifferControlPanel() {
     })();
   }, []);
 
+  // Session timer: tick every second while capturing; reset when idle.
+  useEffect(() => {
+    if (ui === "running") {
+      setSessionStart((prev) => prev ?? Date.now());
+      const id = setInterval(() => setTick((t) => t + 1), 1000);
+      return () => clearInterval(id);
+    }
+    if (ui === "idle") setSessionStart(null);
+  }, [ui]);
+
   async function toggle(target: "start" | "stop") {
     setBusy(true);
     setManualUi(null);
@@ -91,6 +136,25 @@ export default function SnifferControlPanel() {
       const r = await api.toggleSniffing(selected ? { interface: selected } : {});
       setMessage(r.message ?? "");
       setTransition(null);
+      if (target === "start") {
+        setSessionStart(Date.now());
+        setSummary(null);
+      } else {
+        // Build a session summary from the stop stats + a live statistics snapshot.
+        const st = (r.stats ?? {}) as Record<string, number>;
+        const dist = stats?.threat_distribution ?? [];
+        setSummary({
+          durationMs: sessionStart ? Date.now() - sessionStart : 0,
+          captured: st.packets_captured ?? status?.sniffer?.packets_captured ?? 0,
+          flagged: st.packets_flagged ?? 0,
+          analyzed: st.packets_analyzed ?? 0,
+          critical: dist.find((d) => d.threat_level === "Critical")?.count ?? 0,
+          protocols: stats?.protocol_breakdown ?? [],
+          topSources: stats?.top_sources ?? [],
+          mode: status?.demo?.running ? "Demo telemetry" : "Live capture",
+        });
+        setSessionStart(null);
+      }
       statusPoll.refetch(); // confirm running/idle from /status
     } catch (e) {
       setTransition(null);
@@ -206,6 +270,70 @@ export default function SnifferControlPanel() {
           <QueueMeter label="PACKET QUEUE" size={status?.queues?.packet_queue_size} max={status?.queues?.packet_queue_max} />
           <QueueMeter label="LLM QUEUE" size={status?.queues?.llm_queue_size} max={status?.queues?.llm_queue_max} />
         </div>
+
+        {/* Live session */}
+        {ui === "running" && (
+          <div style={{ padding: "12px 14px", borderRadius: 10, border: "1px solid rgba(0,255,136,0.3)", background: "rgba(0,255,136,0.06)" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+              <span className="sv-dot sv-pulse-dot" style={{ background: "var(--neon-green)", boxShadow: "0 0 8px var(--neon-green)" }} />
+              <span style={{ fontFamily: "var(--font-display)", fontSize: 11, letterSpacing: "0.14em", color: "var(--neon-green)" }}>SNIFFER LIVE</span>
+              <span style={{ marginLeft: "auto", fontFamily: "var(--font-mono)", fontSize: 14, color: "var(--neon-green)" }}>⏱ {sessionStart ? fmtDuration(Date.now() - sessionStart) : "00:00:00"}</span>
+            </div>
+            <div style={{ display: "flex", gap: 18, flexWrap: "wrap", marginTop: 8, fontFamily: "var(--font-mono)", fontSize: 11, color: "var(--text-muted)" }}>
+              <span>PACKETS <b style={{ color: "var(--neon-blue)" }}>{(status?.sniffer?.packets_captured ?? 0).toLocaleString()}</b></span>
+              <span>ANALYZED <b style={{ color: "var(--neon-green)" }}>{(status?.llm_analyzer?.analyzed_count ?? 0).toLocaleString()}</b></span>
+              <span>MODE <b style={{ color: demoOn ? "var(--neon-purple)" : "var(--neon-green)" }}>{demoOn ? "Demo" : "Live"}</b></span>
+            </div>
+            {(stats?.protocol_breakdown ?? []).length > 0 && (
+              <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginTop: 8 }}>
+                {(stats?.protocol_breakdown ?? []).slice(0, 6).map((p) => (
+                  <span key={p.protocol} style={{ fontFamily: "var(--font-mono)", fontSize: 9, padding: "2px 8px", borderRadius: 6, color: "var(--neon-blue)", border: "1px solid rgba(0,212,255,0.3)", background: "rgba(0,212,255,0.08)" }}>{p.protocol} · {p.count}</span>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Stop summary */}
+        {summary && ui !== "running" && (() => {
+          const risk = riskFromSummary(summary.critical, summary.flagged);
+          return (
+            <div style={{ padding: "14px 16px", borderRadius: 10, border: "1px solid rgba(0,212,255,0.22)", background: "rgba(0,212,255,0.04)" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", marginBottom: 10 }}>
+                <span style={{ fontFamily: "var(--font-display)", fontSize: 12, letterSpacing: "0.14em" }}>SESSION SUMMARY</span>
+                <span className="cc-badge" style={{ marginLeft: "auto", color: risk.color, border: `1px solid ${risk.color}`, background: `${risk.color}14` }}>RISK {risk.score}/100 · {risk.label}</span>
+              </div>
+              <div style={{ display: "flex", gap: 16, flexWrap: "wrap", fontFamily: "var(--font-mono)", fontSize: 11, color: "var(--text-muted)" }}>
+                <span>DURATION <b style={{ color: "var(--text-primary)" }}>{fmtDuration(summary.durationMs)}</b></span>
+                <span>CAPTURED <b style={{ color: "var(--neon-blue)" }}>{summary.captured.toLocaleString()}</b></span>
+                <span>FLAGGED <b style={{ color: "var(--neon-orange)" }}>{summary.flagged.toLocaleString()}</b></span>
+                <span>ANALYZED <b style={{ color: "var(--neon-green)" }}>{summary.analyzed.toLocaleString()}</b></span>
+                <span>CRITICAL <b style={{ color: "var(--neon-red)" }}>{summary.critical}</b></span>
+                <span>MODE <b style={{ color: "var(--text-primary)" }}>{summary.mode}</b></span>
+              </div>
+              {summary.protocols.length > 0 && (
+                <div style={{ marginTop: 10 }}>
+                  <div style={{ fontFamily: "var(--font-mono)", fontSize: 9.5, color: "var(--text-muted)", marginBottom: 5 }}>PROTOCOL BREAKDOWN</div>
+                  <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+                    {summary.protocols.slice(0, 8).map((p) => <span key={p.protocol} style={{ fontFamily: "var(--font-mono)", fontSize: 9, padding: "2px 8px", borderRadius: 6, color: "var(--neon-blue)", border: "1px solid rgba(0,212,255,0.3)" }}>{p.protocol} · {p.count}</span>)}
+                  </div>
+                </div>
+              )}
+              {summary.topSources.length > 0 && (
+                <div style={{ marginTop: 10, fontFamily: "var(--font-mono)", fontSize: 10.5, color: "var(--text-muted)" }}>
+                  TOP SOURCES: <span style={{ color: "var(--text-primary)" }}>{summary.topSources.slice(0, 5).map((s) => `${s.src_ip} (${s.count})`).join(", ")}</span>
+                </div>
+              )}
+              <div style={{ marginTop: 10, fontFamily: "var(--font-mono)", fontSize: 10.5, color: "var(--neon-green)", lineHeight: 1.6 }}>
+                → Recommended: {summary.critical > 0 ? `review ${summary.critical} critical detection(s), block repeat-offender source IPs, ` : ""}archive this session and generate a forensic report.
+              </div>
+              <button type="button" className="sv-btn" disabled={pdfBusy} style={{ marginTop: 12, width: "100%" }}
+                onClick={async () => { setPdfBusy(true); try { await downloadReport("packets"); } finally { setPdfBusy(false); } }}>
+                {pdfBusy ? "Generating…" : "📄 Generate Sniffing PDF Report"}
+              </button>
+            </div>
+          );
+        })()}
 
         {message && (
           <p
