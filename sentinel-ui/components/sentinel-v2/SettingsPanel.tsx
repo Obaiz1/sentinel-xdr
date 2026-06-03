@@ -1,8 +1,21 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { API_BASE_URL } from "@/lib/apiClient";
+import { downloadReport, previewReport, type ReportType } from "@/lib/pdfReport";
 import Card from "./Card";
+
+function ReportRow({ type, label }: { type: ReportType; label: string }) {
+  const [busy, setBusy] = useState<"" | "dl" | "pv">("");
+  return (
+    <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "7px 0", borderBottom: "1px solid rgba(0,212,255,0.06)", flexWrap: "wrap" }}>
+      <span style={{ flex: 1, minWidth: 130, fontFamily: "var(--font-mono)", fontSize: 11, color: "var(--text-primary)" }}>{label}</span>
+      <button type="button" className="sv-btn" style={{ height: 32, minHeight: 32 }} disabled={!!busy} onClick={async () => { setBusy("dl"); try { await downloadReport(type); } finally { setBusy(""); } }}>{busy === "dl" ? "…" : "📄 PDF"}</button>
+      <button type="button" className="sv-btn sv-btn-ghost" style={{ height: 32, minHeight: 32 }} disabled={!!busy} onClick={async () => { setBusy("pv"); try { await previewReport(type); } finally { setBusy(""); } }}>{busy === "pv" ? "…" : "👁 Preview"}</button>
+    </div>
+  );
+}
 
 function Row({ label, value, valueColor = "var(--neon-blue)" }: { label: string; value: string; valueColor?: string }) {
   return (
@@ -50,6 +63,17 @@ export default function SettingsPanel() {
           </p>
         </div>
         <Row label="Live capture env" value="NEXT_PUBLIC_API_BASE_URL" valueColor="var(--neon-blue)" />
+
+        <div style={{ marginTop: 18, paddingTop: 14, borderTop: "1px solid rgba(0,212,255,0.1)" }}>
+          <div style={{ fontFamily: "var(--font-display)", fontSize: 12, letterSpacing: "0.14em", color: "var(--neon-green)", marginBottom: 8 }}>REPORTS (PDF)</div>
+          <p style={{ fontFamily: "var(--font-mono)", fontSize: 10, color: "var(--text-muted)", lineHeight: 1.6, marginBottom: 8 }}>
+            Branded SENTINEL XDR reports built from live backend data (metrics, threats, MACE chains, MITRE mapping, recommended actions).
+          </p>
+          <ReportRow type="full" label="Full Incident Report" />
+          <ReportRow type="threats" label="Critical Threat Report" />
+          <ReportRow type="mace" label="MACE Attack Chain Report" />
+          <ReportRow type="packets" label="Packet Sniffing Report" />
+        </div>
       </div>
     </Card>
   );
