@@ -240,8 +240,10 @@
 }
 
 /* Hide non-essential header chrome on small screens to avoid overflow */
+.cc-mobile-search { display: none; }
 @media (max-width: 767px) {
   .sv-hide-mobile { display: none !important; }
+  .cc-mobile-search { display: grid; }
 }
 
 /* ── Reduced motion ───────────────────────────────────────────────── */
@@ -477,6 +479,16 @@
   border: 1px solid rgba(0,212,255,0.22); box-shadow: 0 24px 70px rgba(0,0,0,0.6);
 }
 @media (max-width: 560px) { .cc-modal { padding: 16px; max-height: 92dvh; } }
+
+/* ── Global search (command palette) ────────────────────────────────── */
+.cc-search {
+  position: fixed; z-index: 91; top: 78px; left: 0; right: 0; margin: 0 auto;
+  width: min(680px, 94vw); max-height: 72dvh; display: flex; flex-direction: column;
+  padding: 16px; border-radius: 14px; overflow: hidden;
+  background: linear-gradient(180deg, rgba(8, 18, 38, 0.99), rgba(5, 11, 24, 0.99));
+  border: 1px solid rgba(0, 212, 255, 0.25); box-shadow: 0 24px 70px rgba(0, 0, 0, 0.6);
+}
+[data-theme="light"] .cc-search { background: linear-gradient(180deg, #ffffff, #f3f7fb); border-color: rgba(2, 110, 150, 0.2); }
 
 /* ════════════════════════════════════════════════════════════════════
    LIGHT THEME — surface overrides ([data-theme="light"]). Tokens flip in
