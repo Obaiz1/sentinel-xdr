@@ -58,7 +58,7 @@ export default function ThreatIntelligenceDashboard() {
         <StateMessage
           state={state}
           onRetry={refetch}
-          emptyHint="No telemetry yet. Start Demo Mode or the sniffer to populate the threat charts."
+          emptyHint="No threat data yet. Start Demo Mode for cloud preview, or run the local backend sniffer with Npcap for live capture."
         />
       </Card>
     );

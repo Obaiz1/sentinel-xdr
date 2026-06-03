@@ -39,6 +39,17 @@ export default function SettingsPanel() {
           The root route &quot;/&quot; renders the UI chosen by NEXT_PUBLIC_UI_VERSION (default legacy). Flip it to
           &quot;new&quot; and redeploy to make the Stitch UI the default. /legacy and /new always force their UI.
         </p>
+
+        <div style={{ marginTop: 18, paddingTop: 14, borderTop: "1px solid rgba(0,212,255,0.1)" }}>
+          <div style={{ fontFamily: "var(--font-display)", fontSize: 12, letterSpacing: "0.14em", color: "var(--neon-orange)", marginBottom: 8 }}>LIVE SNIFFER SETUP</div>
+          <p style={{ fontFamily: "var(--font-mono)", fontSize: 10.5, color: "var(--text-muted)", lineHeight: 1.7 }}>
+            Cloud/Vercel cannot sniff packets directly. For live capture, run the Python backend/agent on the target
+            network machine with <b style={{ color: "var(--text-primary)" }}>Npcap installed</b> and{" "}
+            <b style={{ color: "var(--text-primary)" }}>Administrator permission</b>, then point the frontend at it via{" "}
+            <b style={{ color: "var(--neon-blue)" }}>NEXT_PUBLIC_API_BASE_URL</b>. For cloud demos, use Demo Mode.
+          </p>
+        </div>
+        <Row label="Live capture env" value="NEXT_PUBLIC_API_BASE_URL" valueColor="var(--neon-blue)" />
       </div>
     </Card>
   );
