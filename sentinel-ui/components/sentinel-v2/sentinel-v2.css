@@ -463,6 +463,21 @@
   border-bottom: 1px solid rgba(0,212,255,0.08); font-family: var(--font-mono); font-size: 12px;
 }
 
+/* ── Detail modal (KPI card deep-dive list) ─────────────────────────── */
+.cc-modal-backdrop {
+  position: fixed; inset: 0; z-index: 90; background: rgba(2,6,14,0.72);
+  -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px);
+}
+.cc-modal {
+  position: fixed; inset: 0; margin: auto; z-index: 91;
+  width: min(880px, 94vw); height: max-content; max-height: 86dvh;
+  display: flex; flex-direction: column; padding: 20px;
+  border-radius: 16px; overflow: hidden;
+  background: linear-gradient(180deg, rgba(8,18,38,0.99), rgba(5,11,24,0.99));
+  border: 1px solid rgba(0,212,255,0.22); box-shadow: 0 24px 70px rgba(0,0,0,0.6);
+}
+@media (max-width: 560px) { .cc-modal { padding: 16px; max-height: 92dvh; } }
+
 /* ── Info banner + status badges (Control Panel) ────────────────────── */
 .cc-banner { display: flex; gap: 11px; align-items: flex-start; padding: 12px 14px; border-radius: 12px; font-family: var(--font-mono); font-size: 11px; line-height: 1.55; }
 .cc-badge-row { display: flex; gap: 7px; flex-wrap: wrap; }
