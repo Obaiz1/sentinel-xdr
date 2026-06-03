@@ -1,9 +1,10 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { api, type Alert, type AlertsResponse } from "@/lib/apiClient";
 import { usePolling } from "./usePolling";
+import { useNav } from "./NavContext";
 import Card from "./Card";
 import StateMessage from "./StateMessage";
 
@@ -65,7 +66,14 @@ function AlertRow({ alert }: { alert: Alert }) {
 }
 
 export default function LiveAlertsStream() {
+  const nav = useNav();
   const [level, setLevel] = useState<Level>("All");
+  // Honor a filter requested from a KPI card (e.g. "Critical Threats").
+  useEffect(() => {
+    if (nav.alertFilter && (LEVELS as readonly string[]).includes(nav.alertFilter)) {
+      setLevel(nav.alertFilter as Level);
+    }
+  }, [nav.alertFilter]);
   const { data, state, refetch } = usePolling<AlertsResponse>(
     () => api.getAlerts({ limit: 50 }),
     3000,
@@ -97,7 +105,7 @@ export default function LiveAlertsStream() {
         </div>
 
         {state !== "data" ? (
-          <StateMessage state={state} onRetry={refetch} emptyHint="No alerts yet. Start Demo Mode or the sniffer to see live detections." />
+          <StateMessage state={state} onRetry={refetch} emptyHint="No alerts detected yet. Use Demo Mode in cloud preview, or start the local packet sniffer (Npcap + Admin)." />
         ) : filtered.length === 0 ? (
           <StateMessage state="empty" emptyHint={`No ${level} alerts in the current window.`} />
         ) : (

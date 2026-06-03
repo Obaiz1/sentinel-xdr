@@ -132,7 +132,7 @@ function post<T>(path: string, body?: unknown, opts?: RequestOptions): Promise<T
 /* ── Types (shapes from API_REQUIREMENTS_MAP.md) ─────────────────────── */
 
 export interface SystemStatus {
-  system?: { status?: string; version?: string };
+  system?: { status?: string; version?: string; name?: string; platform?: string };
   sniffer?: { is_running?: boolean; packets_captured?: number; interface?: string };
   demo?: { running?: boolean; generated?: number };
   triage?: { packets_flagged?: number };
