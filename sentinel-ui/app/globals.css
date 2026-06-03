@@ -17,6 +17,22 @@
   --font-display: 'Orbitron', monospace;
 }
 
+/* ── Light theme token overrides (toggled via [data-theme="light"]) ── */
+[data-theme="light"] {
+  color-scheme: light;
+  --bg-deep: #eef2f7;
+  --bg-card: rgba(255, 255, 255, 0.95);
+  --bg-card-border: rgba(2, 110, 150, 0.22);
+  --text-primary: #16233a;
+  --text-muted: #5a6b82;
+  --neon-blue: #0480ad;
+  --neon-green: #0a8f57;
+  --neon-red: #d11149;
+  --neon-orange: #c06a00;
+  --neon-purple: #7c3aed;
+  --neon-yellow: #b8860b;
+}
+
 @theme inline {
   --color-background: var(--bg-deep);
   --color-foreground: var(--text-primary);

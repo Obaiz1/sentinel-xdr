@@ -30,6 +30,12 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
           color: "var(--text-primary)",
         }}
       >
+        {/* No-flash theme: apply saved preference before paint (default dark). */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var t=localStorage.getItem('sxdr-theme');document.documentElement.setAttribute('data-theme', t==='light'?'light':'dark');}catch(e){document.documentElement.setAttribute('data-theme','dark');}})();`,
+          }}
+        />
         {children}
       </body>
     </html>

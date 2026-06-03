@@ -72,3 +72,9 @@ export const IconMenu = (p: SVGProps<SVGSVGElement>) => (
 export const IconSend = (p: SVGProps<SVGSVGElement>) => (
   <svg {...base(p)}><path d="M4 12 20 4l-6 16-3-7-7-1z" /></svg>
 );
+export const IconSun = (p: SVGProps<SVGSVGElement>) => (
+  <svg {...base(p)}><circle cx="12" cy="12" r="4" /><path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.5 1.5M17.5 17.5 19 19M19 5l-1.5 1.5M6.5 17.5 5 19" /></svg>
+);
+export const IconMoon = (p: SVGProps<SVGSVGElement>) => (
+  <svg {...base(p)}><path d="M21 12.8A8 8 0 1 1 11.2 3a6 6 0 0 0 9.8 9.8z" /></svg>
+);

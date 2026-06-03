@@ -6,7 +6,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import SentinelLogo from "./SentinelLogo";
 import AriaPanel from "./AriaPanel";
 import { NavContext, type NavApi } from "./NavContext";
-import { IconAria, IconBell, IconLegacy, IconMenu, IconScan, IconSearch, IconSettings, IconSupport, IconDoc, IconUser } from "./Icons";
+import { IconAria, IconBell, IconLegacy, IconMenu, IconScan, IconSearch, IconSettings, IconSupport, IconDoc, IconUser, IconSun, IconMoon } from "./Icons";
 
 export interface ViewDef {
   id: string;
@@ -26,6 +26,7 @@ export default function AppShell({ views }: { views: ViewDef[] }) {
   const [aria, setAria] = useState(false);
   const [alertFilter, setAlertFilterState] = useState<string | null>(null);
   const [sync, setSync] = useState("");
+  const [theme, setTheme] = useState<"dark" | "light">("dark");
 
   useEffect(() => {
     const tick = () => setSync(new Date().toTimeString().slice(0, 8));
@@ -33,6 +34,19 @@ export default function AppShell({ views }: { views: ViewDef[] }) {
     const id = setInterval(tick, 1000);
     return () => clearInterval(id);
   }, []);
+
+  // Theme: read saved preference (no-flash script in layout sets it pre-paint).
+  useEffect(() => {
+    const saved = (typeof document !== "undefined" && document.documentElement.getAttribute("data-theme")) as "dark" | "light" | null;
+    if (saved === "light" || saved === "dark") setTheme(saved);
+  }, []);
+
+  function toggleTheme() {
+    const next = theme === "dark" ? "light" : "dark";
+    setTheme(next);
+    document.documentElement.setAttribute("data-theme", next);
+    try { localStorage.setItem("sxdr-theme", next); } catch { /* ignore */ }
+  }
 
   function scrollMainTop() {
     document.querySelector(".cc-main")?.scrollTo({ top: 0, behavior: "smooth" });
@@ -93,6 +107,7 @@ export default function AppShell({ views }: { views: ViewDef[] }) {
           <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 10 }}>
             <span className="cc-status-pill"><span className="sv-dot sv-pulse-dot" style={{ background: "var(--neon-green)", boxShadow: "0 0 8px var(--neon-green)" }} />SYSTEM LIVE</span>
             {sync && <span className="cc-head-meta">Last sync: {sync}</span>}
+            <button type="button" className="cc-icon-btn" aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"} onClick={toggleTheme}>{theme === "dark" ? <IconSun /> : <IconMoon />}</button>
             <button type="button" className="cc-icon-btn sv-hide-mobile" aria-label="Notifications"><IconBell /></button>
             <button type="button" className="cc-icon-btn sv-hide-mobile" aria-label="Settings" onClick={() => setView("settings")}><IconSettings /></button>
             <button type="button" className="cc-icon-btn" aria-label="Account"><IconUser /></button>
