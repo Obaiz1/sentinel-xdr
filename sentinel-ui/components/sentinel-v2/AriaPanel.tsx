@@ -7,17 +7,35 @@ import { IconAria, IconSend } from "./Icons";
 interface Msg { role: "user" | "assistant"; content: string }
 
 /**
- * AriaPanel — the ARIA Copilot chat surface (screenshots 03/06 right rail + 17/22).
- * Talks ONLY to the backend /api/aria/chat (streamed). No direct LLM calls.
- * Reused by the desktop rail and the mobile bottom-sheet.
+ * cleanAria — strip markdown so ARIA reads as clean human text in the UI.
+ * Handles **bold**, * / - bullets, ### headers, [text](url) links, `code`,
+ * and collapses excess blank lines. Defensive: works even if the backend
+ * still returns markdown.
  */
+function cleanAria(raw: string): string {
+  if (!raw) return raw;
+  let t = raw;
+  t = t.replace(/\*\*(.+?)\*\*/g, "$1");          // **bold** → bold
+  t = t.replace(/__(.+?)__/g, "$1");               // __bold__ → bold
+  t = t.replace(/\*(.+?)\*/g, "$1");               // *italic* → italic
+  t = t.replace(/\[([^\]]+)\]\((?:https?:)?[^)]*\)/g, "$1"); // [text](url) → text
+  t = t.replace(/^#{1,6}\s*/gm, "");               // ### headers → plain
+  t = t.replace(/`([^`]+)`/g, "$1");               // `code` → code
+  t = t.replace(/^\s*[*\-•]\s+/gm, "• ");          // * / - bullets → •
+  t = t.replace(/^\s*\d+\.\s+/gm, (m) => m.trim() + " "); // keep numbered lists tidy
+  t = t.replace(/\n{3,}/g, "\n\n");                // collapse blank lines
+  return t.trim();
+}
+
+const GREETING =
+  "Hello, I'm ARIA. I can help you analyze live threats, packets, MACE chains, reports, and recommendations.\n\nTry: \"Explain critical threats\", \"Summarize packet sniffing\", or \"Show MACE chain details\".";
+
 export default function AriaPanel({ onClose }: { onClose?: () => void }) {
-  const [msgs, setMsgs] = useState<Msg[]>([
-    { role: "assistant", content: "ARIA online. Ask me about active threats, alerts, attack chains, or engine status." },
-  ]);
+  const [msgs, setMsgs] = useState<Msg[]>([{ role: "assistant", content: GREETING }]);
   const [input, setInput] = useState("");
   const [streaming, setStreaming] = useState(false);
-  const [now, setNow] = useState("--:--:--"); // set after mount to avoid SSR/client hydration mismatch
+  const [detailed, setDetailed] = useState(false);
+  const [now, setNow] = useState("--:--:--");
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => { setNow(new Date().toTimeString().slice(0, 8)); }, []);
@@ -27,11 +45,15 @@ export default function AriaPanel({ onClose }: { onClose?: () => void }) {
     const text = input.trim();
     if (!text || streaming) return;
     const history = msgs.map((m) => ({ role: m.role, content: m.content }));
+    // Length control: default short; "Detailed" asks ARIA for a fuller report.
+    const outgoing = detailed
+      ? `${text}\n\n(Give a detailed report with evidence and steps.)`
+      : `${text}\n\n(Answer briefly in plain text, no markdown.)`;
     setMsgs((m) => [...m, { role: "user", content: text }, { role: "assistant", content: "" }]);
     setInput(""); setStreaming(true);
     try {
       let acc = "";
-      for await (const chunk of streamAriaChat(text, history)) {
+      for await (const chunk of streamAriaChat(outgoing, history)) {
         acc += chunk;
         setMsgs((m) => { const c = [...m]; c[c.length - 1] = { role: "assistant", content: acc }; return c; });
       }
@@ -56,13 +78,28 @@ export default function AriaPanel({ onClose }: { onClose?: () => void }) {
       </div>
 
       <div ref={scrollRef} className="cc-aria-log">
-        <div className="cc-aria-sys">[{now}] <b>SYS&gt;</b> Initializing MACE chain analysis…</div>
         <div className="cc-aria-sys">[{now}] <b>SYS&gt;</b> Telemetry link established. Awaiting operator query.</div>
         {msgs.map((m, i) => (
           <div key={i} className={`sv-bubble ${m.role === "user" ? "sv-bubble-user" : "sv-bubble-ai"}`}>
-            {m.content || (streaming && i === msgs.length - 1 ? "▍" : "")}
+            {cleanAria(m.content) || (streaming && i === msgs.length - 1 ? "▍" : "")}
           </div>
         ))}
+      </div>
+
+      <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "0 12px 6px" }}>
+        <button
+          type="button" onClick={() => setDetailed((d) => !d)}
+          aria-label="Toggle detailed answers"
+          style={{
+            fontFamily: "var(--font-mono)", fontSize: 9.5, padding: "3px 9px", borderRadius: 999, cursor: "pointer",
+            border: `1px solid ${detailed ? "rgba(168,85,247,0.5)" : "rgba(74,96,128,0.4)"}`,
+            background: detailed ? "rgba(168,85,247,0.14)" : "transparent",
+            color: detailed ? "var(--neon-purple)" : "var(--text-muted)",
+          }}
+        >
+          {detailed ? "◉ Detailed report" : "○ Detailed report"}
+        </button>
+        <span style={{ fontFamily: "var(--font-mono)", fontSize: 9, color: "var(--text-muted)" }}>{detailed ? "longer answers" : "short answers"}</span>
       </div>
 
       <div className="cc-aria-input">
