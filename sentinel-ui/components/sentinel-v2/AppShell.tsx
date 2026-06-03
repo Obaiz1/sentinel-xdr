@@ -1,93 +1,135 @@
 "use client";
 
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useState, type ComponentType, type ReactNode, type SVGProps } from "react";
 import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
 import SentinelLogo from "./SentinelLogo";
+import AriaPanel from "./AriaPanel";
+import { IconAria, IconBell, IconLegacy, IconMenu, IconScan, IconSearch, IconSettings, IconSupport, IconDoc, IconUser } from "./Icons";
 
-export interface NavSection { id: string; label: string; color: string }
-
-const NAV: NavSection[] = [
-  { id: "overview", label: "Command Center", color: "#00d4ff" },
-  { id: "control", label: "Control Panel", color: "#00ff88" },
-  { id: "engines", label: "XDR Engine Suite", color: "#a855f7" },
-  { id: "threat-intel", label: "Threat Intelligence", color: "#ff9900" },
-  { id: "chains", label: "MACE Chains", color: "#ff9900" },
-  { id: "alerts", label: "Live Alerts", color: "#ff3366" },
-  { id: "settings", label: "Settings", color: "#4a6080" },
-];
-
-function NavList({ active, onPick }: { active: string; onPick: (id: string) => void }) {
-  return (
-    <>
-      {NAV.map((s) => (
-        <button key={s.id} type="button" className="sv-nav-item" data-active={active === s.id} onClick={() => onPick(s.id)}>
-          <span className="sv-nav-dot" style={{ background: s.color, color: s.color }} />
-          {s.label}
-        </button>
-      ))}
-    </>
-  );
+export interface ViewDef {
+  id: string;
+  label: string;
+  color: string;
+  Icon: ComponentType<SVGProps<SVGSVGElement>>;
+  node?: ReactNode;
+  badge?: string;
+  dot?: string;
+  aria?: boolean;
 }
 
-export default function AppShell({ children }: { children: ReactNode }) {
-  const [active, setActive] = useState("overview");
+export default function AppShell({ views }: { views: ViewDef[] }) {
+  const [view, setView] = useState(views[0].id);
   const [drawer, setDrawer] = useState(false);
+  const [sheet, setSheet] = useState(false);
+  const [sync, setSync] = useState("");
 
-  // Scroll-spy: highlight the section currently in view.
   useEffect(() => {
-    const obs = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((e) => { if (e.isIntersecting) setActive(e.target.id); });
-      },
-      { rootMargin: "-30% 0px -60% 0px", threshold: 0 },
-    );
-    NAV.forEach((s) => { const el = document.getElementById(s.id); if (el) obs.observe(el); });
-    return () => obs.disconnect();
+    const tick = () => setSync(new Date().toTimeString().slice(0, 8));
+    tick();
+    const id = setInterval(tick, 1000);
+    return () => clearInterval(id);
   }, []);
 
-  function go(id: string) {
+  function pick(v: ViewDef) {
     setDrawer(false);
-    document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
+    if (v.aria) { if (window.innerWidth <= 1280) { setSheet(true); return; } }
+    setView(v.id);
   }
 
-  return (
-    <div className="sv-root">
-      <div className="sv-bg" aria-hidden />
-      <div className="sv-shell">
-        <header className="sv-header">
-          <button type="button" className="sv-nav-item sv-hamburger" aria-label="Open menu" onClick={() => setDrawer(true)} style={{ width: 40, height: 40, justifyContent: "center", padding: 0 }}>
-            ☰
-          </button>
-          <Link href="/" style={{ textDecoration: "none" }}><SentinelLogo variant="full" /></Link>
-          <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 12 }}>
-            <span className="sv-pill sv-hide-mobile" style={{ color: "var(--neon-green)", border: "1px solid rgba(0,255,136,0.3)", background: "rgba(0,255,136,0.1)" }}>
-              <span className="sv-dot sv-pulse-dot" style={{ background: "var(--neon-green)", boxShadow: "0 0 8px var(--neon-green)" }} />
-              COMMAND CENTER
-            </span>
-            <Link href="/legacy" className="sv-btn sv-btn-ghost" style={{ textDecoration: "none", height: 36, minHeight: 36 }}>Legacy</Link>
-          </div>
-        </header>
+  const active = views.find((v) => v.id === view) ?? views[0];
+  const showRail = !active.aria;
 
-        <div className="sv-body">
-          <aside className="sv-sidebar">
-            <NavList active={active} onPick={go} />
-          </aside>
-          <main className="sv-content">{children}</main>
+  const renderNav = (inDrawer = false): ReactNode => (
+    <>
+      {views.map((v) => (
+        <button key={v.id} type="button" className="cc-nav" data-active={view === v.id} onClick={() => pick(v)}>
+          <v.Icon style={{ color: view === v.id ? v.color : undefined }} />
+          {v.label}
+          {v.badge && <span className="cc-nav-badge">{v.badge}</span>}
+          {v.dot && <span className="cc-nav-dot" style={{ background: v.dot, boxShadow: `0 0 8px ${v.dot}` }} />}
+        </button>
+      ))}
+      {!inDrawer && <div className="cc-side-spacer" />}
+      <button type="button" className="cc-scan" onClick={() => setView("control")}>
+        <IconScan style={{ width: 16, height: 16 }} /> INITIATE SCAN
+      </button>
+      <div className="cc-side-foot">
+        <a className="cc-side-link" href="https://github.com" target="_blank" rel="noreferrer noopener"><IconSupport /> Support</a>
+        <a className="cc-side-link" href="https://github.com" target="_blank" rel="noreferrer noopener"><IconDoc /> Documentation</a>
+        <Link className="cc-side-link" href="/legacy" style={{ color: "var(--text-muted)", opacity: 0.7 }}><IconLegacy /> Legacy UI</Link>
+      </div>
+    </>
+  );
+
+  return (
+    <div className="cc-root">
+      <div className="cc-bg" aria-hidden />
+
+      <header className="cc-header">
+        <button type="button" className="cc-icon-btn cc-hamburger" aria-label="Open menu" onClick={() => setDrawer(true)}><IconMenu /></button>
+        <Link href="/" style={{ textDecoration: "none" }}><SentinelLogo variant="full" /></Link>
+
+        <div className="sv-hide-mobile" style={{ display: "flex", alignItems: "center", gap: 8, marginLeft: 8, padding: "0 12px", height: 34, borderRadius: 9, border: "1px solid rgba(0,212,255,0.14)", background: "rgba(0,212,255,0.04)", color: "var(--text-muted)", minWidth: 180 }}>
+          <IconSearch style={{ width: 14, height: 14 }} />
+          <span style={{ fontFamily: "var(--font-mono)", fontSize: 11 }}>Query system…</span>
         </div>
+
+        <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 10 }}>
+          <span className="cc-status-pill"><span className="sv-dot sv-pulse-dot" style={{ background: "var(--neon-green)", boxShadow: "0 0 8px var(--neon-green)" }} />SYSTEM LIVE</span>
+          {sync && <span className="cc-head-meta">Last sync: {sync}</span>}
+          <button type="button" className="cc-icon-btn sv-hide-mobile" aria-label="Notifications"><IconBell /></button>
+          <button type="button" className="cc-icon-btn sv-hide-mobile" aria-label="Settings" onClick={() => setView("settings")}><IconSettings /></button>
+          <button type="button" className="cc-icon-btn" aria-label="Account"><IconUser /></button>
+        </div>
+      </header>
+
+      <div className="cc-body">
+        <aside className="cc-side">{renderNav()}</aside>
+
+        <main className="cc-main">
+          {active.aria ? <AriaFullView /> : active.node}
+        </main>
+
+        {showRail && <aside className="cc-aria"><AriaPanel /></aside>}
       </div>
 
+      {/* Mobile drawer */}
       <AnimatePresence>
         {drawer && (
           <>
             <motion.div className="sv-drawer-backdrop" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setDrawer(false)} />
-            <motion.nav className="sv-drawer" initial={{ x: -300 }} animate={{ x: 0 }} exit={{ x: -300 }} transition={{ type: "tween", duration: 0.25 }}>
-              <div style={{ marginBottom: 16 }}><SentinelLogo variant="full" /></div>
-              <NavList active={active} onPick={go} />
+            <motion.nav className="sv-drawer" initial={{ x: -300 }} animate={{ x: 0 }} exit={{ x: -300 }} transition={{ type: "tween", duration: 0.25 }} style={{ width: "min(86vw, 300px)" }}>
+              <div style={{ marginBottom: 14 }}><SentinelLogo variant="full" /></div>
+              {renderNav(true)}
             </motion.nav>
           </>
         )}
       </AnimatePresence>
+
+      {/* Mobile/tablet ARIA quick-open */}
+      <button type="button" className="sv-aria-fab cc-aria-fab2" aria-label="Open ARIA copilot" onClick={() => setSheet(true)}>
+        <span className="sv-aria-ring"><IconAria style={{ width: 18, height: 18, color: "var(--neon-purple)" }} /></span>
+      </button>
+      <AnimatePresence>
+        {sheet && (
+          <>
+            <motion.div className="sv-drawer-backdrop" style={{ zIndex: 70 }} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setSheet(false)} />
+            <motion.div className="sv-aria-panel" initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 24 }} transition={{ duration: 0.25 }}>
+              <AriaPanel onClose={() => setSheet(false)} />
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+
+/** ARIA as a full main view (used on mobile / when the rail is hidden). */
+function AriaFullView() {
+  return (
+    <div className="sv-card" style={{ display: "flex", flexDirection: "column", height: "min(78dvh, 680px)", overflow: "hidden" }}>
+      <AriaPanel />
     </div>
   );
 }

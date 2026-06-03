@@ -1,0 +1,31 @@
+# Render Blueprint for the SENTINEL XDR backend (FastAPI).
+# Deploy: push this repo to GitHub → Render → New → Blueprint → pick this repo.
+# Docs: https://render.com/docs/blueprint-spec
+#
+# NOTE ON RAM: chromadb (RAG engine) + onnxruntime are memory-heavy. The free
+# plan (512 MB) MAY OOM on boot. If the service crashes with "Out of memory",
+# upgrade `plan: free` → `plan: starter` (>=512 MB→2 GB), or use a host with
+# more RAM (Railway / Fly.io / HF Spaces). Live packet sniffing (Npcap) does NOT
+# work in the cloud — Demo Mode + all dashboards/engines/ARIA still do.
+
+services:
+  - type: web
+    name: sentinel-xdr-backend
+    runtime: python
+    plan: free
+    region: oregon
+    branch: stitch-ui-integration
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /status
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.12.7"        # local dev is 3.14; pin 3.12 for cloud wheel availability
+      - key: DEBUG
+        value: "false"          # disables uvicorn reload-loop in production
+      - key: LLM_PROVIDER
+        value: nvidia
+      - key: NVIDIA_MODEL
+        value: meta/llama-3.3-70b-instruct
+      - key: NVIDIA_API_KEY
+        sync: false             # set this secret in the Render dashboard (nvapi-...)

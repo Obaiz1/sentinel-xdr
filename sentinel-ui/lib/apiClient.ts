@@ -269,6 +269,7 @@ export const api = {
     return get<AlertsResponse>(`/alerts${qs ? `?${qs}` : ""}`);
   },
   getRecentAlerts: (opts?: RequestOptions) => get<RecentAlertsResponse>("/alerts/recent", opts),
+  getAlertById: (id: number | string, opts?: RequestOptions) => get<Alert>(`/alerts/${id}`, opts),
 
   // Analytics
   getStatistics: (opts?: RequestOptions) => get<Statistics>("/statistics", opts),
