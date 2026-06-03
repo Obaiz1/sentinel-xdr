@@ -478,6 +478,38 @@
 }
 @media (max-width: 560px) { .cc-modal { padding: 16px; max-height: 92dvh; } }
 
+/* ════════════════════════════════════════════════════════════════════
+   LIGHT THEME — surface overrides ([data-theme="light"]). Tokens flip in
+   globals.css; these adjust the hardcoded dark surfaces / glass panels.
+   The HUD globe panel (.cc-hud) stays dark on purpose (it's a screen).
+   ════════════════════════════════════════════════════════════════════ */
+[data-theme="light"] body { background: #eef2f7; }
+[data-theme="light"] .cc-bg, [data-theme="light"] .sv-bg {
+  background:
+    radial-gradient(circle at 18% 12%, rgba(2, 130, 170, 0.06), transparent 42%),
+    radial-gradient(circle at 82% 78%, rgba(124, 58, 237, 0.06), transparent 45%),
+    radial-gradient(circle at 1px 1px, rgba(2, 130, 170, 0.05) 1px, transparent 0);
+  background-size: 100% 100%, 100% 100%, 40px 40px;
+}
+[data-theme="light"] .sv-bg::after, [data-theme="light"] .cc-bg::after { display: none; }
+[data-theme="light"] .cc-header { background: rgba(255, 255, 255, 0.88); border-bottom-color: rgba(2, 110, 150, 0.18); }
+[data-theme="light"] .cc-side { background: rgba(255, 255, 255, 0.65); border-right-color: rgba(2, 110, 150, 0.12); }
+[data-theme="light"] .cc-aria { background: rgba(255, 255, 255, 0.72); border-left-color: rgba(2, 110, 150, 0.12); }
+[data-theme="light"] .sv-card { background: linear-gradient(180deg, rgba(255, 255, 255, 0.97), rgba(244, 248, 252, 0.97)); border-color: rgba(2, 110, 150, 0.18); }
+[data-theme="light"] .sv-card:hover { border-color: rgba(2, 130, 170, 0.4); box-shadow: 0 0 30px rgba(2, 130, 170, 0.12); }
+[data-theme="light"] .cc-kpi { background: linear-gradient(160deg, #ffffff, #f1f6fb); border-color: rgba(2, 110, 150, 0.16); }
+[data-theme="light"] .cc-kpi:hover { box-shadow: 0 0 24px rgba(2, 130, 170, 0.12); }
+[data-theme="light"] .cc-modal, [data-theme="light"] .cc-drawer, [data-theme="light"] .sv-aria-panel, [data-theme="light"] .sv-drawer { background: linear-gradient(180deg, #ffffff, #f3f7fb); border-color: rgba(2, 110, 150, 0.2); }
+[data-theme="light"] .cc-modal-backdrop, [data-theme="light"] .cc-drawer-backdrop, [data-theme="light"] .sv-drawer-backdrop { background: rgba(120, 140, 170, 0.35); }
+[data-theme="light"] .sv-bubble-ai { background: #f1f5fa; border-color: rgba(124, 58, 237, 0.25); color: #16233a; }
+[data-theme="light"] .sv-btn { background: rgba(4, 128, 173, 0.1); color: #0480ad; border-color: rgba(4, 128, 173, 0.4); }
+[data-theme="light"] .sv-btn-ghost { background: transparent; color: #5a6b82; border-color: rgba(90, 107, 130, 0.35); }
+[data-theme="light"] .cc-icon-btn { background: rgba(4, 128, 173, 0.06); border-color: rgba(4, 128, 173, 0.22); color: #5a6b82; }
+[data-theme="light"] .cc-nav:hover { background: rgba(4, 128, 173, 0.06); }
+[data-theme="light"] .cc-nav[data-active="true"] { background: rgba(4, 128, 173, 0.1); border-color: rgba(4, 128, 173, 0.3); box-shadow: inset 2px 0 0 #0480ad; }
+[data-theme="light"] input, [data-theme="light"] textarea, [data-theme="light"] select { background: #ffffff; color: #16233a; }
+[data-theme="light"] ::-webkit-scrollbar-thumb { background: #0480ad; }
+
 /* ── Info banner + status badges (Control Panel) ────────────────────── */
 .cc-banner { display: flex; gap: 11px; align-items: flex-start; padding: 12px 14px; border-radius: 12px; font-family: var(--font-mono); font-size: 11px; line-height: 1.55; }
 .cc-badge-row { display: flex; gap: 7px; flex-wrap: wrap; }
