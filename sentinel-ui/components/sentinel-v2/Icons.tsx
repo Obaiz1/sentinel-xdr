@@ -78,3 +78,6 @@ export const IconSun = (p: SVGProps<SVGSVGElement>) => (
 export const IconMoon = (p: SVGProps<SVGSVGElement>) => (
   <svg {...base(p)}><path d="M21 12.8A8 8 0 1 1 11.2 3a6 6 0 0 0 9.8 9.8z" /></svg>
 );
+export const IconShield = (p: SVGProps<SVGSVGElement>) => (
+  <svg {...base(p)}><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6l8-3z" /><path d="M9 12l2 2 4-4" /></svg>
+);
