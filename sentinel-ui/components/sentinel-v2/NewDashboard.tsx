@@ -9,9 +9,10 @@ import SnifferControlPanel from "./SnifferControlPanel";
 import XDREngineSuite from "./XDREngineSuite";
 import ThreatIntelligenceDashboard from "./ThreatIntelligenceDashboard";
 import MaceAttackChains from "./MaceAttackChains";
+import AriaMitigation from "./AriaMitigation";
 import LiveAlertsStream from "./LiveAlertsStream";
 import SettingsPanel from "./SettingsPanel";
-import { IconCommand, IconControl, IconAria, IconEngine, IconThreat, IconChain, IconAlerts, IconSettings } from "./Icons";
+import { IconCommand, IconControl, IconAria, IconEngine, IconThreat, IconChain, IconAlerts, IconSettings, IconShield } from "./Icons";
 
 /** Page wrapper giving non-Command views a titled header, matching the screenshots. */
 function Page({ title, color, children }: { title: string; color: string; children: ReactNode }) {
@@ -34,6 +35,7 @@ const VIEWS: ViewDef[] = [
   { id: "engines", label: "XDR Engines", color: "#a855f7", Icon: IconEngine, node: <Page title="XDR Engine Suite" color="#a855f7"><XDREngineSuite /></Page> },
   { id: "intel", label: "Threat Intelligence", color: "#ff9900", Icon: IconThreat, node: <Page title="Threat Intelligence" color="#ff9900"><ThreatIntelligenceDashboard /></Page> },
   { id: "chains", label: "MACE Chains", color: "#ff9900", Icon: IconChain, node: <Page title="MACE — Attack Chain Analysis" color="#ff9900"><MaceAttackChains /></Page> },
+  { id: "mitigation", label: "Mitigation", color: "#a855f7", Icon: IconShield, node: <Page title="ARIA Autonomous Mitigation" color="#a855f7"><AriaMitigation /></Page> },
   { id: "alerts", label: "Live Alerts", color: "#ff3366", Icon: IconAlerts, dot: "#ff3366", node: <Page title="Live Alert Stream" color="#ff3366"><LiveAlertsStream /></Page> },
   { id: "settings", label: "Settings", color: "#4a6080", Icon: IconSettings, node: <Page title="Settings / Configuration" color="#00d4ff"><SettingsPanel /></Page> },
 ];
