@@ -2,6 +2,7 @@
 
 **Course:** Information Security (Category A — AI & LLM-Powered Security Systems)
 **Instructor:** Muhammad Zunnurain Hussain
+**Institution:** University of Management and Technology (UMT)
 **Project:** SENTINEL XDR / AI-IDS
 **Team:**
 

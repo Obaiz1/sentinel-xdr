@@ -1,0 +1,11 @@
+flowchart LR
+  NIC["Network Interface / Npcap"] --> SNF["PacketSniffer<br/>Scapy AsyncSniffer"]
+  SNF -->|"packet metadata"| TRI["Triage Engine<br/>heuristics + sliding window"]
+  TRI -->|"flagged packets"| LLM["LLM Analyzer<br/>NVIDIA / Gemini / Groq"]
+  RAG[("RAG Engine<br/>ChromaDB - MITRE ATT&CK")] --> LLM
+  LLM -->|"alert JSON"| DB[("SQLite<br/>aiosqlite")]
+  DB --> MACE["MACE Correlation"]
+  MACE --> DB
+  DB --> API["FastAPI<br/>REST + WebSocket"]
+  API --> FE["Next.js Frontend<br/>sentinel-ui - Vercel"]
+  ARIA["ARIA Copilot"] --> API

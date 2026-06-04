@@ -1,0 +1,5 @@
+flowchart LR
+  Attacker(("Attacker traffic")) --> P0[["SENTINEL XDR"]]
+  Analyst(("SOC Analyst")) <--> P0
+  LLMP(("LLM Providers<br/>NVIDIA / Gemini / Groq")) <--> P0
+  P0 <--> DS[("Alert / Chain / Report Store")]
