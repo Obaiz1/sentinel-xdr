@@ -1,6 +1,7 @@
 # System Design Document — SENTINEL XDR (AI-IDS)
 
 **Course:** Information Security · **Instructor:** Muhammad Zunnurain Hussain
+**Institution:** University of Management and Technology (UMT)
 **Team:** Adnan Faisal (F2023376084, D1), Muhammad Ahmad Raza (F2022266612, D1), Obaiz Mehmood (F2023376067, A1), Haider Ali (F2023376077, A1)
 **Repository:** github.com/Obaiz1/sentinel-xdr · **Live:** sentinel-xdr.vercel.app · **API:** obaiz-sentinel-xdr-backend.hf.space
 

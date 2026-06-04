@@ -1,0 +1,14 @@
+flowchart TD
+  IN(("Network packets")) --> P1["P1 Capture"]
+  P1 --> P2["P2 Triage"]
+  P2 --> P3["P3 LLM Analysis"]
+  KB[("D1 MITRE KB - ChromaDB")] --> P3
+  P3 --> D2[("D2 alerts")]
+  D2 --> P4["P4 MACE Correlation"]
+  P4 --> D3[("D3 attack_chains")]
+  P4 --> P5["P5 CHRONICLE / ADRS / PHANTOM"]
+  P5 --> D4[("D4 reports / actions / profiles")]
+  D2 --> P6["P6 API + WebSocket"]
+  D3 --> P6
+  D4 --> P6
+  P6 <--> UI(("Analyst UI"))

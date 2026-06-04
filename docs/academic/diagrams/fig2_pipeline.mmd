@@ -1,0 +1,6 @@
+flowchart TD
+  A["1. Capture<br/>Scapy AsyncSniffer - BPF filter"] --> B["2. Triage<br/>10+ heuristics - O(1) sliding window"]
+  B -->|"suspicious only"| C["3. AI Analysis<br/>RAG + LLM - MITRE + confidence"]
+  C --> D["4. Persist<br/>SQLite alert record"]
+  D --> E["5. Correlate and Serve<br/>MACE chains to API/WS to UI"]
+  B -->|"benign"| X["discard / count only"]
