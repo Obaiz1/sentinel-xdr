@@ -13,6 +13,9 @@ implementation (Phases 4 & 5) is complete; these documents cover the missing
 | `02_LITERATURE_REVIEW.md` | Phase 2 — Literature Review (8 works + comparison + gaps + IEEE refs) | 10 |
 | `03_DESIGN_DOCUMENT.md` | Phase 3 — Design (architecture, level-0/1 DFD, STRIDE threat model, schema, API) | 10 |
 | `06_FINAL_REPORT.md` | Phase 6 — Final Report (all 12 IEEE sections) | 20 |
+| `07_IEEE_PAPER.tex` | IEEE conference **research paper** (LaTeX `IEEEtran`, compile on Overleaf) | — |
+| `08_TEST_RESULTS.md` | Measured security-analysis & performance results (real numbers) | — |
+| `diagrams/*.png` | Rendered architecture + DFD figures (drop into the PDF) | — |
 
 ## How to turn these into the required IEEE PDF
 

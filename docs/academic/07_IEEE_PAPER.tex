@@ -1,0 +1,168 @@
+%==============================================================================
+%  SENTINEL XDR — IEEE conference research paper (IEEEtran).
+%  COMPILE: Overleaf -> New Project -> Blank -> paste this file -> upload the four
+%  PNGs from diagrams/ (fig1_architecture.png ... fig4_dfd_level1.png) -> Recompile.
+%  IEEEtran.cls ships with Overleaf; no extra install needed.
+%==============================================================================
+\documentclass[conference]{IEEEtran}
+\IEEEoverridecommandlockouts
+\usepackage{cite}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{textcomp}
+\usepackage{xcolor}
+\usepackage{url}
+\usepackage[hidelinks]{hyperref}
+\def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
+
+\begin{document}
+
+\title{SENTINEL XDR: An LLM-Augmented, Multi-Stage Intrusion Detection and Response System with Retrieval-Grounded Reasoning}
+
+\author{
+\IEEEauthorblockN{Adnan Faisal\IEEEauthorrefmark{1}, Muhammad Ahmad Raza\IEEEauthorrefmark{2}, Obaiz Mehmood\IEEEauthorrefmark{3}, Haider Ali\IEEEauthorrefmark{4}}
+\IEEEauthorblockA{Department of Computer Science, University of Management and Technology (UMT), Lahore, Pakistan\\
+\IEEEauthorrefmark{1}F2023376084 \quad \IEEEauthorrefmark{2}F2022266612 \quad \IEEEauthorrefmark{3}F2023376067 \quad \IEEEauthorrefmark{4}F2023376077}
+}
+
+\maketitle
+
+\begin{abstract}
+Classical intrusion detection systems (IDS) are precise for known signatures but blind to novel, multi-stage attacks, while machine-learning detectors generalise yet emit uninterpretable scores. We present \textbf{SENTINEL XDR}, a defensive AI-IDS that unifies a deterministic heuristic triage stage with a retrieval-augmented Large-Language-Model (LLM) analyst and a multi-stage correlation engine. Live packets are captured with Scapy, screened by ten heuristic rules over an amortised $O(1)$ sliding window, and only suspicious events are escalated to an LLM (NVIDIA NIM with Gemini/Groq fallback) whose prompt is grounded with MITRE ATT\&CK knowledge retrieved from a ChromaDB vector store. The model returns a structured, human-readable verdict---threat level, attack vector, MITRE technique, confidence, and recommended action. A correlation engine (MACE) links atomic alerts into kill-chain attack chains, while companion engines provide attacker profiling, dry-run response, executive narratives, and prompt-injection defence. On synthetic multi-protocol attack traffic the system classified all seven evaluated attack classes (100\% coverage), and on live Wi-Fi capture it sustained up to $\sim$390 packets/s at constant per-packet triage cost. The result is an explainable, grounded, and resilient detection-and-response pipeline that directly targets the interpretability, grounding, and multi-stage gaps identified in prior work.
+\end{abstract}
+
+\begin{IEEEkeywords}
+intrusion detection, large language models, retrieval-augmented generation, MITRE ATT\&CK, XDR, network security, SOC automation
+\end{IEEEkeywords}
+
+\section{Introduction}
+Security Operations Centre (SOC) analysts are overwhelmed by high alert volumes and low-context detector output, producing alert fatigue and slow response. Existing IDS force a trade-off. \emph{Signature} systems such as Snort~\cite{snort} and Suricata~\cite{suricata} are precise but reactive: they cannot detect zero-day or obfuscated attacks and produce per-packet alerts that analysts must manually correlate into campaigns. \emph{Machine-learning} and anomaly detectors~\cite{cicids,buczak,kitsune} generalise to novel traffic but output opaque class labels or anomaly scores with no explanation, attribution, or remediation guidance---an interpretability gap repeatedly cited as the central operational obstacle~\cite{buczak}. Recent \emph{LLM-augmented} security tools~\cite{threatgpt,genai} promise human-readable analysis, yet are typically evaluated in isolation, are prone to hallucination without grounding, and are decoupled from a live capture pipeline.
+
+This paper contributes \textbf{SENTINEL XDR}, a single pipeline that combines (i) fast deterministic triage, (ii) a retrieval-grounded multi-provider LLM analyst that returns explainable, MITRE-mapped verdicts, (iii) multi-stage kill-chain correlation, and (iv) safe dry-run response and executive reporting. Our objectives are to capture live traffic and flag suspicion efficiently; to escalate only suspicious events to an LLM grounded in MITRE ATT\&CK via Retrieval-Augmented Generation (RAG)~\cite{rag}; to correlate atomic alerts into attack chains; and to deliver an analyst-grade interface with an honest cloud ``Demo Mode'' for environments lacking raw-capture privileges.
+
+\section{Related Work}
+Snort~\cite{snort} established lightweight rule-based detection; Suricata~\cite{suricata} added multi-threading and flow/TLS awareness, but both remain signature-bound and campaign-unaware. The CICIDS2017 dataset~\cite{cicids} and ML-IDS surveys~\cite{buczak} advanced flow-based classification while leaving interpretability unsolved. Kitsune~\cite{kitsune} enabled unsupervised online anomaly detection without labels, yet its scores are not human-readable. MITRE ATT\&CK~\cite{attack} standardised the description of adversary tactics but is not itself a detector. RAG~\cite{rag} couples a parametric LLM with a non-parametric retriever to ground generation in an external corpus. Surveys of generative AI in security~\cite{threatgpt} and emerging LLM-IDS work~\cite{genai} show promise but are generally ungrounded and detached from live capture. Table~\ref{tab:compare} positions SENTINEL against these works.
+
+\begin{table}[t]
+\caption{Capability comparison with representative IDS work.}
+\label{tab:compare}
+\centering
+\footnotesize
+\begin{tabular}{@{}lccccc@{}}
+\toprule
+Capability & Snort/Suri. & ML-IDS & LLM tools & \textbf{Ours} \\
+\midrule
+Known-attack detection      & \checkmark & \checkmark & --          & \checkmark \\
+Novel-attack generalisation & --         & partial    & \checkmark  & \checkmark \\
+NL explanation per alert    & --         & --         & \checkmark  & \checkmark \\
+MITRE mapping per alert      & partial    & --         & partial     & \checkmark \\
+Multi-stage correlation     & --         & --         & --          & \checkmark \\
+RAG grounding               & --         & --         & partial     & \checkmark \\
+Live capture                & \checkmark & varies     & --          & \checkmark \\
+Autonomous (dry-run) resp.  & --         & --         & --          & \checkmark \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{System Design}
+SENTINEL is a five-stage pipeline---Capture, Triage, AI~Analysis, Persist, Correlate/Serve---surrounded by an XDR engine suite (MACE, ARIA, ADRS, PHANTOM, AEGIS, CHRONICLE). Fig.~\ref{fig:arch} shows the architecture and Fig.~\ref{fig:pipe} the detection pipeline; Fig.~\ref{fig:dfd} gives the level-1 data-flow diagram.
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=\textwidth]{fig1_architecture.png}
+\caption{SENTINEL XDR system architecture: capture $\rightarrow$ heuristic triage $\rightarrow$ RAG-grounded LLM analysis $\rightarrow$ persistence $\rightarrow$ MACE correlation and API/UI.}
+\label{fig:arch}
+\end{figure*}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.9\columnwidth]{fig2_pipeline.png}
+\caption{Five-stage detection pipeline. Only rule-flagged packets are escalated to the LLM, keeping per-packet cost constant.}
+\label{fig:pipe}
+\end{figure}
+
+\subsection{Threat Model}
+We treat the IDS as an asset and apply STRIDE. Capture stores \emph{metadata only} (mitigating information disclosure); bounded asynchronous queues with back-pressure mitigate denial of service; capture is gated behind an explicit operator action and disabled in the cloud (elevation of privilege). For the LLM-specific surface, the AEGIS engine scans inputs for prompt-injection patterns and all provider keys remain backend-only secrets.
+
+\section{Implementation}
+\subsection{Capture and Triage}
+\texttt{PacketSniffer} wraps Scapy's \texttt{AsyncSniffer} with an optional BPF filter and extracts a 5-tuple, TCP flags, size, and bounded payload-hex. Ten heuristics---SYN scan, port sweep, NULL/XMAS/FIN scan, ICMP flood, DNS tunnelling, large payload, suspicious ports (e.g.\ 4444), and high-frequency sources---run over a thread-safe sliding-window tracker with amortised $O(1)$ work per packet. Only flagged packets proceed, drastically reducing LLM load.
+
+\subsection{Grounded LLM Analysis}
+For each flagged packet, relevant MITRE techniques are retrieved from ChromaDB and injected into a SOC-analyst prompt. Providers are tried in a three-tier fallback (NVIDIA $\rightarrow$ Gemini $\rightarrow$ Groq) with exponential back-off on rate limits; the response is parsed and validated into a structured alert (threat level, attack vector, MITRE ID, confidence, explanation, recommended action). On total provider failure the system degrades gracefully to a heuristic-only alert.
+
+\subsection{Correlation and Companion Engines}
+MACE matches alert sequences (by actor/IP and timing) against kill-chain templates to build scored attack chains; CHRONICLE turns a chain into an LLM executive narrative; PHANTOM maintains long-term actor profiles; ADRS proposes dry-run containment policies; and ARIA streams a RAG-grounded conversational analysis. The backend is a FastAPI application (REST + WebSocket, \texttt{aiosqlite}); the frontend is a Next.js SOC ``command-center.'' The system is deployed with the frontend on Vercel and the backend on a Hugging Face Docker Space, with a Demo Mode that synthesises telemetry where raw capture is unavailable.
+
+\section{Experimental Evaluation}
+\subsection{Setup}
+Experiments ran on a Windows~11 host with Npcap over a Wi-Fi interface; the primary LLM was NVIDIA NIM (Llama-3.3-70B). Detection was validated by injecting labelled multi-protocol attacks via Demo Mode and recording the live pipeline's classification; performance was measured by polling the \texttt{/status} and \texttt{/statistics} endpoints.
+
+\subsection{Detection Coverage}
+Over a 34\,s window the detector classified \textbf{all seven evaluated attack classes (100\% coverage)}, summarised in Table~\ref{tab:detect}. The corresponding severity distribution over 777 classified events was Critical~51, High~118, Medium~536, Low~72, across protocols UDP~577, TCP~563, ICMP~61.
+
+\begin{table}[t]
+\caption{Attack-class detection (sampled events).}
+\label{tab:detect}
+\centering
+\footnotesize
+\begin{tabular}{@{}llcc@{}}
+\toprule
+Attack class & Heuristic $\rightarrow$ MITRE & Detected & Events \\
+\midrule
+SYN scan/flood       & SYN\_SCAN $\rightarrow$ T1595/T1499 & \checkmark & 62 \\
+Port scan/sweep      & PORT\_SWEEP $\rightarrow$ T1046     & \checkmark & 57 \\
+ICMP flood           & ICMP\_FLOOD $\rightarrow$ T1499     & \checkmark & 61 \\
+NULL scan            & NULL\_SCAN $\rightarrow$ T1595      & \checkmark & 62 \\
+XMAS scan            & XMAS\_SCAN $\rightarrow$ T1595      & \checkmark & 59 \\
+Suspicious port 4444 & SUSPICIOUS\_PORT                   & \checkmark & 56 \\
+DNS tunnelling       & DNS\_TUNNEL $\rightarrow$ T1048     & \checkmark & 51 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Performance}
+Table~\ref{tab:perf} reports measured performance. Live capture sustained $8.7$ packets/s on an idle baseline and $\sim$390 packets/s under active browsing, while triage cost remained constant per packet. The LLM stage processed $\sim$0.5 events/s ($\sim$2.0\,s/event), confirming that semantic analysis---not capture or triage---is the throughput bottleneck, which the design mitigates by escalating only the small flagged subset.
+
+\begin{table}[t]
+\caption{Measured performance.}
+\label{tab:perf}
+\centering
+\footnotesize
+\begin{tabular}{@{}ll@{}}
+\toprule
+Metric & Measured value \\
+\midrule
+Capture throughput (idle)   & 8.7 packets/s (384 pkt / 44\,s) \\
+Capture throughput (active) & $\sim$390 packets/s ($\sim$6{,}222 pkt / 16\,s) \\
+Triage complexity           & $O(1)$ amortised / packet \\
+LLM analysis throughput     & 0.50 events/s ($\sim$2.0\,s/event) \\
+Detection coverage          & 7/7 attack classes (100\%) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{False Positives}
+During benign live capture (HTTPS, DNS, ICMP echo), routine traffic passed the heuristic layer without producing critical detections, as only rule-matching traffic is escalated. A precise false-positive rate on a fixed benign baseline is left as a reproducibility task.
+
+\section{Discussion}
+Separating fast deterministic triage from slow semantic LLM analysis is the key design decision: it bounds per-packet cost at $O(1)$ while reserving expensive reasoning for the suspicious minority. RAG grounding keeps MITRE references accurate and explanations actionable, addressing the interpretability and hallucination gaps of prior ML- and LLM-based approaches. The principal limitation is LLM latency under sustained load; encrypted/TLS-wrapped command-and-control is also only observable at the metadata level.
+
+\section{Conclusion and Future Work}
+SENTINEL XDR demonstrates that a hybrid \emph{heuristic\,+\,RAG-grounded LLM\,+\,multi-stage correlation} architecture yields explainable, MITRE-mapped, campaign-aware detection that classical and ML IDS do not, with a production-grade implementation and cloud deployment. Future work includes backend authentication and rate-limiting, WebSocket-driven real-time alerting, persistence of analyst actions and reports, a Local Authorized Agent for audited real response, a fine-tuned local model to cut latency, and formal evaluation on CICIDS2017 to publish accuracy/false-positive figures.
+
+\begin{thebibliography}{00}
+\bibitem{snort} M. Roesch, ``Snort---Lightweight Intrusion Detection for Networks,'' in \emph{Proc. 13th USENIX LISA}, 1999, pp. 229--238.
+\bibitem{suricata} Open Information Security Foundation, ``Suricata IDS/IPS Engine,'' 2010. [Online]. Available: \url{https://suricata.io}
+\bibitem{cicids} I. Sharafaldin, A. H. Lashkari, and A. A. Ghorbani, ``Toward Generating a New Intrusion Detection Dataset and Intrusion Traffic Characterization,'' in \emph{Proc. ICISSP}, 2018, pp. 108--116.
+\bibitem{buczak} A. L. Buczak and E. Guven, ``A Survey of Data Mining and Machine Learning Methods for Cyber Security Intrusion Detection,'' \emph{IEEE Commun. Surveys Tuts.}, vol. 18, no. 2, pp. 1153--1176, 2016.
+\bibitem{attack} B. E. Strom \emph{et al.}, ``MITRE ATT\&CK: Design and Philosophy,'' The MITRE Corp., Tech. Rep., 2018.
+\bibitem{rag} P. Lewis \emph{et al.}, ``Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks,'' in \emph{Proc. NeurIPS}, 2020.
+\bibitem{threatgpt} M. Gupta, C. Akiri, K. Aryal, E. Parker, and L. Praharaj, ``From ChatGPT to ThreatGPT: Impact of Generative AI in Cybersecurity and Privacy,'' \emph{IEEE Access}, vol. 11, pp. 80218--80245, 2023.
+\bibitem{genai} M. A. Ferrag \emph{et al.}, ``Generative AI and Large Language Models for Cyber Security: A Review of Applications, Challenges and Future Directions,'' 2024.
+\bibitem{transformer} A. Vaswani \emph{et al.}, ``Attention Is All You Need,'' in \emph{Proc. NeurIPS}, 2017.
+\bibitem{kitsune} Y. Mirsky, T. Doitshman, Y. Elovici, and A. Shabtai, ``Kitsune: An Ensemble of Autoencoders for Online Network Intrusion Detection,'' in \emph{Proc. NDSS}, 2018.
+\end{thebibliography}
+
+\end{document}
