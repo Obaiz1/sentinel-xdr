@@ -280,6 +280,91 @@ export const api = {
   generateChronicle: (chainId: string) => post<ChronicleReport>(`/api/chronicle/${chainId}`, {}),
 };
 
+/* ── Deep Learning IDS API (separate FastAPI service) ────────────────────
+ * The DL model is served by deployment/dl_api.py — a DIFFERENT service from the
+ * XDR backend, so it has its own base URL. When NEXT_PUBLIC_DL_API_URL is unset
+ * the UI renders a clear "not configured" state (never fakes a prediction).
+ */
+export const DL_API_URL: string = (process.env.NEXT_PUBLIC_DL_API_URL ?? "").replace(/\/$/, "");
+export const DL_API_CONFIGURED = DL_API_URL.length > 0;
+
+export interface DlFlowInput {
+  duration: number;
+  protocol_type: string;
+  service: string;
+  src_bytes: number;
+  dst_bytes: number;
+  count: number;
+  srv_count: number;
+  same_srv_rate: number;
+}
+
+export interface DlPrediction {
+  label: number; // 0 = normal, 1 = attack
+  label_name: string;
+  attack_probability: number;
+  confidence: number;
+}
+
+export interface DlPredictResponse {
+  model_path: string;
+  threshold: number;
+  count: number;
+  predictions: DlPrediction[];
+}
+
+export interface DlHealth {
+  status: string;
+  model_loaded: boolean;
+  model_path?: string;
+  threshold?: number;
+  reason?: string;
+}
+
+async function dlFetch<T>(path: string, opts: RequestOptions = {}): Promise<T> {
+  if (!DL_API_CONFIGURED) {
+    throw new ApiError("offline", "DL API not configured (set NEXT_PUBLIC_DL_API_URL)");
+  }
+  const { method = "GET", body, timeoutMs = 12000 } = opts;
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  let res: Response;
+  try {
+    res = await fetch(`${DL_API_URL}${path.startsWith("/") ? path : `/${path}`}`, {
+      method,
+      headers: BASE_HEADERS,
+      body: body !== undefined ? JSON.stringify(body) : undefined,
+      signal: controller.signal,
+      cache: "no-store",
+    });
+  } catch (e) {
+    if (e instanceof DOMException && e.name === "AbortError") {
+      throw new ApiError("timeout", `DL API ${path} → timed out`);
+    }
+    throw new ApiError("offline", `DL API ${path} → unreachable`);
+  } finally {
+    clearTimeout(timer);
+  }
+  if (!res.ok) {
+    throw new ApiError("http", `DL API ${path} → HTTP ${res.status}`, res.status);
+  }
+  const text = await res.text();
+  if (!text) return undefined as unknown as T;
+  try {
+    return JSON.parse(text) as T;
+  } catch {
+    throw new ApiError("parse", `DL API ${path} → invalid JSON`);
+  }
+}
+
+export const dlApi = {
+  configured: DL_API_CONFIGURED,
+  baseUrl: DL_API_URL,
+  health: () => dlFetch<DlHealth>("/health"),
+  predict: (flows: DlFlowInput[]) =>
+    dlFetch<DlPredictResponse>("/predict", { method: "POST", body: { flows } }),
+};
+
 /**
  * Stream ARIA chat (text/plain SSE-style chunks) from the Python backend.
  * Yields decoded text chunks. Backend handles provider fallback + context injection.

@@ -27,6 +27,7 @@ if REPO_ROOT not in sys.path:
 
 import numpy as np  # noqa: E402
 from fastapi import FastAPI, HTTPException  # noqa: E402
+from fastapi.middleware.cors import CORSMiddleware  # noqa: E402
 from pydantic import BaseModel, Field  # noqa: E402
 
 from src import dl_preprocessing as prep  # noqa: E402
@@ -45,6 +46,17 @@ app = FastAPI(
     title="Sentinel XDR — Deep Learning IDS API",
     description="Binary intrusion detection (normal vs attack) over network-flow features.",
     version="1.0.0",
+)
+
+# Allow the dashboard (Vercel) and local dev to call this API from the browser.
+# Override with SENTINEL_DL_CORS_ORIGINS (comma-separated) to restrict origins.
+_cors = os.environ.get("SENTINEL_DL_CORS_ORIGINS", "*")
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"] if _cors.strip() == "*" else [o.strip() for o in _cors.split(",")],
+    allow_credentials=False,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 # Lazily-populated globals.
@@ -78,6 +90,7 @@ class Prediction(BaseModel):
 
 
 class PredictResponse(BaseModel):
+    model_config = {"protected_namespaces": ()}  # allow the "model_path" field name
     model_path: str
     threshold: float
     count: int

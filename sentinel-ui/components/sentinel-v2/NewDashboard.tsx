@@ -11,8 +11,9 @@ import ThreatIntelligenceDashboard from "./ThreatIntelligenceDashboard";
 import MaceAttackChains from "./MaceAttackChains";
 import AriaMitigation from "./AriaMitigation";
 import LiveAlertsStream from "./LiveAlertsStream";
+import DlThreatClassifier from "./DlThreatClassifier";
 import SettingsPanel from "./SettingsPanel";
-import { IconCommand, IconControl, IconAria, IconEngine, IconThreat, IconChain, IconAlerts, IconSettings, IconShield } from "./Icons";
+import { IconCommand, IconControl, IconAria, IconEngine, IconThreat, IconChain, IconAlerts, IconSettings, IconShield, IconNeural } from "./Icons";
 
 /** Page wrapper giving non-Command views a titled header, matching the screenshots. */
 function Page({ title, color, children }: { title: string; color: string; children: ReactNode }) {
@@ -37,6 +38,7 @@ const VIEWS: ViewDef[] = [
   { id: "chains", label: "MACE Chains", color: "#ff9900", Icon: IconChain, node: <Page title="MACE — Attack Chain Analysis" color="#ff9900"><MaceAttackChains /></Page> },
   { id: "mitigation", label: "Mitigation", color: "#a855f7", Icon: IconShield, node: <Page title="ARIA Autonomous Mitigation" color="#a855f7"><AriaMitigation /></Page> },
   { id: "alerts", label: "Live Alerts", color: "#ff3366", Icon: IconAlerts, dot: "#ff3366", node: <Page title="Live Alert Stream" color="#ff3366"><LiveAlertsStream /></Page> },
+  { id: "dlmodel", label: "DL Classifier", color: "#00d4ff", Icon: IconNeural, badge: "ML", node: <Page title="Deep Learning Threat Classifier" color="#00d4ff"><DlThreatClassifier /></Page> },
   { id: "settings", label: "Settings", color: "#4a6080", Icon: IconSettings, node: <Page title="Settings / Configuration" color="#00d4ff"><SettingsPanel /></Page> },
 ];
 

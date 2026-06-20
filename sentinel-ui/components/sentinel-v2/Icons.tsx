@@ -81,3 +81,6 @@ export const IconMoon = (p: SVGProps<SVGSVGElement>) => (
 export const IconShield = (p: SVGProps<SVGSVGElement>) => (
   <svg {...base(p)}><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6l8-3z" /><path d="M9 12l2 2 4-4" /></svg>
 );
+export const IconNeural = (p: SVGProps<SVGSVGElement>) => (
+  <svg {...base(p)}><circle cx="4" cy="6" r="1.6" /><circle cx="4" cy="12" r="1.6" /><circle cx="4" cy="18" r="1.6" /><circle cx="12" cy="9" r="1.6" /><circle cx="12" cy="15" r="1.6" /><circle cx="20" cy="12" r="1.6" /><path d="M5.6 6.6 10.4 8.4M5.6 11.4 10.4 9.6M5.6 12.6 10.4 14.4M5.6 17.4 10.4 15.6M13.6 9.6 18.4 11.4M13.6 14.4 18.4 12.6" /></svg>
+);
