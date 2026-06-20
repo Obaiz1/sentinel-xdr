@@ -1,0 +1,23 @@
+# Sentinel XDR — Deep Learning IDS API: Kubernetes Service (NodePort for Minikube).
+#
+#   kubectl apply -f kubernetes/service.yaml
+#   minikube service sentinel-xdr-dl-service --url
+#
+# Exposes the Deployment on nodePort 30080. The printed URL serves the API
+# (try <url>/docs and <url>/health).
+apiVersion: v1
+kind: Service
+metadata:
+  name: sentinel-xdr-dl-service
+  labels:
+    app: sentinel-xdr-dl
+spec:
+  type: NodePort
+  selector:
+    app: sentinel-xdr-dl
+  ports:
+    - name: http
+      protocol: TCP
+      port: 80          # service port (cluster-internal)
+      targetPort: 8000  # container port
+      nodePort: 30080   # external port on the Minikube node

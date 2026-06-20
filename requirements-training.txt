@@ -1,0 +1,12 @@
+# Sentinel XDR — Deep Learning final project: TRAINING deps.
+# Everything needed to preprocess data, train Models V1/V2, evaluate, and log
+# runs to MLflow. Python 3.11 recommended (TensorFlow has no 3.12+/3.14 wheels
+# for this version).
+
+tensorflow-cpu==2.16.1
+scikit-learn==1.5.0
+pandas==2.2.2
+numpy==1.26.4
+joblib==1.4.2
+matplotlib==3.9.0
+mlflow==2.14.1

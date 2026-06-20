@@ -1,0 +1,24 @@
+# Sentinel XDR — Deep Learning final project: local compose for the serving API.
+#
+#   docker compose -f docker-compose.final.yml up --build
+#
+# Brings up the model-serving API on http://localhost:8000 (docs at /docs).
+services:
+  dl-api:
+    build:
+      context: .
+      dockerfile: Dockerfile.final-project
+    image: sentinel-xdr-final:v1
+    container_name: sentinel-xdr-dl-api
+    ports:
+      - "8000:8000"
+    environment:
+      - SENTINEL_DL_MODEL_PATH=/app/models/sentinel_dl_v2.keras
+      - SENTINEL_DL_THRESHOLD=0.5
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 40s
+    restart: unless-stopped

@@ -1,0 +1,61 @@
+# Sentinel XDR — Deep Learning IDS API: Kubernetes Deployment (Minikube).
+#
+# Build the image INTO Minikube's Docker daemon first, then apply:
+#   eval $(minikube docker-env)
+#   docker build -f Dockerfile.final-project -t sentinel-xdr-final:v1 .
+#   kubectl apply -f kubernetes/deployment.yaml
+#   kubectl apply -f kubernetes/service.yaml
+#
+# imagePullPolicy: Never -> use the locally built image (no registry pull).
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sentinel-xdr-dl-api
+  labels:
+    app: sentinel-xdr-dl
+    component: ids-api
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: sentinel-xdr-dl
+  template:
+    metadata:
+      labels:
+        app: sentinel-xdr-dl
+        component: ids-api
+    spec:
+      containers:
+        - name: dl-api
+          image: sentinel-xdr-final:v1
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 8000
+          env:
+            - name: SENTINEL_DL_MODEL_PATH
+              value: "/app/models/sentinel_dl_v2.keras"
+            - name: SENTINEL_DL_THRESHOLD
+              value: "0.5"
+          resources:
+            requests:
+              cpu: "250m"
+              memory: "512Mi"
+            limits:
+              cpu: "1"
+              memory: "1Gi"
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 20
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 6
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 40
+            periodSeconds: 20
+            timeoutSeconds: 5
+            failureThreshold: 3

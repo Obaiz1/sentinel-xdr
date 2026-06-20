@@ -1,0 +1,88 @@
+# Sentinel XDR — Deep Learning final project: CI pipeline (GitHub Actions).
+#
+# Lightweight, fast CI: it validates that the project is structurally sound and
+# importable WITHOUT training (TensorFlow training is too heavy/slow for CI).
+#   - lint the DL source with flake8
+#   - byte-compile all DL Python files (syntax check)
+#   - validate the dataset schema + row count
+#   - validate the Kubernetes YAML + Dockerfile presence
+#
+# Triggers on pushes / PRs that touch the final-project files.
+name: final-project-ci
+
+on:
+  push:
+    paths:
+      - "src/**"
+      - "training/**"
+      - "deployment/**"
+      - "data/**"
+      - "kubernetes/**"
+      - "requirements-*.txt"
+      - "Dockerfile.final-project"
+      - ".github/workflows/final-project-ci.yml"
+  pull_request:
+    paths:
+      - "src/**"
+      - "training/**"
+      - "deployment/**"
+      - "data/**"
+      - "kubernetes/**"
+      - "requirements-*.txt"
+      - "Dockerfile.final-project"
+  workflow_dispatch:
+
+jobs:
+  lint-and-validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install CI dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements-ci.txt
+
+      - name: Lint (flake8)
+        run: |
+          # Fail on real errors; treat style as warnings (max line length relaxed).
+          flake8 src training deployment --count --select=E9,F63,F7,F82 --show-source --statistics
+          flake8 src training deployment --count --max-line-length=100 --extend-ignore=E203,W503,E501 --exit-zero --statistics
+
+      - name: Syntax check (byte-compile)
+        run: |
+          python -m compileall -q src training deployment
+
+      - name: Validate dataset
+        run: |
+          python - <<'PY'
+          import pandas as pd
+          df = pd.read_csv("data/sample_network_flows.csv")
+          required = {"duration","protocol_type","service","src_bytes","dst_bytes",
+                      "count","srv_count","same_srv_rate","label","attack_type"}
+          missing = required - set(df.columns)
+          assert not missing, f"Dataset missing columns: {missing}"
+          assert len(df) >= 100, f"Dataset too small: {len(df)} rows"
+          assert set(df["label"].unique()) <= {0, 1}, "label must be 0/1"
+          assert df["label"].nunique() == 2, "dataset must contain both classes"
+          print(f"OK dataset: {len(df)} rows, columns validated, both classes present")
+          PY
+
+      - name: Validate Kubernetes manifests + Dockerfile
+        run: |
+          python - <<'PY'
+          import os, yaml
+          for f in ("kubernetes/deployment.yaml", "kubernetes/service.yaml"):
+              with open(f) as fh:
+                  doc = yaml.safe_load(fh)
+              assert doc.get("kind"), f"{f}: missing kind"
+              print(f"OK {f}: kind={doc['kind']}")
+          assert os.path.exists("Dockerfile.final-project"), "missing Dockerfile.final-project"
+          print("OK Dockerfile.final-project present")
+          PY

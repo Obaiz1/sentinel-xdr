@@ -16,3 +16,10 @@ Thumbs.db
 chroma_db/
 *.db
 .vercel
+
+# Deep Learning final project
+.venv-dl/
+mlruns/
+mlartifacts/
+mlflow.db
+# NOTE: models/ and artifacts/ ARE tracked (needed by Docker/k8s serving).

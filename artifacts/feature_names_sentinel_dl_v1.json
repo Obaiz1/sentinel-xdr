@@ -1,0 +1,20 @@
+[
+  "num__duration",
+  "num__src_bytes",
+  "num__dst_bytes",
+  "num__count",
+  "num__srv_count",
+  "num__same_srv_rate",
+  "cat__protocol_type_icmp",
+  "cat__protocol_type_tcp",
+  "cat__protocol_type_udp",
+  "cat__service_dns",
+  "cat__service_ecr_i",
+  "cat__service_ftp",
+  "cat__service_http",
+  "cat__service_other",
+  "cat__service_private",
+  "cat__service_smtp",
+  "cat__service_ssh",
+  "cat__service_telnet"
+]

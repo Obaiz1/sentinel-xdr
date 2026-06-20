@@ -1,0 +1,3 @@
+# Trained Keras models (sentinel_dl_v1.keras, sentinel_dl_v2.keras) are written
+# here by training/train_v1.py and train_v2.py. Kept in git so the Docker image
+# and Kubernetes deployment can serve without retraining.

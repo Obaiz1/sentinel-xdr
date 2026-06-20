@@ -1,0 +1,3 @@
+# Training artifacts are written here: the fitted preprocessor
+# (dl_preprocessor.joblib), confusion-matrix PNGs, training-history plots,
+# classification reports, per-model metrics JSON, and the V1-vs-V2 comparison.

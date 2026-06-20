@@ -1,0 +1,8 @@
+# Sentinel XDR — Deep Learning final project: CI deps (lint + import checks only).
+# Deliberately lightweight: NO TensorFlow/MLflow so the GitHub Actions pipeline
+# runs fast. CI validates syntax, lint, YAML, and dataset presence — it does not
+# train (training is too heavy for CI runners).
+
+flake8==7.1.0
+pyyaml==6.0.1
+pandas==2.2.2
