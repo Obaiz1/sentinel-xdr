@@ -23,3 +23,6 @@ mlruns/
 mlartifacts/
 mlflow.db
 # NOTE: models/ and artifacts/ ARE tracked (needed by Docker/k8s serving).
+
+# NSL-KDD raw download (large; regenerate via data/prepare_nslkdd.py)
+data/nslkdd/

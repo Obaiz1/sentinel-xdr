@@ -54,12 +54,23 @@ network-flow features and train a deep neural network to label each flow as
   reduces analyst load and catches statistically anomalous behaviour that static
   signatures miss. This DL classifier complements Sentinel XDR's existing
   heuristic + LLM triage with a trained, measurable model.
-- **Dataset source:** the committed `data/sample_network_flows.csv` is an
-  NSL-KDD-style flow dataset (the schema mirrors the canonical
-  **NSL-KDD / CICIDS2017 / UNSW-NB15** intrusion-detection feature sets:
-  `duration, protocol_type, service, src_bytes, dst_bytes, count, srv_count,
-  same_srv_rate`). It is bundled so the whole pipeline runs offline; swap in the
-  full NSL-KDD CSV with the same columns to scale up.
+- **Dataset source:** the production models are trained on the **real NSL-KDD**
+  benchmark (`KDDTrain+`, ~125k flows). `data/prepare_nslkdd.py` extracts the 8
+  modelled features (`duration, protocol_type, service, src_bytes, dst_bytes,
+  count, srv_count, same_srv_rate` — all real NSL-KDD columns) and a binary label
+  into `data/nslkdd_flows.csv` (25k stratified rows, committed). A small synthetic
+  `data/sample_network_flows.csv` is also bundled so the pipeline runs fully
+  offline with no download.
+
+  ```bash
+  # one-time: fetch NSL-KDD and build the training CSV
+  curl -L -o data/nslkdd/KDDTrain+.txt \
+    https://raw.githubusercontent.com/defcom17/NSL_KDD/master/KDDTrain%2B.txt
+  python data/prepare_nslkdd.py --in data/nslkdd/KDDTrain+.txt \
+    --out data/nslkdd_flows.csv --sample 25000
+  python training/train_v1.py --data data/nslkdd_flows.csv
+  python training/train_v2.py --data data/nslkdd_flows.csv
+  ```
 - **Expected outcomes:** a trained classifier with high accuracy/recall on the
   held-out test set, two compared model versions, a served prediction API, and a
   reproducible MLOps pipeline.
