@@ -10,6 +10,36 @@ This module is **self-contained**: it lives entirely in new folders (`src/`,
 **does not modify** the existing XDR backend (`main.py`, `modules/`) or the
 dashboard (`sentinel-ui/`).
 
+## 🚀 Live deployment
+
+The trained model is served live and integrated into the dashboard:
+
+| What | URL |
+|---|---|
+| DL IDS API (Hugging Face Space) | https://obaiz-sentinel-xdr-dl.hf.space |
+| Interactive API docs (Swagger) | https://obaiz-sentinel-xdr-dl.hf.space/docs |
+| Health probe | https://obaiz-sentinel-xdr-dl.hf.space/health |
+| Space page | https://huggingface.co/spaces/obaiz/sentinel-xdr-dl |
+| Dashboard "DL Classifier" page | the dashboard reads `NEXT_PUBLIC_DL_API_URL` |
+
+Quick live test:
+```bash
+curl -X POST https://obaiz-sentinel-xdr-dl.hf.space/predict \
+  -H "Content-Type: application/json" \
+  -d '{"flows":[{"duration":2,"protocol_type":"tcp","service":"private","src_bytes":60,"dst_bytes":40,"count":200,"srv_count":20,"same_srv_rate":0.1}]}'
+# -> {"predictions":[{"label":1,"label_name":"attack","attack_probability":0.997,...}]}
+```
+
+Redeploy the API after retraining:
+```bash
+export HF_TOKEN=hf_xxx   # WRITE scope
+python deployment/deploy_hf_space.py --repo-id obaiz/sentinel-xdr-dl
+```
+
+> **Screenshots / demo video:** every command mapped to a required screenshot is
+> in [`docs/commands_for_screenshots.md`](docs/commands_for_screenshots.md)
+> (MLflow dashboard, Docker build, GitHub Actions, Minikube pods/services).
+
 ---
 
 ## 1. Problem statement & significance
