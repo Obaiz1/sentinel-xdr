@@ -282,10 +282,12 @@ export const api = {
 
 /* ── Deep Learning IDS API (separate FastAPI service) ────────────────────
  * The DL model is served by deployment/dl_api.py — a DIFFERENT service from the
- * XDR backend, so it has its own base URL. When NEXT_PUBLIC_DL_API_URL is unset
- * the UI renders a clear "not configured" state (never fakes a prediction).
+ * XDR backend, so it has its own base URL. Defaults to the public Hugging Face
+ * Space deployment; override with NEXT_PUBLIC_DL_API_URL (e.g. http://127.0.0.1:8000
+ * for a local DL API). Unreachable → honest offline/error state (never faked).
  */
-export const DL_API_URL: string = (process.env.NEXT_PUBLIC_DL_API_URL ?? "").replace(/\/$/, "");
+const DEFAULT_DL_API_URL = "https://obaiz-sentinel-xdr-dl.hf.space";
+export const DL_API_URL: string = (process.env.NEXT_PUBLIC_DL_API_URL ?? DEFAULT_DL_API_URL).replace(/\/$/, "");
 export const DL_API_CONFIGURED = DL_API_URL.length > 0;
 
 export interface DlFlowInput {
