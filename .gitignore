@@ -26,3 +26,7 @@ mlflow.db
 
 # NSL-KDD raw download (large; regenerate via data/prepare_nslkdd.py)
 data/nslkdd/
+
+# Live detector runtime outputs
+live_report.md
+live_flows.jsonl

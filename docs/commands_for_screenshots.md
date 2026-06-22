@@ -137,6 +137,20 @@ Then just browse the web / run `ping`, `nmap`, etc. on an authorised host and
 watch flows print as NORMAL (green) / ATTACK (red) in real time — a strong demo
 clip. Screenshot the live feed.
 
+### Live web terminal + incident report (recommended for the demo)
+
+Add `--serve` to host a live web UI + report, and view it inside the dashboard:
+
+```bash
+.\venv\Scripts\python.exe deployment\live_detector.py --serve --bpf "ip and not net 224.0.0.0/4" --report live_report.md
+#   http://127.0.0.1:8050/         live feed (verdict + recommended action)
+#   http://127.0.0.1:8050/report   Markdown incident report (what to act on)
+```
+
+In the dashboard (`localhost:3000/new`) open the **Live Detector** page (LIVE
+badge) — it streams the same feed natively, with per-flow recommended actions
+and a link to the incident report. Great screenshot for "live inference".
+
 ## 7. Final prediction output (rubric: final application output)
 
 Use the `/predict` curl from step 2 against the Kubernetes service URL, and
