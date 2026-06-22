@@ -116,6 +116,27 @@ curl -s $(minikube service sentinel-xdr-dl-service --url)/health
 minikube dashboard                                   # GUI screenshot
 ```
 
+## 6b. LIVE detector — auto-classify real captured traffic (bonus)
+
+Turns the model into a live IDS: sniffs real packets, builds NSL-KDD flow
+features, and classifies each flow via the DL API. Does not touch the XDR backend.
+
+```bash
+# Windows (run terminal as Administrator; Npcap installed). The XDR venv already
+# has scapy + requests:
+.\venv\Scripts\python.exe deployment\live_detector.py --api http://127.0.0.1:8001
+
+# point at the cloud model instead, log results, filter out SSH noise:
+.\venv\Scripts\python.exe deployment\live_detector.py --log live_flows.jsonl --bpf "ip and not port 22"
+
+# Linux:
+sudo .venv-dl/bin/python deployment/live_detector.py --iface eth0
+```
+
+Then just browse the web / run `ping`, `nmap`, etc. on an authorised host and
+watch flows print as NORMAL (green) / ATTACK (red) in real time — a strong demo
+clip. Screenshot the live feed.
+
 ## 7. Final prediction output (rubric: final application output)
 
 Use the `/predict` curl from step 2 against the Kubernetes service URL, and

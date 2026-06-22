@@ -1,0 +1,8 @@
+# Sentinel XDR — live DL detector (deployment/live_detector.py) deps.
+# Captures real packets and classifies flows via the DL API over HTTP.
+# Needs Npcap (Windows) or libpcap (Linux) for sniffing, and admin/sudo.
+# NOTE: the existing XDR venv already has scapy + requests, so you can usually
+# run the detector with that interpreter without installing anything new.
+
+scapy==2.7.0
+requests==2.32.3
